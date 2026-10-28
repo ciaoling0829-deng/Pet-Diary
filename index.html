@@ -75,7 +75,7 @@ input,textarea,select{width:100%;border:1px solid var(--line);background:var(--b
 <div class="app">
   <button class="gear" onclick="openSet()" aria-label="設定">⚙️</button>
   <div class="pets" id="pets"></div>
-  <div id="pg_cal">
+  <div id="pg_cal"><div id="bkn"></div>
   <div class="card">
     <div class="mh"><button class="nb" onclick="mv(-1)">‹</button><b id="mt"></b><button class="nb" style="font-size:14px;color:var(--ac)" onclick="goToday()">今天</button><button class="nb" onclick="mv(1)">›</button></div>
     <div class="g" id="cal"></div>
@@ -94,7 +94,7 @@ input,textarea,select{width:100%;border:1px solid var(--line);background:var(--b
 var T=[['med','💊','用藥'],['deworm','🪱','驅蟲藥'],['vac','💉','疫苗'],['check','🩺','健檢'],['sneeze','🤧','打噴嚏'],['vomit','🤮','嘔吐'],['poop','💩','大小便'],['food','🍽️','食物'],['water','🚰','飲水'],['sick','🌡️','身體狀況'],['joy','✨','美好時刻']];
 var K='petdiary_v1',S={pets:[],recs:[],cur:null},mem=null;
 function load(){try{var v=localStorage.getItem(K);if(v)S=JSON.parse(v)}catch(e){if(mem)S=mem}}
-function save(){mem=S;try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}}
+function save(){mem=S;try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}afs()}
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 function ymd(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 var today=ymd(new Date()),sel=today,vm=new Date().getMonth(),vy=new Date().getFullYear(),pick='deworm';
@@ -146,7 +146,7 @@ function addPet(){
   S.pets.push(p);S.cur=p.id;save();closeSh();render();
 }
 function openSet(){
-  sheet('<h2>設定</h2><h3>介面顏色</h3>'+colorUI()+'<h3 style="margin-top:16px">寵物</h3>'+(S.pets.map(function(x){return '<div class="pr"><span>'+x.emoji+' '+esc(x.name)+'</span><button class="x" onclick="delPet(\''+x.id+'\')">刪除</button></div>'}).join('')||'<div class="empty">尚無寵物</div>')+'<h3 style="margin-top:16px">備份與還原</h3><textarea id="bk" rows="4" placeholder="還原時請把備份文字貼在這裡"></textarea><button class="btn" onclick="doBk()">複製備份文字</button><button class="btn g2" onclick="doRs()">用上方文字還原</button>');
+  sheet('<h2>設定</h2><h3>介面顏色</h3>'+colorUI()+'<h3 style="margin-top:16px">寵物</h3>'+(S.pets.map(function(x){return '<div class="pr"><span>'+x.emoji+' '+esc(x.name)+'</span><button class="x" onclick="delPet(\''+x.id+'\')">刪除</button></div>'}).join('')||'<div class="empty">尚無寵物</div>')+'<h3 style="margin-top:16px">備份與還原</h3>'+bkUI()+'<textarea id="bk" rows="4" placeholder="還原時請把備份文字貼在這裡"></textarea><button class="btn" onclick="doBk()">複製備份文字</button><button class="btn g2" onclick="doRs()">用上方文字還原</button>');
 }
 function delPet(id){
   ask('刪除這隻寵物與它所有的紀錄？',function(){delPet2(id)})}function delPet2(id){
@@ -177,7 +177,7 @@ function av(x){return x.photo?'<img class="av" src="'+x.photo+'">':x.emoji+' '}
 function go(k){if(k==='cal'||k==='pet'||k==='calc'||k==='vet')pg=k;else{pg='rec';rf=k}render();window.scrollTo(0,0)}
 function setRf(k){rf=k;render()}
 function render(){
-  syncT();renderCal();
+  syncT();renderCal();bkNote();
   ['cal','rec','pet','calc','vet'].forEach(function(k){document.getElementById('pg_'+k).style.display=k===pg?'':'none'});
   document.querySelector('.fab').style.display=(pg==='pet'||pg==='calc'||pg==='vet')?'none':'';
   if(pg==='rec')renderRec();if(pg==='pet')renderPet();if(pg==='calc')renderCalc();if(pg==='vet')renderVet();
@@ -280,6 +280,28 @@ function compressVideo(f,cb){return new Promise(function(res,rej){
     var draw=function(){x.drawImage(v,0,0,w,h);if(!v.ended&&!v.paused){cb&&cb(Math.round(v.currentTime/v.duration*100));requestAnimationFrame(draw)}};
     v.onended=function(){rec.stop()};
     rec.start(1000);v.play().then(draw).catch(rej)}})}
+var FH=null,PH=null,aft=0;
+function idb(){return new Promise(function(r,j){var q=indexedDB.open('pd',1);q.onupgradeneeded=function(){q.result.createObjectStore('h')};q.onsuccess=function(){r(q.result)};q.onerror=j})}
+async function hput(h){var d=await idb();d.transaction('h','readwrite').objectStore('h').put(h,'f')}
+async function hget(){var d=await idb();return new Promise(function(r){var q=d.transaction('h').objectStore('h').get('f');q.onsuccess=function(){r(q.result)};q.onerror=function(){r(null)}})}
+function stamp(a){try{localStorage.setItem('pd_lastbk',new Date().toLocaleString('zh-TW',{hour12:false})+(a?'（自動）':''));localStorage.setItem('pd_lastbk_ts',Date.now())}catch(e){}}
+function afs(){if(!FH)return;clearTimeout(aft);aft=setTimeout(afNow,1500)}
+async function afNow(){try{var w=await FH.createWritable();await w.write(JSON.stringify(S));await w.close();stamp(1)}catch(e){}}
+async function setAuto(){try{if(PH&&!FH){if((await PH.requestPermission({mode:'readwrite'}))==='granted'){FH=PH;PH=null;await afNow();alert('已重新連結自動存檔');openSet();return}}
+  FH=await window.showSaveFilePicker({suggestedName:'寵物日記備份.json',types:[{description:'JSON',accept:{'application/json':['.json']}}]});hput(FH);await afNow();alert('已開啟自動存檔');openSet()}catch(e){if(!e||e.name!=='AbortError')alert('這個環境無法使用自動存檔')}}
+function bkUI(){var lb='';try{lb=localStorage.getItem('pd_lastbk')||''}catch(e){}
+  return '<div class="empty" style="padding-top:0">上次備份：'+(lb||'尚未備份')+'</div><button class="btn" onclick="expBk()">💾 匯出備份檔（存到「檔案」或 iCloud）</button><input type="file" id="bf" accept=".json,application/json" style="display:none" onchange="impBk(this)"><button class="btn g2" onclick="document.getElementById(\'bf\').click()">📂 從備份檔還原</button>'+(window.showSaveFilePicker?'<button class="btn g2" onclick="setAuto()">'+(FH?'✅ 自動存檔已開啟（點此更換檔案）':PH?'🔗 重新連結自動存檔檔案':'🖥️ 電腦：選擇檔案自動存檔')+'</button>':'<div class="empty">自動存檔到資料夾僅支援電腦版 Chrome／ Edge；iPhone 請定期匯出備份檔。</div>')+'<div class="empty" style="margin-top:8px">或用文字備份：</div>'}
+async function expBk(){var data=JSON.stringify(S),name='寵物日記備份-'+today+'.json';
+  try{var d=window.claude?await window.claude.use('downloads'):null;
+    if(d){await d.save({filename:name,data:data})}
+    else{var f=new File([data],name,{type:'application/json'});
+      if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f]})}
+      else{var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([data],{type:'application/json'}));a.download=name;document.body.appendChild(a);a.click();a.remove()}}
+    stamp();alert('備份完成');openSet()}catch(e){if(e&&(e.code==='declined'||e.name==='AbortError'))return;alert('匯出失敗，請改用文字備份')}}
+function impBk(inp){var f=inp.files[0];inp.value='';if(!f)return;var fr=new FileReader();fr.onload=function(){try{var o=JSON.parse(fr.result);if(!o.pets||!o.recs)throw 0;ask('這會取代目前所有資料，確定嗎？',function(){S=o;save();applyTheme();closeSh();render()})}catch(e){alert('備份檔格式不正確')}};fr.readAsText(f)}
+function bkNote(){var e=document.getElementById('bkn');if(!e)return;var t=0;try{t=+localStorage.getItem('pd_lastbk_ts')||0}catch(x){}
+  e.innerHTML=(S.recs.length&&!FH&&Date.now()-t>6048e5)?'<div class="card" style="background:var(--acbg);border-color:var(--ac);margin:0 0 4px" onclick="openSet()">💾 超過 7 天沒有備份了，點此備份</div>':''}
+if(window.indexedDB&&window.showSaveFilePicker)hget().then(async function(h){if(h){PH=h;try{if((await h.queryPermission({mode:'readwrite'}))==='granted'){FH=h;PH=null;render()}}catch(e){}}}).catch(function(){});
 load();applyTheme();render();
 </script>
 </body>
