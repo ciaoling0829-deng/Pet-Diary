@@ -81,7 +81,7 @@ input,textarea,select{width:100%;border:1px solid var(--line);background:var(--b
     <div class="g" id="cal"></div>
   </div>
   <div class="card"><h3 id="dt"></h3><div id="list"></div></div></div>
-  <div id="pg_rec" style="display:none"><div class="pets" id="tchips" style="margin-top:14px"></div><div class="card"><h3 id="rt"></h3><div id="rlist"></div></div><div id="rdel"></div></div>
+  <div id="pg_rec" style="display:none"><div class="pets" id="tchips" style="margin-top:14px"></div><div id="rex"></div><div class="card"><h3 id="rt"></h3><div id="rlist"></div></div><div id="rdel"></div></div>
   <div id="pg_pet" style="display:none"></div>
   <div id="pg_calc" style="display:none"></div>
   <div id="pg_vet" style="display:none"></div>
@@ -177,10 +177,10 @@ function av(x){return x.photo?'<img class="av" src="'+x.photo+'">':x.emoji+' '}
 function go(k){if(k==='cal'||k==='pet'||k==='calc'||k==='vet')pg=k;else{pg='rec';rf=k}render();window.scrollTo(0,0)}
 function setRf(k){rf=k;render()}
 function render(){
-  syncT();renderCal();bkNote();
+  syncT();renderCal();bkNote();setTimeout(hyd,0);
   ['cal','rec','pet','calc','vet'].forEach(function(k){document.getElementById('pg_'+k).style.display=k===pg?'':'none'});
   document.querySelector('.fab').style.display=(pg==='pet'||pg==='calc'||pg==='vet')?'none':'';
-  if(pg==='rec')renderRec();if(pg==='pet')renderPet();if(pg==='calc')renderCalc();if(pg==='vet')renderVet();
+  if(pg==='rec'){renderRec();renderChips()}if(pg==='pet')renderPet();if(pg==='calc')renderCalc();if(pg==='vet')renderVet();
   var on=pg==='rec'?rf:pg;
   document.getElementById('nav').innerHTML=NAV.map(function(n){return '<button class="'+(n[0]===on?'on':'')+'" onclick="go(\''+n[0]+'\')"><span>'+n[1]+'</span>'+n[2]+'</button>'}).join('');
 }
@@ -302,6 +302,30 @@ function impBk(inp){var f=inp.files[0];inp.value='';if(!f)return;var fr=new File
 function bkNote(){var e=document.getElementById('bkn');if(!e)return;var t=0;try{t=+localStorage.getItem('pd_lastbk_ts')||0}catch(x){}
   e.innerHTML=(S.recs.length&&!FH&&Date.now()-t>6048e5)?'<div class="card" style="background:var(--acbg);border-color:var(--ac);margin:0 0 4px" onclick="openSet()">💾 超過 7 天沒有備份了，點此備份</div>':''}
 if(window.indexedDB&&window.showSaveFilePicker)hget().then(async function(h){if(h){PH=h;try{if((await h.queryPermission({mode:'readwrite'}))==='granted'){FH=h;PH=null;render()}}catch(e){}}}).catch(function(){});
+var DBP,MC={},rex=false;
+function idb(){return DBP||(DBP=new Promise(function(r,j){var q=indexedDB.open('pd',2);q.onupgradeneeded=function(){var d=q.result;if(!d.objectStoreNames.contains('h'))d.createObjectStore('h');if(!d.objectStoreNames.contains('m'))d.createObjectStore('m')};q.onsuccess=function(){r(q.result)};q.onerror=function(){DBP=null;j(q.error)}}))}
+async function putM(id,b){var d=await idb();return new Promise(function(r,j){var t=d.transaction('m','readwrite');t.objectStore('m').put(b,id);t.oncomplete=r;t.onerror=function(){j(t.error)}})}
+function getM(id){return idb().then(function(d){return new Promise(function(r){var q=d.transaction('m').objectStore('m').get(id);q.onsuccess=function(){r(q.result||null)};q.onerror=function(){r(null)}})}).catch(function(){return null})}
+async function delM(id){var d=await idb();d.transaction('m','readwrite').objectStore('m').delete(id);delete MC[id]}
+function murl(id,v){if(!MC[id])MC[id]=getM(id).then(function(b){if(!b)return '';if(v)return URL.createObjectURL(b);return new Promise(function(r){var fr=new FileReader();fr.onload=function(){r(fr.result)};fr.onerror=function(){r('')};fr.readAsDataURL(b)})});return MC[id]}
+function hyd(){[].forEach.call(document.querySelectorAll('[data-mid]'),function(el){if(el.getAttribute('src'))return;var v=el.tagName==='VIDEO';murl(el.getAttribute('data-mid'),v).then(function(u){if(!u)return;el.src=v?u+'#t=0.1':u;if(el.hasAttribute('controls')){var p=el.play();if(p&&p.catch)p.catch(function(){})}})})}
+function mel(m){return m.k==='v'?'<video data-mid="'+m.id+'" preload="metadata" muted playsinline></video><i>▶</i>':'<img data-mid="'+m.id+'">'}
+function showPm(){var e=document.getElementById('fmp');if(e){e.innerHTML=pm.map(function(m,i){return '<div class="mt">'+mel(m)+'<button class="mx" onclick="rmPm('+i+')">✕</button></div>'}).join('');hyd()}}
+function rmPm(i){delM(pm[i].id);pm.splice(i,1);showPm()}
+function openMedia(id,k){sheet('<div style="text-align:center">'+(k==='v'?'<video data-mid="'+id+'" controls playsinline style="max-width:100%;max-height:65vh;border-radius:12px"></video>':'<img data-mid="'+id+'" style="max-width:100%;max-height:65vh;border-radius:12px">')+'</div><button class="btn g2" onclick="closeSh()">關閉</button>');hyd()}
+async function delMedia(r){if(!r||!r.media)return;for(var i=0;i<r.media.length;i++){try{await delM(r.media[i].id)}catch(e){}}}
+async function pickMedia(inp){var fs=[].slice.call(inp.files);inp.value='';if(!fs.length)return;var st=document.getElementById('fms');
+  for(var i=0;i<fs.length;i++){var f=fs[i],v=f.type.indexOf('video')===0||/\.(mov|mp4|m4v)$/i.test(f.name);st.textContent='處理中 '+(i+1)+'/'+fs.length+'…';
+    try{var b=f;if(v){if(f.size>6291456){try{var cv=await compressVideo(f,function(p){st.textContent='壓縮影片中 '+p+'%（請保持此畫面開啟）'});if(cv.size>0&&cv.size<f.size)b=cv}catch(e2){}}}else{b=await shrink(f);if(b.size>=f.size)b=f}
+      var id=uid()+uid();await putM(id,b);pm.push({id:id,k:v?'v':'i'})}catch(e){alert('加入失敗：'+((e&&e.message)||f.name))}}
+  st.textContent='';showPm()}
+function pins(){return S.pins||['g_vet','g_med']}
+function allItems(){return [['all','全部']].concat(GR.map(function(g){return [g[0],g[1]]})).concat(T.map(function(t){return [t[0],t[1]+' '+t[2]]}))}
+function renderChips(){var p=pins(),a=allItems();
+  document.getElementById('tchips').innerHTML=a.filter(function(x){return x[0]==='all'||p.indexOf(x[0])>-1||x[0]===rf}).map(function(x){return '<button class="chip'+(rf===x[0]?' on':'')+'" onclick="setRf(\''+x[0]+'\')">'+x[1]+'</button>'}).join('')+'<button class="chip" onclick="rex=!rex;render()">'+(rex?'▴ 收合':'▾ 全部項目')+'</button>';
+  document.getElementById('rex').innerHTML=rex?'<div class="card" style="margin-top:10px"><h3>全部項目（點星號設定要不要顯示在上方）</h3>'+a.map(function(x){var on=x[0]==='all'||p.indexOf(x[0])>-1;return '<div class="pr"><span style="flex:1" onclick="rex=false;setRf(\''+x[0]+'\')">'+x[1]+'</span>'+(x[0]==='all'?'':'<button class="x" style="color:var(--ac)" onclick="pinT(\''+x[0]+'\')">'+(on?'★':'☆')+'</button>')+'</div>'}).join('')+'<button class="btn g2" style="margin-top:10px" onclick="openType()">＋ 新增項目</button></div>':''}
+function pinT(k){var p=pins().slice(),i=p.indexOf(k);if(i>-1)p.splice(i,1);else p.push(k);S.pins=p;save();render()}
+if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(function(){});
 load();applyTheme();render();
 </script>
 </body>
