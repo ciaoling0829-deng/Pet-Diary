@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>寵物日記</title>
+<style>
+:root{--bg:#faf8f5;--card:#fff;--tx:#2b2724;--sub:#8a827a;--line:#ece7e1;--ac:#e8896b;--acbg:#fcebe5;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1c1a18;--card:#262321;--tx:#f1ece6;--sub:#9a928a;--line:#37332f;--ac:#f0997c;--acbg:#3a2a25;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#1c1a18;--card:#262321;--tx:#f1ece6;--sub:#9a928a;--line:#37332f;--ac:#f0997c;--acbg:#3a2a25;color-scheme:dark}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--tx);font-family:-apple-system,"PingFang TC","Noto Sans TC",sans-serif}
+.app{max-width:480px;margin:0 auto;padding:16px 16px 150px}
+.pets{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
+.chip{flex:none;border:1px solid var(--line);background:var(--card);color:var(--tx);border-radius:20px;padding:8px 14px;font-size:15px}
+.chip.on{background:var(--ac);border-color:var(--ac);color:#fff}
+.card{background:var(--card);border-radius:18px;padding:14px;margin-top:14px;border:1px solid var(--line)}
+.mh{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.mh b{font-size:17px}
+.nb{border:0;background:none;color:var(--tx);font-size:22px;padding:4px 12px}
+.g{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;row-gap:4px}
+.w{font-size:12px;color:var(--sub);padding:4px 0}
+.d{position:relative;height:42px;border:0;background:none;color:var(--tx);font-size:15px;border-radius:12px}
+.d.t{color:var(--ac);font-weight:700}
+.d.s{background:var(--ac);color:#fff}
+.d.h::after{content:"";position:absolute;left:50%;bottom:5px;width:5px;height:5px;margin-left:-2.5px;border-radius:50%;background:var(--ac)}
+.d.s.h::after{background:#fff}
+h3{margin:0 0 8px;font-size:15px;color:var(--sub);font-weight:600}
+.r{display:flex;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
+.r:first-of-type{border-top:0}
+.r .e{font-size:22px}
+.r .m{flex:1;min-width:0}
+.r .m b{font-size:15px}
+.r .m div{font-size:14px;color:var(--sub);white-space:pre-wrap;word-break:break-word;margin-top:2px}
+.x{border:0;background:none;color:var(--sub);font-size:20px;padding:6px 8px}
+.empty{color:var(--sub);font-size:14px;padding:8px 0}
+.fab{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 84px);background:var(--ac);color:#fff;border:0;border-radius:28px;padding:15px 28px;font-size:17px;font-weight:600;box-shadow:0 6px 20px rgba(0,0,0,.2)}
+.gear{float:right;border:0;background:none;font-size:20px;color:var(--sub)}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;align-items:flex-end;z-index:20}
+.ov.on{display:flex}
+.sh{background:var(--card);width:100%;max-width:480px;margin:0 auto;border-radius:22px 22px 0 0;padding:18px 16px calc(env(safe-area-inset-bottom,0px) + 18px);max-height:88%;overflow-y:auto}
+.sh h2{margin:0 0 12px;font-size:18px}
+.ty{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+.ty button{border:1px solid var(--line);background:var(--bg);color:var(--tx);border-radius:14px;padding:10px 2px;font-size:12px}
+.ty button span{display:block;font-size:24px}
+.ty button.on{border-color:var(--ac);background:var(--acbg)}
+input,textarea,select{width:100%;border:1px solid var(--line);background:var(--bg);color:var(--tx);border-radius:12px;padding:11px;font-size:16px;font-family:inherit;margin-bottom:10px}
+.btn{width:100%;border:0;border-radius:14px;padding:14px;font-size:16px;font-weight:600;background:var(--ac);color:#fff}
+.btn.g2{background:var(--acbg);color:var(--ac);margin-top:8px}
+.row{display:flex;gap:8px}
+.pr{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+:root,:root:not([data-theme="light"]),:root[data-theme="dark"]{--acbg:color-mix(in srgb,var(--ac) 14%,var(--card)) !important}
+.sw{width:36px;height:36px;border-radius:50%;padding:0}
+.nav{position:fixed;left:50%;transform:translateX(-50%);width:100%;max-width:480px;bottom:0;background:var(--card);border-top:1px solid var(--line);display:flex;padding-bottom:env(safe-area-inset-bottom,0px);z-index:10}
+.nav button{flex:1;border:0;background:none;color:var(--sub);padding:8px 0 6px;font-size:11px;font-family:inherit}
+.nav button span{display:block;font-size:21px}
+.nav button.on{color:var(--ac);font-weight:700}
+.av{width:24px;height:24px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:4px}
+.big{width:110px;height:110px;border-radius:50%;background:var(--acbg);display:flex;align-items:center;justify-content:center;font-size:54px;margin:0 auto 8px;overflow:hidden}
+.big img{width:100%;height:100%;object-fit:cover}
+.lb{display:block;font-size:13px;color:var(--sub);margin:2px 0 4px}
+.mrow{display:flex;gap:6px;flex-wrap:wrap}
+.r .m .mrow{margin-top:6px}
+.mt{position:relative;width:72px;height:72px;border-radius:10px;overflow:hidden;background:var(--bg);margin:0 !important}
+.mt img,.mt video{width:100%;height:100%;object-fit:cover;pointer-events:none}
+.mt i{position:absolute;right:5px;bottom:3px;color:#fff;font-style:normal;font-size:12px}
+.mx{position:absolute;top:2px;right:2px;border:0;border-radius:50%;width:22px;height:22px;background:rgba(0,0,0,.55);color:#fff;font-size:12px;padding:0}
+.kv{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:15px}
+.kv b{color:var(--ac);text-align:right}
+.lnk{display:flex;justify-content:space-between;padding:13px 0;border-bottom:1px solid var(--line);color:var(--tx);text-decoration:none;font-size:15px}
+</style>
+</head>
+<body>
+<div class="app">
+  <button class="gear" onclick="openSet()" aria-label="設定">⚙️</button>
+  <div class="pets" id="pets"></div>
+  <div id="pg_cal">
+  <div class="card">
+    <div class="mh"><button class="nb" onclick="mv(-1)">‹</button><b id="mt"></b><button class="nb" style="font-size:14px;color:var(--ac)" onclick="goToday()">今天</button><button class="nb" onclick="mv(1)">›</button></div>
+    <div class="g" id="cal"></div>
+  </div>
+  <div class="card"><h3 id="dt"></h3><div id="list"></div></div></div>
+  <div id="pg_rec" style="display:none"><div class="pets" id="tchips" style="margin-top:14px"></div><div class="card"><h3 id="rt"></h3><div id="rlist"></div></div><div id="rdel"></div></div>
+  <div id="pg_pet" style="display:none"></div>
+  <div id="pg_calc" style="display:none"></div>
+  <div id="pg_vet" style="display:none"></div>
+</div>
+<nav class="nav" id="nav"></nav>
+<button class="fab" onclick="openAdd()">＋ 新增紀錄</button>
+<div class="ov" id="ov" onclick="if(event.target===this)closeSh()"><div class="sh" id="sh"></div></div>
+
+<script>
+var T=[['med','💊','用藥'],['deworm','🪱','驅蟲藥'],['vac','💉','疫苗'],['check','🩺','健檢'],['sneeze','🤧','打噴嚏'],['vomit','🤮','嘔吐'],['poop','💩','大小便'],['food','🍽️','食物'],['water','🚰','飲水'],['sick','🌡️','身體狀況'],['joy','✨','美好時刻']];
+var K='petdiary_v1',S={pets:[],recs:[],cur:null},mem=null;
+function load(){try{var v=localStorage.getItem(K);if(v)S=JSON.parse(v)}catch(e){if(mem)S=mem}}
+function save(){mem=S;try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function ymd(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+var today=ymd(new Date()),sel=today,vm=new Date().getMonth(),vy=new Date().getFullYear(),pick='deworm';
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+function tinfo(k){return T.filter(function(t){return t[0]===k})[0]||['x','📝','其他']}
+
+function renderCal(){
+  var p=document.getElementById('pets');
+  p.innerHTML=S.pets.map(function(x){return '<button class="chip'+(x.id===S.cur?' on':'')+'" onclick="setPet(\''+x.id+'\')">'+av(x)+esc(x.name)+'</button>'}).join('')+'<button class="chip" onclick="openPet()">＋ 新增寵物</button>';
+  document.getElementById('mt').textContent=vy+' 年 '+(vm+1)+' 月';
+  var has={};S.recs.forEach(function(r){if(r.pet===S.cur)has[r.date]=1});
+  var h='日一二三四五六'.split('').map(function(w){return '<div class="w">'+w+'</div>'}).join('');
+  var first=new Date(vy,vm,1).getDay(),n=new Date(vy,vm+1,0).getDate();
+  for(var i=0;i<first;i++)h+='<div></div>';
+  for(var d=1;d<=n;d++){var s=ymd(new Date(vy,vm,d));
+    h+='<button class="d'+(s===today?' t':'')+(s===sel?' s':'')+(has[s]?' h':'')+'" onclick="pickDay(\''+s+'\')">'+d+'</button>'}
+  document.getElementById('cal').innerHTML=h;
+  var pet=S.pets.filter(function(x){return x.id===S.cur})[0];
+  document.getElementById('dt').textContent=sel.replace(/-/g,'/')+(sel===today?'（今天）':'')+(pet?' · '+pet.name:'');
+  var rs=S.recs.filter(function(r){return r.pet===S.cur&&r.date===sel}).sort(function(a,b){return a.ts-b.ts});
+  document.getElementById('list').innerHTML=rs.length?rs.map(function(r){var t=tinfo(r.type);
+    return '<div class="r"><div class="e">'+t[1]+'</div><div class="m"><b>'+esc(r.title||t[2])+'</b> <small style="color:var(--sub)">'+new Date(r.ts).toTimeString().slice(0,5)+'</small>'+det(r)+'</div><button class="x" onclick="delRec(\''+r.id+'\')">🗑️</button></div>'}).join(''):'<div class="empty">這天還沒有紀錄</div>';
+}
+function mv(n){vm+=n;if(vm<0){vm=11;vy--}if(vm>11){vm=0;vy++}render()}
+function pickDay(s){sel=s;render()}
+function setPet(id){S.cur=id;save();render()}
+function ask(m,fn){sheet('<h2>'+m+'</h2><div class="row"><button class="btn g2" onclick="closeSh()">取消</button><button class="btn" id="okb" style="margin-top:8px">確定</button></div>');document.getElementById('okb').onclick=function(){closeSh();fn()}}
+window.alert=function(m){var t=document.createElement('div');t.textContent=m;t.style.cssText='position:fixed;left:50%;top:60px;transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:10px 16px;border-radius:12px;z-index:30;font-size:14px;max-width:90%';document.body.appendChild(t);setTimeout(function(){t.remove()},2500)};
+function delRec(id){ask('刪除這筆紀錄？',function(){delMedia(S.recs.filter(function(r){return r.id===id})[0]);S.recs=S.recs.filter(function(r){return r.id!==id});save();render()})}
+function closeSh(){document.getElementById('sh').innerHTML='';document.getElementById('ov').classList.remove('on')}
+function sheet(h){document.getElementById('sh').innerHTML=h;document.getElementById('ov').classList.add('on')}
+
+function openAdd(){
+  if(!S.pets.length){openPet();return}if(pg==='rec'&&rf!=='all')pick=GM[rf]?GM[rf][0]:rf;
+  sheet('<h2>新增紀錄</h2><div class="ty">'+T.map(function(t){return '<button id="t_'+t[0]+'" class="'+(t[0]===pick?'on':'')+'" onclick="selT(\''+t[0]+'\')"><span>'+t[1]+'</span>'+t[2]+'</button>'}).join('')+'<button onclick="openType(1)"><span>＋</span>自訂項目</button></div>'+formHTML()+'<button class="btn" onclick="addRec()">儲存</button>');selT(pick);
+}
+function selT(k){pick=k;refForm();T.forEach(function(t){document.getElementById('t_'+t[0]).classList.toggle('on',t[0]===k)})}
+function addRec(){
+  if(document.getElementById('fms').textContent){alert('照片／影片上傳中，請稍候');return}var d=document.getElementById('ad').value||sel;
+  var g=function(i){return document.getElementById(i).value.trim()},c=OPT[pick]?'':g('fc'),r={id:uid(),pet:S.cur,date:d,type:pick,title:g('ft'),tags:[].map.call(document.querySelectorAll('#fopt .dt.on'),function(b){return b.textContent}),kg:g('fk'),dose:g('fd'),clinic:g('fh'),cycle:c,next:c?addCyc(d,c):'',media:pm.slice(),note:g('an'),ts:Date.now()};S.recs.push(r);
+  save();sel=d;var dd=new Date(d+'T00:00:00');vy=dd.getFullYear();vm=dd.getMonth();closeSh();render();
+}
+function openPet(){
+  sheet('<h2>新增寵物</h2><input id="pn" placeholder="寵物名字"><select id="pe"><option>🐱</option><option>🐶</option><option>🐰</option><option>🐹</option><option>🐦</option><option>🐢</option><option>🐾</option></select><button class="btn" onclick="addPet()">新增</button>');
+}
+function addPet(){
+  var n=document.getElementById('pn').value.trim();if(!n)return;
+  var p={id:uid(),name:n,emoji:document.getElementById('pe').value};
+  S.pets.push(p);S.cur=p.id;save();closeSh();render();
+}
+function openSet(){
+  sheet('<h2>設定</h2><h3>介面顏色</h3>'+colorUI()+'<h3 style="margin-top:16px">寵物</h3>'+(S.pets.map(function(x){return '<div class="pr"><span>'+x.emoji+' '+esc(x.name)+'</span><button class="x" onclick="delPet(\''+x.id+'\')">刪除</button></div>'}).join('')||'<div class="empty">尚無寵物</div>')+'<h3 style="margin-top:16px">備份與還原</h3><textarea id="bk" rows="4" placeholder="還原時請把備份文字貼在這裡"></textarea><button class="btn" onclick="doBk()">複製備份文字</button><button class="btn g2" onclick="doRs()">用上方文字還原</button>');
+}
+function delPet(id){
+  ask('刪除這隻寵物與它所有的紀錄？',function(){delPet2(id)})}function delPet2(id){
+  S.pets=S.pets.filter(function(p){return p.id!==id});S.recs=S.recs.filter(function(r){return r.pet!==id});
+  if(S.cur===id)S.cur=S.pets.length?S.pets[0].id:null;save();closeSh();render();
+}
+function doBk(){
+  var t=document.getElementById('bk');t.value=JSON.stringify(S);t.select();
+  try{navigator.clipboard.writeText(t.value).then(function(){alert('已複製，請貼到備忘錄保存')},function(){alert('請長按文字全選並拷貝')})}catch(e){alert('請長按文字全選並拷貝')}
+}
+function doRs(){
+  try{var o=JSON.parse(document.getElementById('bk').value);if(!o.pets||!o.recs)throw 0;
+    ask('這會取代目前所有資料，確定嗎？',function(){S=o;save();closeSh();render()})}catch(e){alert('備份文字格式不正確')}
+}
+function goToday(){var n=new Date();sel=today;vy=n.getFullYear();vm=n.getMonth();render()}
+var SW=['#9b51e0','#e8896b','#4a90d9','#3dae7c','#e5668c','#e0a030','#6b7280'];
+function applyTheme(){var t=S.theme||{},r=document.documentElement;r.style.setProperty('--ac',t.ac||'#9b51e0');if(t.mode&&t.mode!=='auto')r.setAttribute('data-theme',t.mode);else r.removeAttribute('data-theme')}
+function colorUI(){var t=S.theme||{},ac=t.ac||'#9b51e0',m=t.mode||'auto';
+return '<div class="row" style="flex-wrap:wrap;margin-bottom:10px">'+SW.map(function(c){return '<button class="sw" onclick="setAc(\''+c+'\')" style="border:'+(c===ac?'3px solid var(--tx)':'1px solid var(--line)')+';background:'+c+'"></button>'}).join('')+'</div><div class="pr" style="border:0"><span>自訂顏色</span><input type="color" value="'+ac+'" oninput="setAc(this.value,1)" style="width:56px;height:36px;padding:2px;margin:0"></div><div class="row" style="margin-top:8px">'+[['auto','自動'],['light','淺色'],['dark','深色']].map(function(x){return '<button class="chip'+(x[0]===m?' on':'')+'" style="flex:1" onclick="setMode(\''+x[0]+'\')">'+x[1]+'</button>'}).join('')+'</div>'}
+function setAc(c,quiet){S.theme=S.theme||{};S.theme.ac=c;save();applyTheme();if(!quiet)openSet()}
+function setMode(m){S.theme=S.theme||{};S.theme.mode=m;save();applyTheme();openSet()}
+var pg='cal',rf='all',fromAdd=0,BASE=T.slice();
+var NAV=[['cal','📅','日曆'],['g_vet','💉','疫苗健檢'],['g_med','💊','用藥驅蟲'],['calc','🧮','計算'],['vet','🏥','獸醫院'],['pet','🐾','寵物']];
+var F=[['name','名字','text'],['breed','品種','text'],['birth','生日','date'],['home','到家日','date'],['chip','晶片號碼','text'],['note','介紹／備註','textarea']];
+function syncT(){T=BASE.concat(S.types||[]);(S.recs||[]).forEach(function(r){if(r.type==='drop')r.type='deworm'})}
+function cur(){return S.pets.filter(function(x){return x.id===S.cur})[0]}
+function av(x){return x.photo?'<img class="av" src="'+x.photo+'">':x.emoji+' '}
+function go(k){if(k==='cal'||k==='pet'||k==='calc'||k==='vet')pg=k;else{pg='rec';rf=k}render();window.scrollTo(0,0)}
+function setRf(k){rf=k;render()}
+function render(){
+  syncT();renderCal();
+  ['cal','rec','pet','calc','vet'].forEach(function(k){document.getElementById('pg_'+k).style.display=k===pg?'':'none'});
+  document.querySelector('.fab').style.display=(pg==='pet'||pg==='calc'||pg==='vet')?'none':'';
+  if(pg==='rec')renderRec();if(pg==='pet')renderPet();if(pg==='calc')renderCalc();if(pg==='vet')renderVet();
+  var on=pg==='rec'?rf:pg;
+  document.getElementById('nav').innerHTML=NAV.map(function(n){return '<button class="'+(n[0]===on?'on':'')+'" onclick="go(\''+n[0]+'\')"><span>'+n[1]+'</span>'+n[2]+'</button>'}).join('');
+}
+function renderRec(){
+  document.getElementById('tchips').innerHTML='<button class="chip'+(rf==='all'?' on':'')+'" onclick="setRf(\'all\')">全部</button>'+GR.map(function(g){return '<button class="chip'+(rf===g[0]?' on':'')+'" onclick="setRf(\''+g[0]+'\')">'+g[1]+'</button>'}).join('')+T.map(function(t){return '<button class="chip'+(rf===t[0]?' on':'')+'" onclick="setRf(\''+t[0]+'\')">'+t[1]+' '+t[2]+'</button>'}).join('')+'<button class="chip" onclick="openType()">＋ 新增項目</button>';
+  var rs=S.recs.filter(function(r){return r.pet===S.cur&&(rf==='all'||r.type===rf||(GM[rf]&&GM[rf].indexOf(r.type)>-1))}).sort(function(a,b){return b.date.localeCompare(a.date)||b.ts-a.ts});
+  var gn=(GR.filter(function(g){return g[0]===rf})[0]||[])[1],t=gn?['','',gn]:tinfo(rf);
+  document.getElementById('rt').textContent=rf==='all'?'所有紀錄（'+rs.length+' 筆）':t[1]+' '+t[2]+'紀錄（'+rs.length+' 筆）';
+  document.getElementById('rlist').innerHTML=rs.length?rs.map(function(r){var x=tinfo(r.type);return '<div class="r"><div class="e">'+x[1]+'</div><div class="m"><b>'+r.date.replace(/-/g,'/')+'</b> '+esc(r.title||'')+((rf==='all'||GM[rf])?' <small style="color:var(--sub)">'+x[2]+'</small>':'')+det(r)+'</div><button class="x" onclick="delRec(\''+r.id+'\')">🗑️</button></div>'}).join(''):'<div class="empty">還沒有紀錄，點下方「＋ 新增紀錄」</div>';
+  var cu=(S.types||[]).filter(function(x){return x[0]===rf})[0];
+  document.getElementById('rdel').innerHTML=cu?'<button class="btn g2" onclick="delType(\''+rf+'\')">刪除「'+cu[2]+'」項目</button>':'';
+}
+function openType(a){fromAdd=a||0;sheet('<h2>新增項目</h2><input id="tn" placeholder="項目名稱（例如：眼藥水、心絲蟲藥）"><input id="te" placeholder="圖示（一個表情符號）" value="💊" maxlength="4"><button class="btn" onclick="addType()">新增</button>')}
+function addType(){var n=document.getElementById('tn').value.replace(/[<>&"']/g,'').trim(),e=(document.getElementById('te').value||'📝').replace(/[<>&"']/g,'');if(!n)return;var k='c_'+uid();S.types=S.types||[];S.types.push([k,e,n]);save();syncT();pick=k;if(pg==='rec')rf=k;closeSh();if(fromAdd)openAdd();else render();fromAdd=0}
+function delType(k){ask('刪除這個項目？已記錄的內容會保留並歸為「其他」。',function(){delType2(k)})}function delType2(k){S.types=(S.types||[]).filter(function(x){return x[0]!==k});rf='all';save();render()}
+function dd(s){return Math.floor((new Date(today+'T00:00:00')-new Date(s+'T00:00:00'))/864e5)}
+function daysTxt(p){var o=[];if(p.home)o.push('一起生活 '+dd(p.home)+' 天');if(p.birth){var m=Math.floor(dd(p.birth)/30.44);o.push(m>=12?Math.floor(m/12)+' 歲'+(m%12?' '+m%12+' 個月':''):m+' 個月')}return o.join(' · ')}
+function setF(k,v){var p=cur();if(!p||(k==='name'&&!v.trim()))return;p[k]=v;save();renderCal();var e=document.getElementById('pdays');if(e)e.textContent=daysTxt(p)}
+function setPhoto(inp){var f=inp.files[0];if(!f)return;var fr=new FileReader();fr.onload=function(){var im=new Image();im.onload=function(){var s=Math.min(im.width,im.height),c=document.createElement('canvas');c.width=c.height=240;c.getContext('2d').drawImage(im,(im.width-s)/2,(im.height-s)/2,s,s,0,0,240,240);cur().photo=c.toDataURL('image/jpeg',.8);save();render()};im.src=fr.result};fr.readAsDataURL(f)}
+function renderPet(){var p=cur(),e=document.getElementById('pg_pet');
+  if(!p){e.innerHTML='<div class="card"><div class="empty">請先新增一隻寵物</div><button class="btn" onclick="openPet()">＋ 新增寵物</button></div>';return}
+  e.innerHTML='<div class="card" style="text-align:center"><div class="big" onclick="document.getElementById(\'pf\').click()">'+(p.photo?'<img src="'+p.photo+'">':p.emoji)+'</div><input type="file" id="pf" accept="image/*" style="display:none" onchange="setPhoto(this)"><div style="color:var(--sub);font-size:13px">點大頭貼更換照片'+(p.photo?' · <a onclick="setF(\'photo\',\'\');render()" style="color:var(--ac)">移除</a>':'')+'</div><div id="pdays" style="color:var(--ac);font-weight:600;margin-top:8px;min-height:20px">'+daysTxt(p)+'</div></div><div class="card">'+F.map(function(f){return '<label style="font-size:13px;color:var(--sub)">'+f[1]+'</label>'+(f[2]==='textarea'?'<textarea rows="3" onchange="setF(\''+f[0]+'\',this.value)">'+esc(p[f[0]]||'')+'</textarea>':'<input type="'+f[2]+'" value="'+esc(p[f[0]]||'')+'" onchange="setF(\''+f[0]+'\',this.value)">')}).join('')+'</div>'}
+function opt(a,v){return a.map(function(o){return '<option value="'+o[0]+'"'+(o[0]===v?' selected':'')+'>'+o[1]+'</option>'}).join('')}
+function csave(){var p=cur();if(!p||!document.getElementById('c_kg'))return;S.calc=S.calc||{};var g=function(i){return document.getElementById(i).value};S.calc[p.id]={sp:g('c_sp'),kg:g('c_kg'),age:g('c_age'),neu:g('c_neu'),kcal:g('c_kcal'),dry:g('c_dry'),dp:g('c_dp'),wet:g('c_wet'),wp:g('c_wp'),ex:g('c_ex')};save()}
+function renderCalc(){var p=cur(),e=document.getElementById('pg_calc');
+  if(!p){e.innerHTML='<div class="card"><div class="empty">請先新增一隻寵物</div><button class="btn" onclick="openPet()">＋ 新增寵物</button></div>';return}
+  var c=(S.calc||{})[p.id]||{},sp=c.sp||(p.emoji==='🐶'?'dog':'cat');
+  var ages=sp==='cat'?[['kit','幼貓（1-12個月）'],['adult','成貓（1-7歲）'],['senior','老貓（7歲以上）']]:[['p1','幼犬（4個月以下）'],['p2','幼犬（4個月-1歲）'],['adult','成犬（1-7歲）'],['senior','老犬（7歲以上）']];
+  var age=ages.some(function(a){return a[0]===c.age})?c.age:'adult';
+  var fs=(S.foods||[]).filter(function(f){return f.pet===p.id}),ch='onchange="csave()"';
+  var inp=function(id,lab,ph,v){return '<label class="lb">'+lab+'</label><input id="'+id+'" type="number" inputmode="decimal" placeholder="'+ph+'" value="'+(v||'')+'" '+ch+'>'};
+  e.innerHTML='<div class="card"><h3>'+esc(p.name)+' 的基本資料</h3><label class="lb">寵物類型</label><select id="c_sp" onchange="csave();renderCalc()">'+opt([['cat','🐱 貓咪'],['dog','🐶 狗狗']],sp)+'</select><label class="lb">年齡</label><select id="c_age" '+ch+'>'+opt(ages,age)+'</select><label class="lb">是否絕育</label><select id="c_neu" '+ch+'>'+opt([['y','已絕育'],['n','未絕育']],c.neu||'y')+'</select>'+inp('c_kg','體重（公斤）','例如 4.2',c.kg)+'</div>'+
+  '<div class="card"><h3>飼料熱量紀錄</h3>'+inp('c_kcal','飼料熱量（kcal/100克）','請看包裝營養標示，換算成 kcal/100克',c.kcal)+'<input id="c_fn" placeholder="飼料名稱（儲存時使用，可不填）"><button class="btn g2" style="margin:0 0 8px" onclick="saveFood()">＋ 儲存到熱量紀錄</button>'+(fs.length?fs.map(function(f){return '<div class="pr"><span onclick="useFood(\''+f.id+'\')" style="flex:1">'+esc(f.name)+' · <b style="color:var(--ac)">'+f.kcal+'</b> kcal/100克</span><button class="x" onclick="delFood(\''+f.id+'\')">🗑️</button></div>'}).join('')+'<div class="empty">點飼料名稱即可帶入熱量</div>':'<div class="empty">還沒有儲存的飼料</div>')+'</div>'+
+  '<div class="card"><h3>飲食水分</h3>'+inp('c_dry','乾飼料攝取量（克/天）','0',c.dry)+inp('c_dp','乾飼料水分比（%）','未填寫以 8% 計算',c.dp)+inp('c_wet','罐頭攝取量（克/天）','0',c.wet)+inp('c_wp','罐頭水分比（%）','未填寫以 75% 計算',c.wp)+inp('c_ex','額外飲水量（ml/天）','寵物直接喝的水',c.ex)+'</div><button class="btn" onclick="doCalc()">計算每日需求</button><div id="cres"></div>';
+}
+function saveFood(){csave();var p=cur(),k=parseFloat(S.calc[p.id].kcal);if(!(k>0)){alert('請先輸入飼料熱量');return}var n=document.getElementById('c_fn').value.replace(/[<>&"']/g,'').trim()||k+' kcal';S.foods=S.foods||[];S.foods.push({id:uid(),pet:p.id,name:n,kcal:k});save();renderCalc()}
+function useFood(id){var f=(S.foods||[]).filter(function(x){return x.id===id})[0];if(f){document.getElementById('c_kcal').value=f.kcal;csave()}}
+function delFood(id){csave();ask('刪除這筆飼料紀錄？',function(){S.foods=S.foods.filter(function(x){return x.id!==id});save();renderCalc()})}
+function doCalc(){csave();var p=cur(),c=S.calc[p.id],kg=parseFloat(c.kg),k=parseFloat(c.kcal),sp=c.sp||'cat',neu=c.neu!=='n';
+  if(!(kg>0)){alert('請輸入體重');return}
+  var F={kit:2.5,adult:neu?1.2:1.4,senior:neu?1.1:1.2},M={kit:'3-4',adult:'2-3',senior:'2-3'};
+  if(sp==='dog'){F={p1:3,p2:2,adult:neu?1.6:1.8,senior:neu?1.4:1.5};M={p1:'4',p2:'3',adult:'2',senior:'2-3'}}
+  var a=F[c.age]?c.age:'adult',mer=70*Math.pow(kg,.75)*F[a],lo=mer*.9,hi=mer*1.1,r=Math.round;
+  var dg=parseFloat(c.dry)||0,wg=parseFloat(c.wet)||0,dp=parseFloat(c.dp),wp=parseFloat(c.wp),ex=parseFloat(c.ex)||0;
+  if(isNaN(dp))dp=8;if(isNaN(wp))wp=75;
+  var fw=dg*dp/100+wg*wp/100,tot=fw+ex,rl=kg*50,rh=kg*60;
+  var st=tot<rl?'偏少，建議增加飲水':tot<=rh?'適中':tot<=rh*1.5?'充足':'偏多，若持續偏多請諮詢獸醫';
+  var row=function(a,b){return '<div class="kv"><span>'+a+'</span><b>'+b+'</b></div>'};
+  document.getElementById('cres').innerHTML='<div class="card"><h3>'+(sp==='cat'?'🐱':'🐶')+' '+esc(p.name)+' 的每日需求</h3>'+row('每日熱量需求大約',r(lo)+' - '+r(hi)+' kcal')+row('目前飼料建議餵食大約',k>0?r(lo/k*100)+' - '+r(hi/k*100)+' 克':'請先輸入飼料熱量')+row('建議餵食次數',M[a]+' 次')+(dg>0&&k>0?row('目前乾飼料提供熱量',r(dg*k/100)+' kcal'):'')+'<h3 style="margin-top:14px">💧 水分攝取分析</h3>'+row('每日飲食水分',r(fw)+' ml')+row('每日總水分攝取',r(tot)+' ml')+row('每日建議水分',r(rl)+' - '+r(rh)+' ml')+row('建議額外飲水',r(Math.max(0,rl-fw))+' - '+r(Math.max(0,rh-fw))+' ml')+row('水分攝取狀態',st)+'<div class="empty" style="margin-top:10px">結果僅供參考，實際份量請依活動量、體態調整，並建議分次餵食。懷孕、哺乳或有疾病時請諮詢獸醫。</div></div>';
+  document.getElementById('cres').scrollIntoView({behavior:'smooth'})}
+var GR=[['g_vet','疫苗健檢'],['g_med','用藥驅蟲']],GM={g_vet:['vac','check'],g_med:['med','deworm']};
+function renderVet(){var e=document.getElementById('pg_vet'),q=encodeURIComponent,vs=S.vets||[];
+  var a=function(u,t){return '<a class="lnk" href="'+u+'" target="_blank" rel="noopener"><span>'+t+'</span><span>›</span></a>'};
+  e.innerHTML='<div class="card"><h3>搜尋附近的獸醫院</h3>'+a('https://www.google.com/maps/search/?api=1&query='+q('動物醫院'),'🗺️ Google 地圖：附近動物醫院')+a('https://www.google.com/maps/search/?api=1&query='+q('24小時動物醫院'),'🌙 Google 地圖：24 小時動物醫院')+'<div class="empty">點選後會開啟 Google 地圖（已安裝 App 會直接開啟 App），依你目前的位置列出附近醫院。</div></div><div class="card"><h3>我的常用醫院</h3>'+(vs.length?vs.map(function(v){return '<div class="r"><div class="e">🏥</div><div class="m"><b>'+esc(v.name)+'</b><div>'+(v.tel?'<a href="tel:'+esc(v.tel)+'" style="color:var(--ac)">📞 '+esc(v.tel)+'</a>':'')+'<br><a href="'+esc(mu(v))+'" target="_blank" rel="noopener" style="color:var(--ac)">🗺️ 在 Google 地圖開啟</a>'+(v.addr?'<br>📍 '+esc(v.addr):'')+'</div></div><button class="x" onclick="delVet(\''+v.id+'\')">🗑️</button></div>'}).join(''):'<div class="empty">還沒有儲存的醫院</div>')+'<button class="btn g2" onclick="openVet()">＋ 新增常用醫院</button></div>'}
+function openVet(){sheet('<h2>新增常用醫院</h2><input id="vn" placeholder="醫院名稱"><input id="vt" type="tel" placeholder="電話"><input id="va" placeholder="地址"><input id="vu" type="url" placeholder="Google 地圖連結（選填，貼上分享連結）"><button class="btn g2" style="margin:0 0 8px" onclick="findVet()">🔎 在 Google 地圖搜尋這間醫院</button><div class="empty" style="padding:0 0 10px">找到後按「分享」複製連結，再貼到上方欄位，之後就能一鍵開啟該醫院的頁面。沒填也會用名稱和地址搜尋。</div><button class="btn" onclick="addVet()">儲存</button>')}
+function addVet(){var g=function(i){return document.getElementById(i).value.trim()},n=g('vn');if(!n)return;S.vets=S.vets||[];S.vets.push({id:uid(),name:n,tel:g('vt'),addr:g('va'),url:g('vu').indexOf('https://')===0?g('vu'):''});save();closeSh();render()}
+function mu(v){return v.url||'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(v.name+' '+(v.addr||''))}
+function findVet(){var n=document.getElementById('vn').value.trim(),a=document.getElementById('va').value.trim();window.open('https://www.google.com/maps/search/?api=1&query='+encodeURIComponent((n+' '+a).trim()||'動物醫院'),'_blank')}
+function delVet(id){ask('刪除這間醫院？',function(){S.vets=S.vets.filter(function(v){return v.id!==id});save();render()})}
+var CY=[['','不重複'],['w1','每週'],['m1','每月'],['m3','每 3 個月'],['m6','每半年'],['y1','每年']];
+var PRE={vac:[['核心多價疫苗補強','y1'],['狂犬病疫苗加強針','y1'],['貓三合一','y1'],['犬十合一','y1']],check:[['年度全套健康檢查','y1'],['血液檢查','m6'],['糞便檢查','m6'],['洗牙與牙齒保健','y1'],['術後回診','']],deworm:[['心絲蟲／跳踞定期滴劑','m1'],['體內外驅蟲滴劑','m1'],['體外驅蟲（跳踞蜉蟲）','m1'],['體內驅蟲','m3'],['心絲蟲預防','m1']],med:[['口服藥',''],['眼藥水',''],['耳藥',''],['外用藥膏',''],['益生菌／保健品','']]};
+var OPT={vomit:['吐食物','吐泡沫／黃水','吐毛球','帶血','連續多次','吐完精神正常','吐完沒精神'],sneeze:['偶爾 1-2 次','連續打噴嚏','有清鼻涕','鼻涕帶色','流眼淚','精神正常'],poop:['正常便','軟便','拉肚子','便秘／硬便','帶血','有黏液','尿量正常','尿量偏多','尿量偏少','血尿'],food:['食憂正常','食憂差','食憂旺盛','挑食','換新飼料','吃零食'],water:['飲水正常','喝很多','喝很少'],sick:['沒精神','食憂差','發燒','跛行','抓癢','掉毛','咳嗽','喘'],joy:['開心','一起玩耍','撒嬌','第一次','紀念日']};
+function addCyc(d,c){var x=new Date(d+'T00:00:00');if(c==='w1')x.setDate(x.getDate()+7);else{var m={m1:1,m3:3,m6:6,y1:12}[c];if(!m)return '';var day=x.getDate();x.setMonth(x.getMonth()+m);if(x.getDate()!==day)x.setDate(0)}return ymd(x)}
+function updNext(){var c=document.getElementById('fc').value,d=document.getElementById('ad').value,n=c&&d?addCyc(d,c):'';document.getElementById('nx').textContent=n?'下次預定：'+n.replace(/-/g,'/'):''}
+function usePre(i){var x=PRE[pick][i];document.getElementById('ft').value=x[0];document.getElementById('fc').value=x[1];updNext()}
+function refForm(){document.getElementById('fpre').innerHTML=(PRE[pick]||[]).map(function(x,i){return '<button class="chip" onclick="usePre('+i+')">'+x[0]+'</button>'}).join('');
+  var o=OPT[pick]||[];document.getElementById('fopt').innerHTML=o.length?'<label class="lb">快速選項（可多選）</label><div class="pets" style="flex-wrap:wrap;margin-bottom:10px">'+o.map(function(x){return '<button class="chip dt" onclick="this.classList.toggle(\'on\')">'+x+'</button>'}).join('')+'</div>':'';
+  document.getElementById('fcy').style.display=OPT[pick]?'none':'';updNext()}
+function formHTML(){pm=[];return '<label class="lb">常用範本</label><div class="pets" id="fpre" style="flex-wrap:wrap;margin-bottom:8px"></div><label class="lb">項目名稱（選填）</label><input id="ft" placeholder="例：年度全套血檢、十合一疫苗"><div id="fopt"></div><div class="row"><div style="flex:1"><label class="lb">日期</label><input type="date" id="ad" value="'+sel+'" onchange="updNext()"></div><div style="flex:1"><label class="lb">體重（kg，選填）</label><input id="fk" type="number" inputmode="decimal" placeholder="4.2"></div></div><div id="fcy"><label class="lb">循環週期</label><select id="fc" onchange="updNext()">'+opt(CY,'')+'</select><div id="nx" class="empty" style="padding:0 0 8px"></div></div><label class="lb">數量／劑量（選填）</label><input id="fd" placeholder="1 管、2 錠、50 ml"><label class="lb">診所／醫院（選填）</label><input id="fh" list="vl" placeholder="例：安心動物醫院"><datalist id="vl">'+(S.vets||[]).map(function(v){return '<option value="'+esc(v.name)+'">'}).join('')+'</datalist><label class="lb">照片／影片（選填）</label><input type="file" id="fm" accept="image/*,video/*" multiple style="display:none" onchange="pickMedia(this)"><button class="btn g2" style="margin:0 0 8px" onclick="document.getElementById(\'fm\').click()">📷 新增照片／影片</button><div id="fms" class="empty" style="padding:0"></div><div class="mrow" id="fmp"></div><label class="lb">備註（選填）</label><textarea id="an" rows="3" placeholder="次數、顏色、份量、心情"></textarea>'}
+function det(r){var a=[];if(r.dose)a.push('💊 '+r.dose);if(r.kg)a.push('⚖️ '+r.kg+' kg');if(r.clinic)a.push('🏥 '+r.clinic);if(r.next)a.push('📅 下次 '+r.next.replace(/-/g,'/'));var h=[(r.tags||[]).join('・'),a.join('　'),r.note||''].filter(Boolean);return (h.length?'<div>'+esc(h.join('\n'))+'</div>':'')+mh(r)}
+var pm=[];
+function shrink(f){return new Promise(function(res,rej){var fr=new FileReader();fr.onerror=function(){rej(new Error('無法讀取圖片'))};fr.onload=function(){var im=new Image();im.onerror=function(){rej(new Error('無法讀取圖片'))};im.onload=function(){var s=Math.min(1,1280/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);c.getContext('2d').drawImage(im,0,0,c.width,c.height);c.toBlob(function(b){b?res(b):rej(new Error('壓縮失敗'))},'image/jpeg',.82)};im.src=fr.result};fr.readAsDataURL(f)})}
+async function pickMedia(inp){var fs=[].slice.call(inp.files);inp.value='';if(!fs.length)return;
+  var as=null;try{as=window.claude?await window.claude.use('assets'):null}catch(e){}
+  if(!as){alert('目前無法上傳照片或影片');return}
+  var st=document.getElementById('fms');
+  for(var i=0;i<fs.length;i++){var f=fs[i],v=f.type.indexOf('video')===0;st.textContent='上傳中 '+(i+1)+'/'+fs.length+'…';
+    try{var b=f;if(v){if(f.size>6291456){try{var cv=await compressVideo(f,function(p){st.textContent='壓縮影片中 '+p+'%（請保持此畫面開啟）'});if(cv.size>0&&cv.size<f.size)b=cv}catch(e2){}}}else{b=await shrink(f);if(b.size>=f.size)b=f}if(b.size>20971520){alert('檔案壓縮後仍超過 20 MB，無法上傳：'+f.name);continue}st.textContent='上傳中 '+(i+1)+'/'+fs.length+'…';var u=await as.upload(b);pm.push({id:u.id,k:v?'v':'i'})}catch(e){alert('上傳失敗：'+((e&&e.message)||f.name))}}
+  st.textContent='';showPm()}
+function mel(m,x){return m.k==='v'?'<video src="/_blob/'+m.id+'#t=0.1" preload="metadata" muted playsinline></video><i>▶</i>':'<img src="/_blob/'+m.id+'">'}
+function showPm(){var e=document.getElementById('fmp');if(e)e.innerHTML=pm.map(function(m,i){return '<div class="mt">'+mel(m)+'<button class="mx" onclick="pm.splice('+i+',1);showPm()">✕</button></div>'}).join('')}
+function mh(r){return r.media&&r.media.length?'<div class="mrow">'+r.media.map(function(m){return '<div class="mt" onclick="openMedia(\''+m.id+'\',\''+m.k+'\')">'+mel(m)+'</div>'}).join('')+'</div>':''}
+function openMedia(id,k){sheet('<div style="text-align:center">'+(k==='v'?'<video src="/_blob/'+id+'" controls autoplay playsinline style="max-width:100%;max-height:65vh;border-radius:12px"></video>':'<img src="/_blob/'+id+'" style="max-width:100%;max-height:65vh;border-radius:12px">')+'</div><button class="btn g2" onclick="closeSh()">關閉</button>')}
+async function delMedia(r){if(!r||!r.media||!r.media.length)return;try{var as=await window.claude.use('assets');if(as)for(var i=0;i<r.media.length;i++)await as.delete(r.media[i].id)}catch(e){}}
+function compressVideo(f,cb){return new Promise(function(res,rej){
+  if(!window.MediaRecorder||!HTMLCanvasElement.prototype.captureStream){rej(new Error('nosupport'));return}
+  var v=document.createElement('video'),ac=null;v.playsInline=true;v.preload='auto';v.src=URL.createObjectURL(f);
+  v.onerror=function(){rej(new Error('read'))};
+  v.onloadedmetadata=function(){
+    if(v.duration>300){rej(new Error('long'));return}
+    var s=Math.min(1,720/Math.max(v.videoWidth,v.videoHeight)),w=Math.round(v.videoWidth*s/2)*2,h=Math.round(v.videoHeight*s/2)*2,c=document.createElement('canvas');c.width=w;c.height=h;var x=c.getContext('2d'),st=c.captureStream(24);
+    try{ac=new (window.AudioContext||window.webkitAudioContext)();ac.resume();var src=ac.createMediaElementSource(v),dest=ac.createMediaStreamDestination();src.connect(dest);dest.stream.getAudioTracks().forEach(function(t){st.addTrack(t)})}catch(e){}
+    var mt=['video/mp4;codecs=avc1','video/mp4','video/webm;codecs=vp8','video/webm'].filter(function(t){return MediaRecorder.isTypeSupported(t)})[0];
+    var rec=new MediaRecorder(st,mt?{mimeType:mt,videoBitsPerSecond:1500000,audioBitsPerSecond:96000}:{videoBitsPerSecond:1500000}),ch=[];
+    rec.ondataavailable=function(e){if(e.data&&e.data.size)ch.push(e.data)};
+    rec.onstop=function(){URL.revokeObjectURL(v.src);if(ac)ac.close();res(new Blob(ch,{type:rec.mimeType||'video/mp4'}))};
+    var draw=function(){x.drawImage(v,0,0,w,h);if(!v.ended&&!v.paused){cb&&cb(Math.round(v.currentTime/v.duration*100));requestAnimationFrame(draw)}};
+    v.onended=function(){rec.stop()};
+    rec.start(1000);v.play().then(draw).catch(rej)}})}
+load();applyTheme();render();
+</script>
+</body>
+</html>
