@@ -313,7 +313,7 @@ var FH=null,PH=null,aft=0;
 function idb(){return new Promise(function(r,j){var q=indexedDB.open('pd',1);q.onupgradeneeded=function(){q.result.createObjectStore('h')};q.onsuccess=function(){r(q.result)};q.onerror=j})}
 async function hput(h){var d=await idb();d.transaction('h','readwrite').objectStore('h').put(h,'f')}
 async function hget(){var d=await idb();return new Promise(function(r){var q=d.transaction('h').objectStore('h').get('f');q.onsuccess=function(){r(q.result)};q.onerror=function(){r(null)}})}
-function stamp(a){try{localStorage.setItem('pd_lastbk',new Date().toLocaleString('zh-TW',{hour12:false})+(a?'（自動）':''));localStorage.setItem('pd_lastbk_ts',Date.now())}catch(e){}}
+function stamp(a){bkLast=Date.now();bkDirty=false;try{localStorage.setItem('pd_lastbk',new Date().toLocaleString('zh-TW',{hour12:false})+(a?'（自動）':''));localStorage.setItem('pd_lastbk_ts',Date.now())}catch(e){}}
 function afs(){if(!FH)return;clearTimeout(aft);aft=setTimeout(afNow,1500)}
 async function afNow(){try{var w=await FH.createWritable();await w.write(JSON.stringify(S));await w.close();stamp(1)}catch(e){}}
 async function setAuto(){try{if(PH&&!FH){if((await PH.requestPermission({mode:'readwrite'}))==='granted'){FH=PH;PH=null;await afNow();alert('已重新連結自動存檔');openSet();return}}
@@ -389,13 +389,16 @@ async function gSave(){if(!GS)return false;try{var r=await fetch(GS.url,{method:
 var SES=(function(){var d=new Date(),z=function(n){return ('0'+n).slice(-2)};return ymd(d)+'-'+z(d.getHours())+z(d.getMinutes())+z(d.getSeconds())})();
 function bkName(){return '寵物日記備份-'+SES+'.json'}
 function bkKey(n){return n.replace(/\.json$/,'')}
-function afs(){if(!DH&&!GS)return;clearTimeout(aft);aft=setTimeout(runBk,1500)}
-function gSet(){var c=GS||{};sheet('<h2>Google 雲端資料夾</h2><div class="empty" style="padding-top:0">貼上 Google Apps Script 網頁應用程式的網址和密碼。每次儲存紀錄會自動上傳，備份檔只保留最新 5 份。網址和密碼只存在這支手機的瀏覽器。</div><input id="gs1" placeholder="https://script.google.com/macros/s/.../exec" value="'+esc(c.url||'')+'"><input id="gs2" type="password" placeholder="密碼（與腳本裡的 TOKEN 相同）" value="'+esc(c.token||'')+'" autocomplete="off"><label class="lb">使用者名稱（自訂）</label><input id="gs3" maxlength="30" placeholder="例如：小美（朋友使用時必填）" value="'+esc(c.user||'')+'" autocomplete="off"><div class="empty" style="padding:0 0 10px">填寫後，Google 雲端會自動建立同名資料夾，你的備份、照片和影片都存在裡面，不會和別人混在一起。自己使用可以留空（存在原本的資料夾）。名稱裡的 / \\ : * ? " &lt; &gt; | 會被自動拿掉。</div><button class="btn" onclick="gGo()">測試並儲存設定</button>'+(GS?'<button class="btn g2" onclick="gOff()">清除設定</button>':''))}
+var BKI=20*60000,bkDirty=false,bkLast=Date.now();
+function afs(){if(!DH&&!GS)return;bkDirty=true}
+function bkTick(){if(bkDirty&&(DH||GS)&&Date.now()-bkLast>=BKI-2000){bkDirty=false;bkLast=Date.now();runBk()}}
+setInterval(bkTick,60000);document.addEventListener('visibilitychange',function(){if(!document.hidden)bkTick()});
+function gSet(){var c=GS||{};sheet('<h2>Google 雲端資料夾</h2><div class="empty" style="padding-top:0">貼上 Google Apps Script 網頁應用程式的網址和密碼。每 20 分鐘會自動上傳一次（有新增或修改時），也可以隨時按「立即儲存」。備份檔只保留最新 5 份。網址和密碼只存在這支手機的瀏覽器。</div><input id="gs1" placeholder="https://script.google.com/macros/s/.../exec" value="'+esc(c.url||'')+'"><input id="gs2" type="password" placeholder="密碼（與腳本裡的 TOKEN 相同）" value="'+esc(c.token||'')+'" autocomplete="off"><label class="lb">使用者名稱（自訂）</label><input id="gs3" maxlength="30" placeholder="例如：小美（朋友使用時必填）" value="'+esc(c.user||'')+'" autocomplete="off"><div class="empty" style="padding:0 0 10px">填寫後，Google 雲端會自動建立同名資料夾，你的備份、照片和影片都存在裡面，不會和別人混在一起。自己使用可以留空（存在原本的資料夾）。名稱裡的 / \\ : * ? " &lt; &gt; | 會被自動拿掉。</div><button class="btn" onclick="gGo()">測試並儲存設定</button>'+(GS?'<button class="btn g2" onclick="gOff()">清除設定</button>':''))}
 async function gGo(){var old=GS;GS={url:document.getElementById('gs1').value.trim(),token:document.getElementById('gs2').value,user:document.getElementById('gs3').value.replace(/[\\\/:*?"<>|\r\n\t]/g,'').trim().slice(0,30)};if(GS.url.indexOf('https://script.google.com/')!==0||GS.url.slice(-5)!=='/exec'){GS=old;alert('網址需以 https://script.google.com/ 開頭、/exec 結尾（不是 /dev）');return}
   var ok=await gSave();if(ok){try{localStorage.setItem('pd_gs',JSON.stringify(GS))}catch(e){}alert('連線成功，已儲存一份備份');openSet()}else{var m=GERR;GS=old;alert('連線失敗：'+m)}}
 function gOff(){GS=null;try{localStorage.removeItem('pd_gs')}catch(e){}closeSh();alert('已清除 Google 雲端設定')}
 
-var VER='2026-10-29-z',DIRERR='',MAXUP=25*1048576;
+var VER='2026-10-30-a',DIRERR='',MAXUP=25*1048576;
 function stat(m,t,ms){var e=document.getElementById('stb');if(!e){e=document.createElement('div');e.id='stb';e.onclick=function(){e.style.display='none'};document.body.appendChild(e)}
   e.style.cssText='position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 10px);transform:translateX(-50%);z-index:40;max-width:92%;padding:10px 14px;border-radius:12px;font-size:14px;line-height:1.4;color:#fff;box-shadow:0 4px 16px rgba(0,0,0,.25);display:block;background:'+(t==='err'?'#c0392b':t==='ok'?'#2e8b57':'#444');
   e.textContent=m;clearTimeout(e._t);if(ms)e._t=setTimeout(function(){e.style.display='none'},ms)}
@@ -429,16 +432,16 @@ function getM(id){return getM0(id).then(function(b){return b||(GS?cloudGet(id):n
 function bkUI(){var lb='';try{lb=localStorage.getItem('pd_lastbk')||''}catch(e){}
   var h='<div class="empty" style="padding-top:0">上次備份：'+(lb||'尚未備份')+'</div><h3 style="margin-top:6px">① 儲存到我選擇的資料夾</h3><div class="empty" style="padding:0 0 8px;color:var(--ac)">⚠️ 此功能只限電腦版（Chrome／Edge）使用，iPhone 無法使用。</div>';
   if(window.showDirectoryPicker){
-    if(DH)h+='<div class="empty" style="padding-top:0">📁 已連結：'+esc(DH.name)+'。每次儲存紀錄會自動備份；備份檔只保留最新 5 份，超過的會自動刪除。照片和影片也存在這個資料夾。</div><button class="btn" onclick="dirNow()">💾 立即儲存到資料夾</button><button class="btn g2" onclick="setDir()">更換資料夾</button>';
+    if(DH)h+='<div class="empty" style="padding-top:0">📁 已連結：'+esc(DH.name)+'。每 20 分鐘會自動備份一次（有新增或修改時）；備份檔只保留最新 5 份，超過的會自動刪除。照片和影片也存在這個資料夾。</div><button class="btn" onclick="dirNow()">💾 立即儲存到資料夾</button><button class="btn g2" onclick="setDir()">更換資料夾</button>';
     else if(DP)h+='<button class="btn" onclick="relink()">🔗 重新連結資料夾（需再同意一次）</button><button class="btn g2" onclick="setDir()">更換資料夾</button>';
-    else h+='<div class="empty" style="padding-top:0">只需選一次資料夾，之後會自動儲存。</div><button class="btn" onclick="setDir()">📁 選擇儲存資料夾</button>'}
+    else h+='<div class="empty" style="padding-top:0">只需選一次資料夾，之後每 20 分鐘會自動儲存一次。</div><button class="btn" onclick="setDir()">📁 選擇儲存資料夾</button>'}
   else h+='<div class="empty" style="padding-top:0">目前這個瀏覽器不支援。iPhone 請改用 ② Google 雲端，或下方的手動備份。</div>';
   h+='<h3 style="margin-top:16px">② 儲存到 Google 雲端資料夾</h3>'+gUI();
   return h+'<h3 style="margin-top:16px">手動備份</h3><button class="btn g2" onclick="expBk()">📤 匯出備份檔（存到「檔案」或 iCloud）</button><input type="file" id="bf" accept=".json,application/json" style="display:none" onchange="impBk(this)"><button class="btn g2" onclick="document.getElementById(\'bf\').click()">📂 從備份檔還原</button><div class="empty" style="margin-top:8px">或用文字備份：</div>'}
 function dirNow(){stat('💾 儲存中…');dirSave().then(function(o){stat(o?'✅ 已儲存到資料夾':'⚠️ 儲存失敗：'+DIRERR,o?'ok':'err',o?2500:9000);openSet()})}
 function gUI(){var so=setOpen,fh=function(k,t){return '<button class="fh" onclick="togSet(\''+k+'\')"><span>'+t+'</span><span style="color:var(--sub)">'+(so[k]?'▾':'▸')+'</span></button>'},wb='<button class="btn g2" style="color:#c0392b" onclick="wipeUI()">🗑️ 一鍵清除所有資料</button>';
   if(!GS)return '<div class="empty" style="padding-top:0">只需設定一次，之後自動儲存紀錄、照片和影片。</div><button class="btn" onclick="gSet()">☁️ 設定 Google 雲端資料夾</button><div class="card" style="margin:10px 0 0;padding:10px 12px">'+fh('oth','⚙️ 其他設定')+(so.oth?wb:'')+'</div>';
-  return '<div class="empty" style="padding-top:0">☁️ 已設定。刪除紀錄或照片時，雲端的檔案也會一起移到垃圾桶'+(GS.user?'（使用者：'+esc(GS.user)+'，資料存在同名資料夾）':'')+'。每次儲存紀錄會自動上傳；備份檔只保留最新 5 份，多的會由 Google 腳本自動丟進垃圾桶（30 天內可救回）。</div>'+
+  return '<div class="empty" style="padding-top:0">☁️ 已設定。刪除紀錄或照片時，雲端的檔案也會一起移到垃圾桶'+(GS.user?'（使用者：'+esc(GS.user)+'，資料存在同名資料夾）':'')+'。每 20 分鐘會自動上傳一次（有新增或修改時），也可以按「立即儲存」；新增的照片和影片會馬上上傳。備份檔只保留最新 5 份，多的會由 Google 腳本自動丟進垃圾桶（30 天內可救回）。</div>'+
    '<div class="empty" style="padding:0 0 8px">📦 朋友帳號的雲端上傳空間上限為 <b>15 GB</b>（實際以管理者設定為準），超過後無法再上傳照片和影片，備份檔不受影響。<span id="gusage"></span></div>'+
    '<button class="btn" onclick="gNow()">💾 立即儲存到 Google 雲端</button><button class="btn g2" onclick="gPick()">♻️ 從 Google 雲端還原</button><button class="btn g2" onclick="gUpAll()">📷 補傳照片和影片</button>'+
    '<div class="card" style="margin:10px 0 0;padding:10px 12px">'+fh('oth','⚙️ 其他設定')+(so.oth?'<button class="btn g2" onclick="gTest()">🔧 測試 Google 雲端連線</button><button class="btn g2" onclick="gSet()">更換 Google 設定</button><button class="btn g2" onclick="gClean()">🧹 清理雲端多餘的照片和影片</button>'+wb:'')+'</div>'+
@@ -450,9 +453,9 @@ async function gRole(){var k=(GS&&GS.url+'|'+GS.token+'|'+(GS.user||''))||'';if(
     if(j&&j.ok){GROLE={k:k,r:j.friend?'friend':'owner'};return GROLE.r}}catch(e){}return null}
 async function togSet(k){if(k==='fr'&&!setOpen.fr&&GS){var ro=await gRole();if(ro==='friend'){stat('🔒 沒有權限，無法開啟','err',3500);return}}
   setOpen[k]=!setOpen[k];try{localStorage.setItem('pd_setopen',JSON.stringify(setOpen))}catch(e){}openSet()}
-function fmtGB(b){return (b/1073741824).toFixed(b<10737418240?2:1)+' GB'}
+function fmtGB(b){return b<1048576?Math.round(b/1024)+' KB':b<1073741824?(b/1048576).toFixed(1)+' MB':(b/1073741824).toFixed(2)+' GB'}
 async function gUsage(){var el=document.getElementById('gusage');if(!el||!GS)return;try{var r=await fetch(GS.url+'?token='+encodeURIComponent(GS.token)+'&user='+encodeURIComponent(GS.user||'')+'&usage=1'),j=await r.json();
-  if(j&&j.ok&&j.friend){var pc=Math.min(100,Math.round(j.used/(j.max*1073741824)*100)),el2=document.getElementById('gusage');if(el2)el2.innerHTML='<br>目前已使用 <b>'+fmtGB(j.used)+'</b> ／ '+j.max+' GB（'+pc+'%）'+(pc>=90?' ⚠️ 快滿了':'')}}catch(e){}}
+  if(j&&j.ok&&j.friend){var pr=j.max>0?Math.min(100,j.used/(j.max*1073741824)*100):100,pc=pr<10?Math.round(pr*10)/10:Math.round(pr),el2=document.getElementById('gusage');if(el2)el2.innerHTML='<br>目前已使用 <b>'+fmtGB(j.used)+'</b> ／ '+j.max+' GB（'+pc+'%）'+(pc>=90?' ⚠️ 快滿了':'')}}catch(e){}}
 async function gFrLoad(){var el=document.getElementById('gfr');if(!el)return;try{var r=await fetch(GS.url+'?token='+encodeURIComponent(GS.token)+'&settings=1'),j=await r.json();
   if(!j.ok){el.innerHTML=j.error==='token'?'密碼不正確':j.error==='owner'?'🔒 沒有權限，無法開啟。':'腳本還是舊版，請換成新版腳本並重新部署。';return}
   if(j.maxGb===undefined){el.innerHTML='腳本還是舊版，請換成新版腳本並重新部署。';return}
