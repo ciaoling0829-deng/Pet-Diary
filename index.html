@@ -377,7 +377,7 @@ async function gGo(){var old=GS;GS={url:document.getElementById('gs1').value.tri
   var ok=await gSave();if(ok){try{localStorage.setItem('pd_gs',JSON.stringify(GS))}catch(e){}alert('連線成功，已儲存一份備份');openSet()}else{var m=GERR;GS=old;alert('連線失敗：'+m)}}
 function gOff(){GS=null;try{localStorage.removeItem('pd_gs')}catch(e){}closeSh();alert('已清除 Google 雲端設定')}
 
-var VER='2026-10-29-q',DIRERR='',MAXUP=25*1048576;
+var VER='2026-10-29-s',DIRERR='',MAXUP=25*1048576;
 function stat(m,t,ms){var e=document.getElementById('stb');if(!e){e=document.createElement('div');e.id='stb';e.onclick=function(){e.style.display='none'};document.body.appendChild(e)}
   e.style.cssText='position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 10px);transform:translateX(-50%);z-index:40;max-width:92%;padding:10px 14px;border-radius:12px;font-size:14px;line-height:1.4;color:#fff;box-shadow:0 4px 16px rgba(0,0,0,.25);display:block;background:'+(t==='err'?'#c0392b':t==='ok'?'#2e8b57':'#444');
   e.textContent=m;clearTimeout(e._t);if(ms)e._t=setTimeout(function(){e.style.display='none'},ms)}
@@ -390,7 +390,7 @@ function muSet(){try{return JSON.parse(localStorage.getItem('pd_mu')||'{}')}catc
 function muMark(id){var m=muSet();m[id]=1;try{localStorage.setItem('pd_mu',JSON.stringify(m))}catch(e){}}
 async function gUp(id,b){var bd=JSON.stringify({token:GS.token,user:GS.user||'',kind:'media',id:id,ext:mext(b),data:await b2b64(b)});
   try{var r=await fetch(GS.url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:bd}),j=await r.json();
-    if(!j.ok)throw new Error(j.error==='token'?'密碼不正確':j.error==='user'?'使用者名稱未填寫或不可用（使用朋友密碼時必須填寫）':j.error==='full'?'使用人數已達上限，請聯絡管理者':'腳本回傳錯誤（'+(j.error||'未知')+'），請確認已換成新版腳本並重新部署');muMark(id)}
+    if(!j.ok)throw new Error(j.error==='token'?'密碼不正確':j.error==='user'?'使用者名稱未填寫或不可用（使用朋友密碼時必須填寫）':j.error==='full'?'使用人數已達上限，請聯絡管理者':j.error==='quota'?'雲端空間已滿（上限 '+(j.max||15)+' GB），請刪除一些照片或影片，或聯絡管理者調整':'腳本回傳錯誤（'+(j.error||'未知')+'），請確認已換成新版腳本並重新部署');muMark(id)}
   catch(e){if(e&&e.name==='TypeError'){if(!navigator.onLine)throw new Error('目前沒有網路連線');await fetch(GS.url,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:bd});muMark(id)}else throw e}}
 function upErr(e){return !navigator.onLine?'目前沒有網路連線':(e&&e.name==='TypeError')?'無法連線到 Google（請檢查網路與腳本部署權限是否為「所有人」）':((e&&e.message)||'未知錯誤')}
 async function upMedia(id,b,v,n,t){var w=v?'影片':'照片';
@@ -419,15 +419,33 @@ function bkUI(){var lb='';try{lb=localStorage.getItem('pd_lastbk')||''}catch(e){
   return h+'<h3 style="margin-top:16px">手動備份</h3><button class="btn g2" onclick="expBk()">📤 匯出備份檔（存到「檔案」或 iCloud）</button><input type="file" id="bf" accept=".json,application/json" style="display:none" onchange="impBk(this)"><button class="btn g2" onclick="document.getElementById(\'bf\').click()">📂 從備份檔還原</button><div class="empty" style="margin-top:8px">或用文字備份：</div>'}
 function dirNow(){stat('💾 儲存中…');dirSave().then(function(o){stat(o?'✅ 已儲存到資料夾':'⚠️ 儲存失敗：'+DIRERR,o?'ok':'err',o?2500:9000);openSet()})}
 function gUI(){if(!GS)return '<div class="empty" style="padding-top:0">只需設定一次，之後自動儲存紀錄、照片和影片。</div><button class="btn" onclick="gSet()">☁️ 設定 Google 雲端資料夾</button>';
-  return '<div class="empty" style="padding-top:0">☁️ 已設定。刪除紀錄或照片時，雲端的檔案也會一起移到垃圾桶'+(GS.user?'（使用者：'+esc(GS.user)+'，資料存在同名資料夾）':'')+'。每次儲存紀錄會自動上傳；備份檔只保留最新 5 份，多的會由 Google 腳本自動丟進垃圾桶（30 天內可救回）。照片和影片不受這個限制。</div><button class="btn" onclick="gNow()">💾 立即儲存到 Google 雲端</button><button class="btn g2" onclick="gPick()">♻️ 從 Google 雲端還原</button><button class="btn g2" onclick="gUpAll()">📷 補傳照片和影片</button><button class="btn g2" onclick="gClean()">🧹 清理雲端多餘的照片和影片</button><button class="btn g2" onclick="gTest()">🔧 測試 Google 雲端連線</button><button class="btn g2" onclick="gMax()">👥 朋友人數上限</button><button class="btn g2" onclick="gSet()">更換 Google 設定</button>'}
-async function gMax(){try{stat('☁️ 讀取設定…');var r=await fetch(GS.url+'?token='+encodeURIComponent(GS.token)+'&settings=1'),j=await r.json();hideStat();
-  if(!j.ok){if(j.error==='token')throw new Error('密碼不正確');if(j.error==='owner')throw new Error('只有使用「自己的密碼」才能修改，朋友密碼不行');throw new Error('腳本還是舊版，請換成新版腳本並重新部署')}
-  sheet('<h2>朋友人數上限</h2><div class="empty" style="padding-top:0">目前雲端資料夾裡有 '+j.count+' 位使用者資料夾，上限 '+j.max+' 人。已經建立的使用者不受影響，只是達到上限後新名字無法加入。</div><input id="gmx" type="number" inputmode="numeric" min="0" max="100" value="'+j.max+'"><button class="btn" onclick="gMaxSave()">儲存</button><button class="btn g2" onclick="closeSh()">取消</button>')}
-  catch(e){hideStat();alert('讀取失敗：'+((e&&e.message)||'連線失敗'))}}
-async function gMaxSave(){var n=parseInt(document.getElementById('gmx').value,10);if(!(n>=0&&n<=100)){alert('請輸入 0 到 100 的整數');return}
-  try{stat('☁️ 儲存中…');var r=await fetch(GS.url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({token:GS.token,kind:'setMax',max:n})}),j=await r.json();
-    if(!j.ok)throw new Error(j.error==='owner'?'只有使用「自己的密碼」才能修改':'腳本回傳錯誤（'+j.error+'）');closeSh();stat('✅ 朋友人數上限已改為 '+j.max+' 人','ok',3000)}
-  catch(e){stat('⚠️ 儲存失敗：'+((e&&e.message)||'連線失敗'),'err',9000)}}
+  var so=setOpen,fh=function(k,t){return '<button class="fh" onclick="togSet(\''+k+'\')"><span>'+t+'</span><span style="color:var(--sub)">'+(so[k]?'▾':'▸')+'</span></button>'};
+  return '<div class="empty" style="padding-top:0">☁️ 已設定。刪除紀錄或照片時，雲端的檔案也會一起移到垃圾桶'+(GS.user?'（使用者：'+esc(GS.user)+'，資料存在同名資料夾）':'')+'。每次儲存紀錄會自動上傳；備份檔只保留最新 5 份，多的會由 Google 腳本自動丟進垃圾桶（30 天內可救回）。</div>'+
+   '<div class="empty" style="padding:0 0 8px">📦 朋友帳號的雲端上傳空間上限為 <b>15 GB</b>（實際以管理者設定為準），超過後無法再上傳照片和影片，備份檔不受影響。<span id="gusage"></span></div>'+
+   '<button class="btn" onclick="gNow()">💾 立即儲存到 Google 雲端</button><button class="btn g2" onclick="gPick()">♻️ 從 Google 雲端還原</button><button class="btn g2" onclick="gUpAll()">📷 補傳照片和影片</button>'+
+   '<div class="card" style="margin:10px 0 0;padding:10px 12px">'+fh('oth','⚙️ 其他設定')+(so.oth?'<button class="btn g2" onclick="gTest()">🔧 測試 Google 雲端連線</button><button class="btn g2" onclick="gSet()">更換 Google 設定</button><button class="btn g2" onclick="gClean()">🧹 清理雲端多餘的照片和影片</button>':'')+'</div>'+
+   '<div class="card" style="margin:10px 0 0;padding:10px 12px">'+fh('fr','👥 朋友設定（管理者）')+(so.fr?'<div id="gfr" class="empty" style="padding:8px 0">讀取中…</div>':'')+'</div>'}
+var setOpen={};try{setOpen=JSON.parse(localStorage.getItem('pd_setopen')||'{}')||{}}catch(e){}
+var GROLE={k:'',r:null};
+async function gRole(){var k=(GS&&GS.url+'|'+GS.token+'|'+(GS.user||''))||'';if(GROLE.k===k&&GROLE.r)return GROLE.r;
+  try{var r=await fetch(GS.url+'?token='+encodeURIComponent(GS.token)+'&user='+encodeURIComponent(GS.user||'')+'&usage=1'),j=await r.json();
+    if(j&&j.ok){GROLE={k:k,r:j.friend?'friend':'owner'};return GROLE.r}}catch(e){}return null}
+async function togSet(k){if(k==='fr'&&!setOpen.fr&&GS){var ro=await gRole();if(ro==='friend'){stat('🔒 沒有權限，無法開啟','err',3500);return}}
+  setOpen[k]=!setOpen[k];try{localStorage.setItem('pd_setopen',JSON.stringify(setOpen))}catch(e){}openSet()}
+function fmtGB(b){return (b/1073741824).toFixed(b<10737418240?2:1)+' GB'}
+async function gUsage(){var el=document.getElementById('gusage');if(!el||!GS)return;try{var r=await fetch(GS.url+'?token='+encodeURIComponent(GS.token)+'&user='+encodeURIComponent(GS.user||'')+'&usage=1'),j=await r.json();
+  if(j&&j.ok&&j.friend){var pc=Math.min(100,Math.round(j.used/(j.max*1073741824)*100)),el2=document.getElementById('gusage');if(el2)el2.innerHTML='<br>目前已使用 <b>'+fmtGB(j.used)+'</b> ／ '+j.max+' GB（'+pc+'%）'+(pc>=90?' ⚠️ 快滿了':'')}}catch(e){}}
+async function gFrLoad(){var el=document.getElementById('gfr');if(!el)return;try{var r=await fetch(GS.url+'?token='+encodeURIComponent(GS.token)+'&settings=1'),j=await r.json();
+  if(!j.ok){el.innerHTML=j.error==='token'?'密碼不正確':j.error==='owner'?'🔒 沒有權限，無法開啟。':'腳本還是舊版，請換成新版腳本並重新部署。';return}
+  if(j.maxGb===undefined){el.innerHTML='腳本還是舊版，請換成新版腳本並重新部署。';return}
+  el.innerHTML='<div style="padding-bottom:8px">目前雲端資料夾有 '+j.count+' 位使用者資料夾。已經建立的使用者不受影響，只是達到人數上限後新名字無法加入。</div><label class="lb">朋友人數上限（人）</label><input id="gmx" type="number" inputmode="numeric" min="0" max="100" value="'+j.max+'"><label class="lb">每位朋友的雲端容量上限（GB）</label><input id="gmg" type="number" inputmode="decimal" min="0" step="0.5" value="'+j.maxGb+'"><div style="padding-bottom:8px">只限制朋友上傳的照片和影片；你自己的密碼沒有限制。調低上限不會刪除朋友已經上傳的檔案，只是超過後無法再上傳。</div><button class="btn" onclick="gFrSave()">儲存</button>'}
+  catch(e){el.textContent='讀取失敗：'+upErr(e)}}
+async function gFrSave(){var n=parseInt(document.getElementById('gmx').value,10),q=parseFloat(document.getElementById('gmg').value);
+  if(!(n>=0&&n<=100)){alert('朋友人數請輸入 0 到 100 的整數');return}if(!(q>=0)){alert('容量請輸入 0 以上的數字（GB）');return}
+  try{stat('☁️ 儲存中…');var r=await fetch(GS.url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({token:GS.token,kind:'setMax',max:n,maxGb:q})}),j=await r.json();
+    if(!j.ok)throw new Error(j.error==='owner'?'只有使用「自己的密碼」才能修改':'腳本回傳錯誤（'+j.error+'），請確認已換成新版腳本並重新部署');stat('✅ 已儲存：朋友 '+j.max+' 人、每人 '+j.maxGb+' GB','ok',3500)}
+  catch(e){stat('⚠️ 儲存失敗：'+upErr(e),'err',9000)}}
+var _os0=openSet;openSet=function(){_os0.apply(this,arguments);if(GS){gUsage();if(setOpen.fr)gFrLoad()}};
 function gNow(){stat('☁️ 備份中…');gSave().then(function(o){stat(o?'✅ 已儲存到 Google 雲端':'⚠️ 儲存失敗：'+GERR,o?'ok':'err',o?2500:9000);openSet()})}
 function hideStat(){var e=document.getElementById('stb');if(e)e.style.display='none'}
 async function gPick(){try{stat('☁️ 讀取雲端備份清單…');var r=await fetch(GS.url+'?token='+encodeURIComponent(GS.token)+'&user='+encodeURIComponent(GS.user||'')+'&list=1'),j=await r.json();
