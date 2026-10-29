@@ -416,7 +416,7 @@ async function gGo(){var old=GS;GS={url:document.getElementById('gs1').value.tri
   try{localStorage.setItem('pd_gs',JSON.stringify(GS))}catch(e){}GROLE={k:'',r:null};alert('已確定設定。想確認連線，可到「其他設定」按「測試 Google 雲端連線」');openSet()}
 function gOff(){GS=null;try{localStorage.removeItem('pd_gs')}catch(e){}closeSh();alert('已清除 Google 雲端設定')}
 
-var VER='2026-10-30-e',DIRERR='',MAXUP=25*1048576;
+var VER='2026-10-30-f',DIRERR='',MAXUP=25*1048576;
 function stat(m,t,ms){var e=document.getElementById('stb');if(!e){e=document.createElement('div');e.id='stb';e.onclick=function(){e.style.display='none'};document.body.appendChild(e)}
   e.style.cssText='position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 10px);transform:translateX(-50%);z-index:40;max-width:92%;padding:10px 14px;border-radius:12px;font-size:14px;line-height:1.4;color:#fff;box-shadow:0 4px 16px rgba(0,0,0,.25);display:block;background:'+(t==='err'?'#c0392b':t==='ok'?'#2e8b57':'#444');
   e.textContent=m;clearTimeout(e._t);if(ms)e._t=setTimeout(function(){e.style.display='none'},ms)}
@@ -428,8 +428,16 @@ async function runBk(quiet){if(!S.pets.length&&!S.recs.length)return;if(bkRun)re
 function b2b64(b){return new Promise(function(r,j){var fr=new FileReader();fr.onload=function(){r(String(fr.result).split(',')[1]||'')};fr.onerror=function(){j(new Error('讀取檔案失敗'))};fr.readAsDataURL(b)})}
 function muSet(){try{return JSON.parse(localStorage.getItem('pd_mu')||'{}')}catch(e){return {}}}
 function muMark(id){var m=muSet();m[id]=1;try{localStorage.setItem('pd_mu',JSON.stringify(m))}catch(e){}}
-async function gUp(id,b){var j=await gFetch(JSON.stringify({token:GS.token,user:GS.user||'',kind:'media',id:id,ext:mext(b),data:await b2b64(b)}));
-  if(!j.ok)throw new Error(j.error==='token'?'密碼不正確':j.error==='user'?'使用者名稱未填寫或不可用（使用朋友密碼時必須填寫）':j.error==='full'?'使用人數已達上限，請聯絡管理者':j.error==='quota'?'雲端空間已滿（上限 '+(j.max||15)+' GB），請刪除一些照片或影片，或聯絡管理者調整':j.error==='server'?'雲端腳本執行錯誤：'+(j.msg||'未知'):'腳本回傳錯誤（'+(j.error||'未知')+'），請確認已換成新版腳本並重新部署');muMark(id)}
+async function gHas(id){try{var r=await fetch(GS.url+'?token='+encodeURIComponent(GS.token)+'&user='+encodeURIComponent(GS.user||'')+'&mediaList=1'),j=await r.json();return !!(j&&j.ok&&j.ids&&j.ids.some(function(x){return x.id===id}))}catch(e){return false}}
+async function gUp(id,b){var bd=JSON.stringify({token:GS.token,user:GS.user||'',kind:'media',id:id,ext:mext(b),data:await b2b64(b)}),last=null;
+  for(var i=0;i<2;i++){if(!navigator.onLine)throw new Error('目前沒有網路連線');var j=null;
+    try{var r=await fetch(GS.url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:bd}),t=await r.text();try{j=JSON.parse(t)}catch(x){}if(!j)last=new Error('雲端回應不是 JSON（HTTP '+r.status+'）')}
+    catch(e){last=e}
+    if(j){if(j.ok){muMark(id);return}
+      throw new Error(j.error==='token'?'密碼不正確':j.error==='user'?'使用者名稱未填寫或不可用（使用朋友密碼時必須填寫）':j.error==='full'?'使用人數已達上限，請聯絡管理者':j.error==='quota'?'雲端空間已滿（上限 '+(j.max||15)+' GB），請刪除一些照片或影片，或聯絡管理者調整':j.error==='server'?'雲端腳本執行錯誤：'+(j.msg||'未知'):'腳本回傳錯誤（'+(j.error||'未知')+'），請確認已換成新版腳本並重新部署')}
+    // 大檔案常常是「雲端已收到，但回應被瀏覽器擋下」：到雲端確認這個檔案是否真的到了
+    for(var k=0;k<4;k++){await gWait(k?5000:2000);if(await gHas(id)){muMark(id);return}}}
+  throw last||new Error('雲端沒有收到檔案')}
 function upErr(e){return !navigator.onLine?'目前沒有網路連線':(e&&e.name==='TypeError')?'無法連線到 Google（請檢查網路與腳本部署權限是否為「所有人」）':((e&&e.message)||'未知錯誤')}
 async function upMedia(id,b,v,n,t){var w=v?'影片':'照片';
   if(!GS){if(n===1)stat('ℹ️ 尚未設定 Google 雲端，'+w+'只存在這支手機（⚙️ 設定可開啟）','info',4000);return}
