@@ -395,7 +395,7 @@ async function gGo(){var old=GS;GS={url:document.getElementById('gs1').value.tri
   var ok=await gSave();if(ok){try{localStorage.setItem('pd_gs',JSON.stringify(GS))}catch(e){}alert('連線成功，已儲存一份備份');openSet()}else{var m=GERR;GS=old;alert('連線失敗：'+m)}}
 function gOff(){GS=null;try{localStorage.removeItem('pd_gs')}catch(e){}closeSh();alert('已清除 Google 雲端設定')}
 
-var VER='2026-10-29-y',DIRERR='',MAXUP=25*1048576;
+var VER='2026-10-29-z',DIRERR='',MAXUP=25*1048576;
 function stat(m,t,ms){var e=document.getElementById('stb');if(!e){e=document.createElement('div');e.id='stb';e.onclick=function(){e.style.display='none'};document.body.appendChild(e)}
   e.style.cssText='position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 10px);transform:translateX(-50%);z-index:40;max-width:92%;padding:10px 14px;border-radius:12px;font-size:14px;line-height:1.4;color:#fff;box-shadow:0 4px 16px rgba(0,0,0,.25);display:block;background:'+(t==='err'?'#c0392b':t==='ok'?'#2e8b57':'#444');
   e.textContent=m;clearTimeout(e._t);if(ms)e._t=setTimeout(function(){e.style.display='none'},ms)}
@@ -466,7 +466,7 @@ async function gFrSave(){var n=parseInt(document.getElementById('gmx').value,10)
 var _os0=openSet;openSet=function(){_os0.apply(this,arguments);if(GS){gUsage();if(setOpen.fr)gFrLoad()}};
 
 function wipeUI(){sheet('<h2>🗑️ 一鍵清除所有資料</h2><div class="empty" style="padding-top:0;color:#c0392b"><b>這會清除這支手機上的所有寵物、紀錄、照片、影片、常用醫院、飼料紀錄與顏色設定，而且無法復原。</b>建議先到「手動備份」匯出一份。</div>'+
-  (GS?'<label style="display:flex;gap:8px;align-items:flex-start;margin:8px 0"><input id="wc" type="checkbox" style="width:auto;margin:3px 0 0"><span>同時清除 Google 雲端（'+(GS.user?'使用者「'+esc(GS.user)+'」的':'你的')+'備份檔和照片影片，會移到雲端垃圾桶，30 天內可以救回）</span></label>':'')+
+  (GS?'<label style="display:flex;gap:8px;align-items:flex-start;margin:8px 0"><input id="wc" type="checkbox" checked style="width:auto;margin:3px 0 0"><span>同時清除 Google 雲端（'+(GS.user?'使用者「'+esc(GS.user)+'」的':'你的')+'備份檔和照片影片，會移到雲端垃圾桶，30 天內可以救回）</span></label>':'')+
   (DH?'<label style="display:flex;gap:8px;align-items:flex-start;margin:8px 0"><input id="wd" type="checkbox" style="width:auto;margin:3px 0 0"><span>同時清除電腦資料夾裡的備份檔和照片影片（<b>會直接刪除，不經過資源回收筒</b>）</span></label>':'')+
   '<div class="empty" style="padding:8px 0">確認要清除，請在下面輸入「清除」兩個字：</div><input id="wt" placeholder="清除"><button class="btn" style="background:#c0392b" onclick="doWipe()">確定清除</button><button class="btn g2" onclick="closeSh()">取消</button>')}
 async function doWipe(){var t=document.getElementById('wt');if(!t||t.value.trim()!=='清除'){alert('請輸入「清除」兩個字才能繼續');return}
