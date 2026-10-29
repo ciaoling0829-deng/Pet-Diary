@@ -194,7 +194,7 @@ return '<div class="row" style="flex-wrap:wrap;margin-bottom:10px">'+SW.map(func
 function setAc(c,quiet){S.theme=S.theme||{};S.theme.ac=c;save();applyTheme();if(!quiet)openSet()}
 function setMode(m){S.theme=S.theme||{};S.theme.mode=m;save();applyTheme();openSet()}
 var pg='cal',rf='all',fromAdd=0,BASE=T.slice();
-var NAV=[['cal','📅','日曆'],['g_vet','💉','疫苗健檢'],['g_med','💊','用藥驅蟲'],['calc','🧮','計算'],['vet','🏥','獸醫院'],['tip','💡','小知識'],['pet','🐾','寵物']];
+var NAV=[['cal','📅','日曆'],['all','📋','紀錄'],['calc','🍽️','飲食'],['vet','🏥','獸醫院'],['tip','💡','小知識'],['pet','🐾','寵物']];
 var F=[['name','名字','text'],['breed','品種','text'],['birth','生日','date'],['home','到家日','date'],['chip','晶片號碼','text'],['note','介紹／備註','textarea']];
 var LEG={deworm:['🪱','驅蟲藥'],sneeze:['🤧','打噴嚏'],vomit:['🤮','嘔吐'],poop:['💩','大小便'],food:['🍽️','食物'],water:['🚰','飲水'],sick:['🌡️','身體狀況'],joy:['✨','美好時刻']};
 function syncT(){S.types=S.types||[];if(!S.mig){(S.recs||[]).forEach(function(r){if(r.type==='drop')r.type='deworm';if(LEG[r.type]&&!S.types.some(function(t){return t[0]===r.type}))S.types.push([r.type,LEG[r.type][0],LEG[r.type][1]])});S.mig=1;save()}T=BASE.filter(function(t){return ['med','vac','check'].indexOf(t[0])>-1}).concat(S.types)}
@@ -207,7 +207,7 @@ function render(){
   ['cal','rec','pet','calc','vet','tip'].forEach(function(k){document.getElementById('pg_'+k).style.display=k===pg?'':'none'});
   document.querySelector('.fab').style.display=(pg==='pet'||pg==='calc'||pg==='vet'||pg==='tip')?'none':'';
   if(pg==='rec'){renderRec();renderChips()}if(pg==='pet')renderPet();if(pg==='calc')renderCalc();if(pg==='vet')renderVet();if(pg==='tip')renderTip();
-  var on=pg==='rec'?rf:pg;
+  var on=pg==='rec'?'all':pg;
   document.getElementById('nav').innerHTML=NAV.map(function(n){return '<button class="'+(n[0]===on?'on':'')+'" onclick="go(\''+n[0]+'\')"><span>'+n[1]+'</span>'+n[2]+'</button>'}).join('');
 }
 function renderRec(){
@@ -220,7 +220,7 @@ function renderRec(){
   document.getElementById('rdel').innerHTML=cu?'<button class="btn g2" onclick="delType(\''+rf+'\')">刪除「'+cu[2]+'」項目</button>':'';
 }
 function openType(a){fromAdd=a||0;sheet('<h2>新增項目</h2><input id="tn" placeholder="項目名稱（例如：眼藥水、心絲蟲藥）"><input id="te" placeholder="圖示（一個表情符號）" value="💊" maxlength="4"><button class="btn" onclick="addType()">新增</button>')}
-function addType(){var n=document.getElementById('tn').value.replace(/[<>&"']/g,'').trim(),e=(document.getElementById('te').value||'📝').replace(/[<>&"']/g,'');if(!n)return;var k='c_'+uid();S.types=S.types||[];S.types.push([k,e,n]);save();syncT();pick=k;if(pg==='rec')rf=k;closeSh();if(fromAdd)openAdd();else render();fromAdd=0}
+function addType(){var n=document.getElementById('tn').value.replace(/[<>&"']/g,'').trim(),e=(document.getElementById('te').value||'📝').replace(/[<>&"']/g,'');if(!n)return;var k='c_'+uid();S.types=S.types||[];S.types.push([k,e,n]);S.pins=pins().concat([k]);save();syncT();pick=k;if(pg==='rec')rf=k;closeSh();if(fromAdd)openAdd();else render();fromAdd=0}
 function delType(k){ask('刪除這個項目？已記錄的內容會保留並歸為「其他」。',function(){delType2(k)})}function delType2(k){S.types=(S.types||[]).filter(function(x){return x[0]!==k});rf='all';save();render()}
 function dd(s){return Math.floor((new Date(today+'T00:00:00')-new Date(s+'T00:00:00'))/864e5)}
 function daysTxt(p){var o=[];if(p.home)o.push('一起生活 '+dd(p.home)+' 天');if(p.birth){var m=Math.floor(dd(p.birth)/30.44);o.push(m>=12?Math.floor(m/12)+' 歲'+(m%12?' '+m%12+' 個月':''):m+' 個月')}return o.join(' · ')}
@@ -355,11 +355,11 @@ async function pickMedia(inp){var fs=[].slice.call(inp.files);inp.value='';if(!f
     try{var b=f;if(v){if(f.size>6291456){try{var cv=await compressVideo(f,function(p){st.textContent='壓縮影片中 '+p+'%（請保持此畫面開啟）'});if(cv.size>0&&cv.size<f.size)b=cv}catch(e2){}}}else{b=await shrink(f);if(b.size>=f.size)b=f}
       var id=uid()+uid();await putM(id,b);pm.push({id:id,k:v?'v':'i'})}catch(e){alert('加入失敗：'+((e&&e.message)||f.name))}}
   st.textContent='';showPm()}
-function pins(){return S.pins||['g_vet','g_med']}
-function allItems(){return [['all','全部']].concat(GR.map(function(g){return [g[0],g[1]]})).concat(T.map(function(t){return [t[0],t[1]+' '+t[2]]}))}
+function pins(){return (S.pins||[]).filter(function(k){return !GM[k]})}
+function allItems(){return [['all','全部']].concat(T.map(function(t){return [t[0],t[1]+' '+t[2]]}))}
 function renderChips(){var p=pins(),a=allItems();
-  document.getElementById('tchips').innerHTML=a.filter(function(x){return x[0]==='all'||p.indexOf(x[0])>-1||x[0]===rf}).map(function(x){return '<button class="chip'+(rf===x[0]?' on':'')+'" onclick="setRf(\''+x[0]+'\')">'+x[1]+'</button>'}).join('')+'<button class="chip" onclick="rex=!rex;render()">'+(rex?'▴ 收合':'▾ 全部項目')+'</button>';
-  document.getElementById('rex').innerHTML=rex?'<div class="card" style="margin-top:10px"><h3>全部項目（點星號設定要不要顯示在上方）</h3>'+a.filter(function(x){return x[0]==='all'||hasRec(x[0])}).map(function(x){var on=x[0]==='all'||p.indexOf(x[0])>-1;return '<div class="pr"><span style="flex:1" onclick="rex=false;setRf(\''+x[0]+'\')">'+x[1]+'</span>'+(x[0]==='all'?'':'<button class="x" style="color:var(--ac)" onclick="pinT(\''+x[0]+'\')">'+(on?'★':'☆')+'</button>')+'</div>'}).join('')+'<button class="btn g2" style="margin-top:10px" onclick="openType()">＋ 新增項目</button></div>':''}
+  document.getElementById('tchips').innerHTML=a.filter(function(x){return x[0]==='all'||p.indexOf(x[0])>-1||(x[0]===rf&&!GM[rf])}).map(function(x){return '<button class="chip'+(rf===x[0]?' on':'')+'" onclick="setRf(\''+x[0]+'\')">'+x[1]+'</button>'}).join('')+'<button class="chip" onclick="rex=!rex;render()">'+(rex?'▴ 收合':'▾ 全部項目')+'</button>';
+  document.getElementById('rex').innerHTML=rex?'<div class="card" style="margin-top:10px"><h3>全部項目（點星號設定要不要顯示在上方）</h3>'+a.filter(function(x){return x[0]==='all'||hasRec(x[0])||x[0].indexOf('c_')===0}).map(function(x){var on=x[0]==='all'||p.indexOf(x[0])>-1;return '<div class="pr"><span style="flex:1" onclick="rex=false;setRf(\''+x[0]+'\')">'+x[1]+'</span>'+(x[0]==='all'?'':'<button class="x" style="color:var(--ac)" onclick="pinT(\''+x[0]+'\')">'+(on?'★':'☆')+'</button>')+'</div>'}).join('')+'<button class="btn g2" style="margin-top:10px" onclick="openType()">＋ 新增項目</button></div>':''}
 function pinT(k){var p=pins().slice(),i=p.indexOf(k);if(i>-1)p.splice(i,1);else p.push(k);S.pins=p;save();render()}
 if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(function(){});
 var PEND=[],DH=null,DP=null;
@@ -434,7 +434,7 @@ async function gGo(){var old=GS;GS={url:document.getElementById('gs1').value.tri
   try{localStorage.setItem('pd_gs',JSON.stringify(GS))}catch(e){}GROLE={k:'',r:null};alert('已確定設定。想確認連線，可到「其他設定」按「測試 Google 雲端連線」');openSet()}
 function gOff(){GS=null;try{localStorage.removeItem('pd_gs')}catch(e){}closeSh();alert('已清除 Google 雲端設定')}
 
-var VER='2026-10-30-j',DIRERR='',MAXUP=25*1048576;
+var VER='2026-10-30-m',DIRERR='',MAXUP=25*1048576;
 function stat(m,t,ms){var e=document.getElementById('stb');if(!e){e=document.createElement('div');e.id='stb';e.onclick=function(){e.style.display='none'};document.body.appendChild(e)}
   e.style.cssText='position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 10px);transform:translateX(-50%);z-index:40;max-width:92%;padding:10px 14px;border-radius:12px;font-size:14px;line-height:1.4;color:#fff;box-shadow:0 4px 16px rgba(0,0,0,.25);display:block;background:'+(t==='err'?'#c0392b':t==='ok'?'#2e8b57':'#444');
   e.textContent=m;clearTimeout(e._t);if(ms)e._t=setTimeout(function(){e.style.display='none'},ms)}
@@ -695,7 +695,7 @@ plants:['ASPCA：有毒與無毒植物清單','https://www.aspca.org/pet-care/an
 tpr:['ASPCA Pro：貓狗正常體溫、心跳、呼吸參考值','https://www.aspcapro.org/sites/default/files/NormalTPRDogsCatsPoster.pdf','健康觀察區的體溫、心跳與呼吸次數參考值，依這份資料整理。'],
 wsava:['WSAVA：全球營養指引','https://wsava.org/global-guidelines/global-nutrition-guidelines/','世界小動物獸醫協會的營養指引，包含體態評分、成年貓狗熱量需求參考、挑選寵物食品與飼養建議。'],
 aaha:['AAHA：2021 營養與體重管理指引','https://www.aaha.org/resources/2021-aaha-nutrition-and-weight-management-guidelines/','美國動物醫院協會的營養與體重管理指引，說明定期營養評估與體重管理的原則。'],
-paw:['肉球世界：寵物每日飲食需求計算機','https://www.pawpawland.com.tw/pages/pet-calculator','計算頁的欄位與流程、每日水分建議（每公斤 50 到 60 毫升）參考這個網站。']};
+paw:['肉球世界：寵物每日飲食需求計算機','https://www.pawpawland.com.tw/pages/pet-calculator','飲食頁的欄位與流程、每日水分建議（每公斤 50 到 60 毫升）參考這個網站。']};
 function srcLinks(ids){return ids.map(function(i){var x=SRC[i];return '<a href="'+x[1]+'" target="_blank" rel="noopener" style="color:var(--ac)">'+esc(x[0])+'</a>'}).join('、')}
 function srcHTML(){return Object.keys(SRC).map(function(i){var x=SRC[i];return '<div class="r"><div class="e">🔗</div><div class="m"><b><a href="'+x[1]+'" target="_blank" rel="noopener" style="color:var(--ac)">'+esc(x[0])+'</a></b><div>'+esc(x[2])+'</div></div></div>'}).join('')+'<div class="empty" style="padding:10px 0 0">說明：以上是整理時參考的資料，內容為彙整改寫，並非逐字引用，也不代表這些機構的官方立場。居家照顧、就醫警訊等其餘內容是一般獸醫衛教常識的整理，沒有單一出處；實際狀況請以獸醫的判斷為準。</div>'}
 function calcSrc(){return '<div class="card"><h3>📚 參考來源</h3><div class="empty" style="padding:0 0 8px">'+srcLinks(['paw','wsava','aaha'])+'</div><div class="empty" style="padding:0">每日熱量以常見的獸醫營養公式估算（基礎熱量 70 × 體重的 0.75 次方，再乘上年齡與絕育的係數，前後留 10% 範圍），係數是我依一般慣例設定，並非直接取自上述網站，算出的數字可能和肉球世界略有出入。每日水分建議（每公斤 50 到 60 毫升）取自肉球世界。結果僅供參考，請與獸醫確認。</div></div>'}
