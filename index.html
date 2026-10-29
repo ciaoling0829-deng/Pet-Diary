@@ -81,7 +81,7 @@ input[type=date]{-webkit-appearance:none;appearance:none;min-height:46px;display
 </head>
 <body>
 <div class="app">
-  <button class="gear" onclick="openSet()" aria-label="設定">⚙️</button>
+  <button class="gear" onclick="openSet()" aria-label="設定">⚙️</button><button class="gear" id="qsv" onclick="quickSave()" aria-label="快速儲存" style="margin-right:4px">💾</button>
   <div class="pets" id="pets"></div>
   <div id="pg_cal"><div id="bkn"></div><button class="btn" style="margin-top:12px" onclick="quickCap()">📸 即時記錄（拍照／錄影）</button>
   <div class="card">
@@ -434,7 +434,7 @@ async function gGo(){var old=GS;GS={url:document.getElementById('gs1').value.tri
   try{localStorage.setItem('pd_gs',JSON.stringify(GS))}catch(e){}GROLE={k:'',r:null};alert('已確定設定。想確認連線，可到「其他設定」按「測試 Google 雲端連線」');openSet()}
 function gOff(){GS=null;try{localStorage.removeItem('pd_gs')}catch(e){}closeSh();alert('已清除 Google 雲端設定')}
 
-var VER='2026-10-30-i',DIRERR='',MAXUP=25*1048576;
+var VER='2026-10-30-j',DIRERR='',MAXUP=25*1048576;
 function stat(m,t,ms){var e=document.getElementById('stb');if(!e){e=document.createElement('div');e.id='stb';e.onclick=function(){e.style.display='none'};document.body.appendChild(e)}
   e.style.cssText='position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 10px);transform:translateX(-50%);z-index:40;max-width:92%;padding:10px 14px;border-radius:12px;font-size:14px;line-height:1.4;color:#fff;box-shadow:0 4px 16px rgba(0,0,0,.25);display:block;background:'+(t==='err'?'#c0392b':t==='ok'?'#2e8b57':'#444');
   e.textContent=m;clearTimeout(e._t);if(ms)e._t=setTimeout(function(){e.style.display='none'},ms)}
@@ -534,6 +534,15 @@ async function doWipe(){var t=document.getElementById('wt');if(!t||t.value.trim(
   MC={};PEND=[];pm=[];tipOpen={food:true};S={pets:[],recs:[],cur:null};save();closeSh();render();
   stat(er.length?'⚠️ 已清除手機資料，但有項目失敗：'+er.join('；'):'✅ 已清除所有資料','ok',er.length?10000:4000)}
 function gNow(){stat('☁️ 備份中…');sesNew();var d=bkDirty;bkDirty=false;gSave().then(function(o){if(!o&&d)bkDirty=true;stat(o?'✅ 已儲存到 Google 雲端（'+new Date().toLocaleTimeString('zh-TW',{hour12:false,hour:'2-digit',minute:'2-digit'})+'）':'⚠️ 儲存失敗：'+GERR,o?'ok':'err',o?2500:9000);openSet()})}
+var qsBusy=false;
+async function quickSave(){if(qsBusy)return;
+  if(!GS&&!DH){alert('還沒有設定 Google 雲端或儲存資料夾，請先在設定裡開啟');openSet();return}
+  if(!S.pets.length&&!S.recs.length){alert('目前還沒有資料可以儲存');return}
+  qsBusy=true;var b=document.getElementById('qsv');if(b)b.style.opacity='.4';stat('💾 儲存中…');sesNew();var d=bkDirty;bkDirty=false;var er=[];
+  try{if(DH&&!(await dirSave()))er.push('資料夾：'+DIRERR);if(GS&&!(await gSave()))er.push('Google 雲端：'+GERR)}
+  finally{qsBusy=false;if(b)b.style.opacity=''}
+  if(er.length){if(d)bkDirty=true;stat('⚠️ 儲存失敗 — '+er.join('；')+'。紀錄仍保存在手機。','err',9000)}
+  else stat('✅ 已儲存'+(GS?'到 Google 雲端':'到資料夾')+'（'+new Date().toLocaleTimeString('zh-TW',{hour12:false,hour:'2-digit',minute:'2-digit'})+'）','ok',2500)}
 function hideStat(){var e=document.getElementById('stb');if(e)e.style.display='none'}
 async function gPick(){try{stat('☁️ 讀取雲端備份清單…');var r=await fetch(GS.url+'?token='+encodeURIComponent(GS.token)+'&user='+encodeURIComponent(GS.user||'')+'&list=1'),j=await r.json();
   if(!j.ok)throw new Error(j.error==='token'?'密碼不正確':j.error==='user'?'使用者名稱未填寫或不可用（使用朋友密碼時必須填寫）':j.error==='full'?'使用人數已達上限，請聯絡管理者':j.error==='empty'?'雲端沒有備份檔':'腳本回傳錯誤（'+j.error+'）');
