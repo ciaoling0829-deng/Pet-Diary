@@ -246,20 +246,22 @@ var GR=[['g_vet','疫苗健檢'],['g_med','用藥驅蟲']],GM={g_vet:['vac','che
 function renderVet(){var e=document.getElementById('pg_vet'),q=encodeURIComponent,vs=S.vets||[];
   var a=function(u,t){return '<a class="lnk" href="'+u+'" target="_blank" rel="noopener"><span>'+t+'</span><span>›</span></a>'};
   e.innerHTML='<div class="card"><h3>搜尋附近的獸醫院</h3>'+a('https://www.google.com/maps/search/?api=1&query='+q('動物醫院'),'🗺️ Google 地圖：附近動物醫院')+a('https://www.google.com/maps/search/?api=1&query='+q('24小時動物醫院'),'🌙 Google 地圖：24 小時動物醫院')+a('https://www.google.com/maps/search/?api=1&query='+q('特殊寵物 動物醫院'),'🦎 Google 地圖：特寵醫院（爬蟲、鳥類、小動物）')+'<div class="empty">點選後會開啟 Google 地圖（已安裝 App 會直接開啟 App），依你目前的位置列出附近醫院。守宮、澤龜、鸚鵡等特殊寵物，不是每間動物醫院都看，建議先打電話確認再前往。</div></div><div class="card"><h3>我的常用醫院</h3>'+(vs.length?vs.map(function(v){return '<div class="r"><div class="e">🏥</div><div class="m"><b>'+esc(v.name)+'</b><div>'+(v.tel?'<a href="tel:'+esc(v.tel)+'" style="color:var(--ac)">📞 '+esc(v.tel)+'</a>':'')+'<br><a href="'+esc(mu(v))+'" target="_blank" rel="noopener" style="color:var(--ac)">🗺️ 在 Google 地圖開啟</a>'+(v.addr?'<br>📍 '+esc(v.addr):'')+(v.note?'<br>📝 '+esc(v.note).replace(/\n/g,'<br>'):'')+'</div></div><button class="x" onclick="delVet(\''+v.id+'\')">🗑️</button></div>'}).join(''):'<div class="empty">還沒有儲存的醫院</div>')+'<button class="btn g2" onclick="openVet()">＋ 新增常用醫院</button></div>'}
-function openVet(){sheet('<h2>新增常用醫院</h2><label class="lb">Google 地圖連結（貼上後自動帶入名稱、電話、地址）</label><input id="vu" type="url" placeholder="貼上 Google 地圖分享連結（選填）" oninput="vLinkIn()"><button class="btn g2" style="margin:0 0 8px" onclick="vFill()">✨ 從連結自動帶入</button><div id="vst" class="empty" style="padding:0 0 8px">不貼連結也可以，直接自己填。已經填的欄位不會被蓋掉。</div><input id="vn" placeholder="醫院名稱"><input id="vt" type="tel" placeholder="電話"><input id="va" placeholder="地址"><textarea id="vm" rows="3" placeholder="其他備註（例如：看診時間、擅長的科別、特寵專科）"></textarea><button class="btn g2" style="margin:0 0 8px" onclick="findVet()">🔎 在 Google 地圖搜尋這間醫院</button><button class="btn" onclick="addVet()">儲存</button>')}
-var vTm=0;
-function vLinkIn(){clearTimeout(vTm);var u=document.getElementById('vu').value.trim();if(/^https:\/\/\S{12,}/.test(u))vTm=setTimeout(vFill,700)}
-function vPlaceLocal(u){try{var m=u.match(/\/maps\/place\/([^\/@?]+)/);if(m){var n=decodeURIComponent(m[1].replace(/\+/g,' '));if(n&&!/^\d+[°.]/.test(n))return n}var q=u.match(/[?&](?:query|q)=([^&]+)/);if(q){var t=decodeURIComponent(q[1].replace(/\+/g,' '));if(!/^-?\d+\.\d+,/.test(t))return t}}catch(e){}return ''}
-async function vFill(){var u=document.getElementById('vu').value.trim(),st=document.getElementById('vst');if(!st)return;
-  if(!/^https:\/\//.test(u)){st.textContent='請先貼上 Google 地圖的分享連結（https:// 開頭）。';return}
-  var got={name:vPlaceLocal(u),addr:'',tel:''},how='';st.textContent='🔎 讀取中…';
-  if(GS){try{var r=await fetch(GS.url+'?token='+encodeURIComponent(GS.token)+'&place='+encodeURIComponent(u)),j=await r.json();
-    if(j&&j.ok){got.name=j.name||got.name;got.addr=j.addr||'';got.tel=j.tel||'';how='雲端'}else if(j&&j.error==='token'){how='密碼不正確'}else if(j&&j.error==='link'){st.textContent='這不是 Google 地圖的連結。';return}else{how='雲端讀取失敗'}}catch(e){how='無法連線'}}
-  else how='未設定 Google 雲端';
-  var put=function(id,v){var el=document.getElementById(id);if(!el||!v||el.value.trim())return 0;el.value=v;return 1},f=[];
-  if(put('vn',got.name))f.push('名稱');if(put('vt',got.tel))f.push('電話');if(put('va',got.addr))f.push('地址');
-  var miss=[];if(!got.name)miss.push('名稱');if(!got.tel)miss.push('電話');if(!got.addr)miss.push('地址');
-  st.textContent=(f.length?'✅ 已帶入：'+f.join('、')+'。':'沒有帶入新資料。')+(miss.length?'讀不到：'+miss.join('、')+'，請自己填寫。':'')+(how&&how!=='雲端'?'（'+how+'，只能從連結讀出名稱）':'')+' 帶入的資料請再核對一次。'}
+function openVet(){sheet('<h2>新增常用醫院</h2><label class="lb">Google 地圖連結（選填，之後可一鍵開啟該醫院頁面）</label><input id="vu" type="url" placeholder="貼上 Google 地圖分享連結"><label class="lb">或：貼上整段文字（在 Google 地圖地點頁長按複製名稱、地址、電話都可以）</label><textarea id="vp" rows="3" placeholder="例如整段貼上：&#10;愛心動物醫院&#10;台北市大安區忠孝東路四段100號&#10;02 2771 1234" oninput="vPasteIn()"></textarea><button class="btn g2" style="margin:0 0 8px" onclick="vSplit()">✂️ 自動拆分成名稱、電話、地址</button><div id="vst" class="empty" style="padding:0 0 8px">不貼也可以，直接自己填。已經填的欄位不會被蓋掉。</div><input id="vn" placeholder="醫院名稱"><input id="vt" type="tel" placeholder="電話"><input id="va" placeholder="地址"><textarea id="vm" rows="3" placeholder="其他備註（例如：看診時間、擅長的科別、特寵專科）"></textarea><button class="btn g2" style="margin:0 0 8px" onclick="findVet()">🔎 在 Google 地圖搜尋這間醫院</button><button class="btn" onclick="addVet()">儲存</button>')}
+var vTp=0;
+function vPasteIn(){clearTimeout(vTp);if(document.getElementById('vp').value.trim().length>6)vTp=setTimeout(vSplit,600)}
+function vParse(t){var L=String(t||'').replace(/\r/g,'').split('\n').map(function(x){return x.replace(/^[\s·•▪️🏥📞📍☎️]+/,'').trim()}).filter(Boolean),o={name:'',addr:'',tel:'',note:''},used={};
+  var TEL=/(?:\+886[ -]?\(?0?\d{1,2}\)?[ -]?\d{3,4}[ -]?\d{3,4}|\(0\d{1,2}\)[ -]?\d{3,4}[ -]?\d{3,4}|0\d{1,2}[ -]?\d{3,4}[ -]?\d{3,4}|09\d{2}[ -]?\d{3}[ -]?\d{3})/,ADD=/[縣市].{0,8}?[區鄉鎮市].{0,30}?\d+(?:之\d+)?號|[路街段巷弄].{0,14}?\d+(?:之\d+)?號/;
+  L.forEach(function(l,i){var m=l.match(TEL);if(!o.tel&&m&&!ADD.test(l)){o.tel=m[0].replace(/^\+886[ -]?\(?0?/,'0').replace(/[()]/g,'').replace(/ +/g,'-').replace(/^(0\d)-?(\d{3,4})-?(\d{3,4})$/,'$1-$2-$3');used[i]=1;return}
+    if(!o.addr&&ADD.test(l)){o.addr=l.replace(/^(地址|Address)\s*[:：]?\s*/i,'').replace(/^\d{3,6}\s*/,'').trim();used[i]=1}});
+  L.forEach(function(l,i){if(used[i]||!/^(營業|營業時間|休息|24 小時|打烊|Open|Closed|Hours)|營業中|已打烊|即將打烊/.test(l))return;if(!o.note)o.note='營業時間：'+l.replace(/^(營業時間|Hours)\s*[:：]?\s*/i,'');used[i]=1});
+  for(var i=0;i<L.length;i++){var l=L[i];if(used[i])continue;if(/^(電話|地址|網站|路線|評論|儲存|分享|附近|傳送|Phone|Website|Directions|Save|Share|Reviews)/i.test(l))continue;if(/^\d(\.\d)?\s*[\(（★]?\d*[\)）]?\s*$/.test(l)||/^[\d.,\s()（）★]+$/.test(l))continue;if(/^(動物醫院|獸醫診所|獸醫|寵物醫院|Veterinarian|Animal hospital)$/i.test(l))continue;o.name=l.replace(/^(名稱|醫院)\s*[:：]?\s*/,'');break}
+  if(!o.tel){var pm=String(t).match(/(?:電話|Phone)\s*[:：]?\s*([+\d()\- ]{8,})/i);if(pm)o.tel=pm[1].trim()}
+  return o}
+function vSplit(){var t=document.getElementById('vp').value,st=document.getElementById('vst');if(!st)return;if(!t.trim()){st.textContent='請先貼上一段文字。';return}
+  var g=vParse(t),f=[],put=function(id,v){var el=document.getElementById(id);if(!el||!v||el.value.trim())return 0;el.value=v;return 1};
+  if(put('vn',g.name))f.push('名稱');if(put('vt',g.tel))f.push('電話');if(put('va',g.addr))f.push('地址');if(put('vm',g.note))f.push('備註（營業時間）');
+  var miss=[];if(!g.name)miss.push('名稱');if(!g.tel)miss.push('電話');if(!g.addr)miss.push('地址');
+  st.textContent=(f.length?'✅ 已帶入：'+f.join('、')+'。':'沒有帶入新資料（欄位已有內容，或看不出哪個是名稱、電話、地址）。')+(miss.length?'沒辨識到：'+miss.join('、')+'，請自己填寫。':'')+' 請再核對一次。'}
 function addVet(){var g=function(i){return document.getElementById(i).value.trim()},n=g('vn');if(!n)return;S.vets=S.vets||[];S.vets.push({id:uid(),name:n,tel:g('vt'),addr:g('va'),note:g('vm'),url:g('vu').indexOf('https://')===0?g('vu'):''});save();closeSh();render()}
 function mu(v){return v.url||'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(v.name+' '+(v.addr||''))}
 function findVet(){var n=document.getElementById('vn').value.trim(),a=document.getElementById('va').value.trim();window.open('https://www.google.com/maps/search/?api=1&query='+encodeURIComponent((n+' '+a).trim()||'動物醫院'),'_blank')}
@@ -390,7 +392,7 @@ async function gGo(){var old=GS;GS={url:document.getElementById('gs1').value.tri
   var ok=await gSave();if(ok){try{localStorage.setItem('pd_gs',JSON.stringify(GS))}catch(e){}alert('連線成功，已儲存一份備份');openSet()}else{var m=GERR;GS=old;alert('連線失敗：'+m)}}
 function gOff(){GS=null;try{localStorage.removeItem('pd_gs')}catch(e){}closeSh();alert('已清除 Google 雲端設定')}
 
-var VER='2026-10-29-t',DIRERR='',MAXUP=25*1048576;
+var VER='2026-10-29-v',DIRERR='',MAXUP=25*1048576;
 function stat(m,t,ms){var e=document.getElementById('stb');if(!e){e=document.createElement('div');e.id='stb';e.onclick=function(){e.style.display='none'};document.body.appendChild(e)}
   e.style.cssText='position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 10px);transform:translateX(-50%);z-index:40;max-width:92%;padding:10px 14px;border-radius:12px;font-size:14px;line-height:1.4;color:#fff;box-shadow:0 4px 16px rgba(0,0,0,.25);display:block;background:'+(t==='err'?'#c0392b':t==='ok'?'#2e8b57':'#444');
   e.textContent=m;clearTimeout(e._t);if(ms)e._t=setTimeout(function(){e.style.display='none'},ms)}
