@@ -386,7 +386,7 @@ async function gGo(){var old=GS;GS={url:document.getElementById('gs1').value.tri
   var ok=await gSave();if(ok){try{localStorage.setItem('pd_gs',JSON.stringify(GS))}catch(e){}alert('連線成功，已儲存一份備份');openSet()}else{var m=GERR;GS=old;alert('連線失敗：'+m)}}
 function gOff(){GS=null;try{localStorage.removeItem('pd_gs')}catch(e){}closeSh();alert('已清除 Google 雲端設定')}
 
-var VER='2026-10-29-d',DIRERR='',MAXUP=25*1048576;
+var VER='2026-10-29-e',DIRERR='',MAXUP=25*1048576;
 function stat(m,t,ms){var e=document.getElementById('stb');if(!e){e=document.createElement('div');e.id='stb';e.onclick=function(){e.style.display='none'};document.body.appendChild(e)}
   e.style.cssText='position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 10px);transform:translateX(-50%);z-index:40;max-width:92%;padding:10px 14px;border-radius:12px;font-size:14px;line-height:1.4;color:#fff;box-shadow:0 4px 16px rgba(0,0,0,.25);display:block;background:'+(t==='err'?'#c0392b':t==='ok'?'#2e8b57':'#444');
   e.textContent=m;clearTimeout(e._t);if(ms)e._t=setTimeout(function(){e.style.display='none'},ms)}
@@ -418,12 +418,12 @@ async function cloudGet(id){try{var r=await fetch(GS.url+'?token='+encodeURIComp
 function getM(id){return getM0(id).then(function(b){return b||(GS?cloudGet(id):null)})}
 
 function bkUI(){var lb='';try{lb=localStorage.getItem('pd_lastbk')||''}catch(e){}
-  var h='<div class="empty" style="padding-top:0">上次備份：'+(lb||'尚未備份')+'</div><h3 style="margin-top:6px">① 儲存到我選擇的資料夾</h3>';
+  var h='<div class="empty" style="padding-top:0">上次備份：'+(lb||'尚未備份')+'</div><h3 style="margin-top:6px">① 儲存到我選擇的資料夾</h3><div class="empty" style="padding:0 0 8px;color:var(--ac)">⚠️ 此功能只限電腦版（Chrome／Edge）使用，iPhone 無法使用。</div>';
   if(window.showDirectoryPicker){
     if(DH)h+='<div class="empty" style="padding-top:0">📁 已連結：'+esc(DH.name)+'。每次儲存紀錄會自動備份；備份檔只保留最新 5 份，超過的會自動刪除。照片和影片也存在這個資料夾。</div><button class="btn" onclick="dirNow()">💾 立即儲存到資料夾</button><button class="btn g2" onclick="setDir()">更換資料夾</button>';
     else if(DP)h+='<button class="btn" onclick="relink()">🔗 重新連結資料夾（需再同意一次）</button><button class="btn g2" onclick="setDir()">更換資料夾</button>';
     else h+='<div class="empty" style="padding-top:0">只需選一次資料夾，之後會自動儲存。</div><button class="btn" onclick="setDir()">📁 選擇儲存資料夾</button>'}
-  else h+='<div class="empty" style="padding-top:0">這個瀏覽器（例如 iPhone）無法指定資料夾，請使用 ② Google 雲端，或下方手動備份。</div>';
+  else h+='<div class="empty" style="padding-top:0">目前這個瀏覽器不支援。iPhone 請改用 ② Google 雲端，或下方的手動備份。</div>';
   h+='<h3 style="margin-top:16px">② 儲存到 Google 雲端資料夾</h3>'+gUI();
   return h+'<h3 style="margin-top:16px">手動備份</h3><button class="btn g2" onclick="expBk()">📤 匯出備份檔（存到「檔案」或 iCloud）</button><input type="file" id="bf" accept=".json,application/json" style="display:none" onchange="impBk(this)"><button class="btn g2" onclick="document.getElementById(\'bf\').click()">📂 從備份檔還原</button><div class="empty" style="margin-top:8px">或用文字備份：</div>'}
 function dirNow(){stat('💾 儲存中…');dirSave().then(function(o){stat(o?'✅ 已儲存到資料夾':'⚠️ 儲存失敗：'+DIRERR,o?'ok':'err',o?2500:9000);openSet()})}
