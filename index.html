@@ -126,7 +126,7 @@ function renderCal(){
   document.getElementById('dt').textContent=sel.replace(/-/g,'/')+(sel===today?'（今天）':'')+(all&&S.pets.length>1?' · 全部寵物':pet?' · '+pet.name:'');
   var rs=S.recs.filter(function(r){return (all||r.pet===S.cur)&&r.date===sel}).sort(function(a,b){return a.ts-b.ts}),pn=function(r){var q=S.pets.filter(function(x){return x.id===r.pet})[0];return all&&S.pets.length>1&&q?' <small style="color:var(--ac)">'+esc(q.emoji+' '+q.name)+'</small>':''};
   document.getElementById('list').innerHTML=rs.length?rs.map(function(r){var t=tinfo(r.type);
-    return '<div class="r"><div class="e">'+t[1]+'</div><div class="m"><b>'+esc(r.title||t[2])+'</b>'+pn(r)+' <small style="color:var(--sub)">'+new Date(r.ts).toTimeString().slice(0,5)+'</small>'+det(r)+'</div><button class="x" onclick="delRec(\''+r.id+'\')">🗑️</button></div>'}).join(''):'<div class="empty">這天還沒有紀錄</div>';
+    return '<div class="r"><div class="e">'+t[1]+'</div><div class="m"><b>'+esc(r.title||t[2])+'</b>'+pn(r)+' <small style="color:var(--sub)">'+new Date(r.ts).toTimeString().slice(0,5)+'</small>'+det(r)+'</div><button class="x" onclick="editRec(\''+r.id+'\')" aria-label="編輯">✏️</button><button class="x" onclick="delRec(\''+r.id+'\')">🗑️</button></div>'}).join(''):'<div class="empty">這天還沒有紀錄</div>';
 }
 function mv(n){vm+=n;if(vm<0){vm=11;vy--}if(vm>11){vm=0;vy++}render()}
 function pickDay(s){sel=s;render()}
@@ -139,14 +139,26 @@ function delRec(id){ask('刪除這筆紀錄？',function(){delMedia(S.recs.filte
 function closeSh(){document.getElementById('sh').innerHTML='';document.getElementById('ov').classList.remove('on')}
 function sheet(h){document.getElementById('sh').innerHTML=h;document.getElementById('ov').classList.add('on')}
 
-function openAdd(){
+var EDIT=null;
+function openAdd(){EDIT=null;
   if(!S.pets.length){openPet();return}if(pg==='rec'&&rf!=='all')pick=GM[rf]?GM[rf][0]:rf;if(!T.some(function(t){return t[0]===pick}))pick=T[0][0];
-  sheet('<h2>新增紀錄</h2>'+(S.pets.length>1?'<label class="lb">這筆紀錄屬於</label><select id="fpet">'+S.pets.map(function(x){return '<option value="'+x.id+'"'+(x.id===S.cur?' selected':'')+'>'+x.emoji+' '+esc(x.name)+'</option>'}).join('')+'</select>':'')+'<div class="ty">'+T.map(function(t){return '<button id="t_'+t[0]+'" class="'+(t[0]===pick?'on':'')+'" onclick="selT(\''+t[0]+'\')"><span>'+t[1]+'</span>'+t[2]+'</button>'}).join('')+'<button onclick="openType(1)"><span>＋</span>自訂項目</button></div>'+formHTML()+'<button class="btn" onclick="addRec()">儲存</button>');selT(pick);
+  recSheet('新增紀錄','儲存',S.cur);
 }
+function recSheet(h,bt,pid){sheet('<h2>'+h+'</h2>'+(S.pets.length>1?'<label class="lb">這筆紀錄屬於</label><select id="fpet">'+S.pets.map(function(x){return '<option value="'+x.id+'"'+(x.id===pid?' selected':'')+'>'+x.emoji+' '+esc(x.name)+'</option>'}).join('')+'</select>':'')+'<div class="ty">'+T.map(function(t){return '<button id="t_'+t[0]+'" class="'+(t[0]===pick?'on':'')+'" onclick="selT(\''+t[0]+'\')"><span>'+t[1]+'</span>'+t[2]+'</button>'}).join('')+(EDIT?'':'<button onclick="openType(1)"><span>＋</span>自訂項目</button>')+'</div>'+formHTML()+'<button class="btn" onclick="addRec()">'+bt+'</button>'+(EDIT?'<button class="btn g2" onclick="closeSh()">取消</button>':''));selT(pick)}
+function editRec(id){var r=S.recs.filter(function(x){return x.id===id})[0];if(!r)return;EDIT=id;pick=r.type;PEND=(r.media||[]).slice();
+  recSheet('編輯紀錄','儲存修改',r.pet);
+  var sv=function(i,v){var e=document.getElementById(i);if(e)e.value=v||''};
+  sv('ft',r.title);sv('ad',r.date);sv('fk',r.kg);sv('fd',r.dose);sv('fh',r.clinic);sv('an',r.note);if(!OPT[pick])sv('fc',r.cycle);
+  [].forEach.call(document.querySelectorAll('#fopt .dt'),function(b){if((r.tags||[]).indexOf(b.textContent)>-1)b.classList.add('on')});updNext()}
 function selT(k){pick=k;refForm();showPm();T.forEach(function(t){document.getElementById('t_'+t[0]).classList.toggle('on',t[0]===k)})}
 function addRec(){
   if(document.getElementById('fms').textContent){alert('照片／影片上傳中，請稍候');return}var d=document.getElementById('ad').value||sel;
-  var g=function(i){return document.getElementById(i).value.trim()},c=OPT[pick]?'':g('fc'),r={id:uid(),pet:(document.getElementById('fpet')||{}).value||S.cur,date:d,type:pick,title:g('ft'),tags:[].map.call(document.querySelectorAll('#fopt .dt.on'),function(b){return b.textContent}),kg:g('fk'),dose:g('fd'),clinic:g('fh'),cycle:c,next:c?addCyc(d,c):'',media:pm.slice(),note:g('an'),ts:Date.now()};S.recs.push(r);
+  var g=function(i){return document.getElementById(i).value.trim()},c=OPT[pick]?'':g('fc'),r={id:uid(),pet:(document.getElementById('fpet')||{}).value||S.cur,date:d,type:pick,title:g('ft'),tags:[].map.call(document.querySelectorAll('#fopt .dt.on'),function(b){return b.textContent}),kg:g('fk'),dose:g('fd'),clinic:g('fh'),cycle:c,next:c?addCyc(d,c):'',media:pm.slice(),note:g('an'),ts:Date.now()};
+  if(EDIT){var old=S.recs.filter(function(x){return x.id===EDIT})[0];if(old){r.id=old.id;r.ts=old.ts;
+      var gone=(old.media||[]).filter(function(m){return !r.media.some(function(n){return n.id===m.id})});
+      if(gone.length){gDelMedia(gone.map(function(m){return m.id}));gone.forEach(function(m){try{delM(m.id)}catch(e){}})}
+      S.recs=S.recs.map(function(x){return x.id===old.id?r:x})}else S.recs.push(r);EDIT=null}
+  else S.recs.push(r);
   save();sel=d;var dd=new Date(d+'T00:00:00');vy=dd.getFullYear();vm=dd.getMonth();closeSh();render();
 }
 function openPet(){
@@ -203,7 +215,7 @@ function renderRec(){
   var rs=S.recs.filter(function(r){return r.pet===S.cur&&(rf==='all'||r.type===rf||(GM[rf]&&GM[rf].indexOf(r.type)>-1))}).sort(function(a,b){return b.date.localeCompare(a.date)||b.ts-a.ts});
   var gn=(GR.filter(function(g){return g[0]===rf})[0]||[])[1],t=gn?['','',gn]:tinfo(rf);
   document.getElementById('rt').textContent=rf==='all'?'所有紀錄（'+rs.length+' 筆）':t[1]+' '+t[2]+'紀錄（'+rs.length+' 筆）';
-  document.getElementById('rlist').innerHTML=rs.length?rs.map(function(r){var x=tinfo(r.type);return '<div class="r"><div class="e">'+x[1]+'</div><div class="m"><b>'+r.date.replace(/-/g,'/')+'</b> '+esc(r.title||'')+((rf==='all'||GM[rf])?' <small style="color:var(--sub)">'+x[2]+'</small>':'')+det(r)+'</div><button class="x" onclick="delRec(\''+r.id+'\')">🗑️</button></div>'}).join(''):'<div class="empty">還沒有紀錄，點下方「＋ 新增紀錄」</div>';
+  document.getElementById('rlist').innerHTML=rs.length?rs.map(function(r){var x=tinfo(r.type);return '<div class="r"><div class="e">'+x[1]+'</div><div class="m"><b>'+r.date.replace(/-/g,'/')+'</b> '+esc(r.title||'')+((rf==='all'||GM[rf])?' <small style="color:var(--sub)">'+x[2]+'</small>':'')+det(r)+'</div><button class="x" onclick="editRec(\''+r.id+'\')" aria-label="編輯">✏️</button><button class="x" onclick="delRec(\''+r.id+'\')">🗑️</button></div>'}).join(''):'<div class="empty">還沒有紀錄，點下方「＋ 新增紀錄」</div>';
   var cu=(S.types||[]).filter(function(x){return x[0]===rf})[0];
   document.getElementById('rdel').innerHTML=cu?'<button class="btn g2" onclick="delType(\''+rf+'\')">刪除「'+cu[2]+'」項目</button>':'';
 }
@@ -305,7 +317,7 @@ function compressVideo(f,cb){return new Promise(function(res,rej){
     var mt=['video/mp4;codecs=avc1','video/mp4','video/webm;codecs=vp8','video/webm'].filter(function(t){return MediaRecorder.isTypeSupported(t)})[0];
     var rec=new MediaRecorder(st,mt?{mimeType:mt,videoBitsPerSecond:1500000,audioBitsPerSecond:96000}:{videoBitsPerSecond:1500000}),ch=[];
     rec.ondataavailable=function(e){if(e.data&&e.data.size)ch.push(e.data)};
-    rec.onstop=function(){URL.revokeObjectURL(v.src);if(ac)ac.close();res(new Blob(ch,{type:rec.mimeType||'video/mp4'}))};
+    rec.onstop=function(){URL.revokeObjectURL(v.src);if(ac)ac.close();res(new Blob(ch,{type:String(rec.mimeType||'video/mp4').split(';')[0]}))};
     var draw=function(){x.drawImage(v,0,0,w,h);if(!v.ended&&!v.paused){cb&&cb(Math.round(v.currentTime/v.duration*100));requestAnimationFrame(draw)}};
     v.onended=function(){rec.stop()};
     rec.start(1000);v.play().then(draw).catch(rej)}})}
@@ -335,7 +347,7 @@ function murl(id,v){if(!MC[id])MC[id]=getM(id).then(function(b){if(!b)return '';
 function hyd(){[].forEach.call(document.querySelectorAll('[data-mid]'),function(el){if(el.getAttribute('src'))return;var v=el.tagName==='VIDEO';murl(el.getAttribute('data-mid'),v).then(function(u){if(!u)return;el.src=v?u+'#t=0.1':u;if(v&&el.hasAttribute('controls')){el.onerror=function(){if(!el._fb){el._fb=1;var id=el.getAttribute('data-mid');getM(id).then(function(b){if(!b)return;var fr=new FileReader();fr.onload=function(){el.src=fr.result};fr.readAsDataURL(b)});return}if(el.nextSibling&&el.nextSibling.className==='empty')return;var d=document.createElement('div');d.className='empty';d.textContent='⚠️ 這支影片無法播放，檔案可能損壞。請刪除這筆影片後重新加入。';el.parentNode.insertBefore(d,el.nextSibling)}}if(el.hasAttribute('controls')){var p=el.play();if(p&&p.catch)p.catch(function(){})}})})}
 function mel(m){return m.k==='v'?'<video data-mid="'+m.id+'" preload="metadata" muted playsinline></video><i>▶</i>':'<img data-mid="'+m.id+'">'}
 function showPm(){var e=document.getElementById('fmp');if(e){e.innerHTML=pm.map(function(m,i){return '<div class="mt">'+mel(m)+'<button class="mx" onclick="rmPm('+i+')">✕</button></div>'}).join('');hyd()}}
-function rmPm(i){gDelMedia([pm[i].id]);delM(pm[i].id);pm.splice(i,1);showPm()}
+function rmPm(i){var id=pm[i].id,keep=EDIT&&S.recs.some(function(x){return x.id===EDIT&&(x.media||[]).some(function(m){return m.id===id})});if(!keep){gDelMedia([id]);delM(id)}pm.splice(i,1);showPm()}
 function openMedia(id,k){sheet('<div style="text-align:center">'+(k==='v'?'<video data-mid="'+id+'" controls playsinline style="max-width:100%;max-height:65vh;border-radius:12px"></video>':'<img data-mid="'+id+'" style="max-width:100%;max-height:65vh;border-radius:12px">')+'</div><button class="btn g2" onclick="closeSh()">關閉</button>');hyd()}
 async function delMedia(r){if(!r||!r.media)return;for(var i=0;i<r.media.length;i++){try{await delM(r.media[i].id)}catch(e){}}}
 async function pickMedia(inp){var fs=[].slice.call(inp.files);inp.value='';if(!fs.length)return;var st=document.getElementById('fms');
@@ -420,7 +432,7 @@ async function gGo(){var old=GS;GS={url:document.getElementById('gs1').value.tri
   try{localStorage.setItem('pd_gs',JSON.stringify(GS))}catch(e){}GROLE={k:'',r:null};alert('已確定設定。想確認連線，可到「其他設定」按「測試 Google 雲端連線」');openSet()}
 function gOff(){GS=null;try{localStorage.removeItem('pd_gs')}catch(e){}closeSh();alert('已清除 Google 雲端設定')}
 
-var VER='2026-10-30-g',DIRERR='',MAXUP=25*1048576;
+var VER='2026-10-30-h',DIRERR='',MAXUP=25*1048576;
 function stat(m,t,ms){var e=document.getElementById('stb');if(!e){e=document.createElement('div');e.id='stb';e.onclick=function(){e.style.display='none'};document.body.appendChild(e)}
   e.style.cssText='position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 10px);transform:translateX(-50%);z-index:40;max-width:92%;padding:10px 14px;border-radius:12px;font-size:14px;line-height:1.4;color:#fff;box-shadow:0 4px 16px rgba(0,0,0,.25);display:block;background:'+(t==='err'?'#c0392b':t==='ok'?'#2e8b57':'#444');
   e.textContent=m;clearTimeout(e._t);if(ms)e._t=setTimeout(function(){e.style.display='none'},ms)}
@@ -429,7 +441,7 @@ async function runBk(quiet){if(!S.pets.length&&!S.recs.length)return;if(bkRun)re
     if(GS&&!(await gSave()))er.push('Google 雲端：'+GERR)}
   finally{bkRun=false}
   if(er.length){bkDirty=true;bkLast=Date.now()-BKI+3*60000;stat('⚠️ 備份失敗 — '+er.join('；')+'。紀錄仍保存在手機，3 分鐘後會自動再試。','err',10000)}else if(!quiet)stat('✅ 已備份','ok',2000);if(GS)gDelRun()}
-function b2b64(b){return new Promise(function(r,j){var fr=new FileReader();fr.onload=function(){r(String(fr.result).split(',')[1]||'')};fr.onerror=function(){j(new Error('讀取檔案失敗'))};fr.readAsDataURL(b)})}
+function b2b64(b){return new Promise(function(r,j){var fr=new FileReader();fr.onload=function(){r(String(fr.result).split(',').pop()||'')};fr.onerror=function(){j(new Error('讀取檔案失敗'))};fr.readAsDataURL(b)})}
 function muSet(){try{return JSON.parse(localStorage.getItem('pd_mu')||'{}')}catch(e){return {}}}
 function muMark(id){var m=muSet();m[id]=1;try{localStorage.setItem('pd_mu',JSON.stringify(m))}catch(e){}}
 async function gHas(id){try{var r=await gReq(GS.url+'?token='+encodeURIComponent(GS.token)+'&user='+encodeURIComponent(GS.user||'')+'&mediaList=1',{},30000),j=JSON.parse(r.text);return !!(j&&j.ok&&j.ids&&j.ids.some(function(x){return x.id===id}))}catch(e){return false}}
