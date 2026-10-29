@@ -147,7 +147,7 @@ function addRec(){
   save();sel=d;var dd=new Date(d+'T00:00:00');vy=dd.getFullYear();vm=dd.getMonth();closeSh();render();
 }
 function openPet(){
-  sheet('<h2>新增寵物</h2><input id="pn" placeholder="寵物名字"><select id="pe"><option>🐱</option><option>🐶</option><option>🐰</option><option>🐹</option><option>🐦</option><option>🐢</option><option>🐾</option></select><button class="btn" onclick="addPet()">新增</button>');
+  sheet('<h2>新增寵物</h2><input id="pn" placeholder="寵物名字"><select id="pe"><option value="🐱">🐱 貓咪</option><option value="🐶">🐶 狗狗</option><option value="🦎">🦎 守宮</option><option value="🐢">🐢 澤龜</option><option value="🦜">🦜 鸚鵡</option><option value="🐰">🐰 兔子</option><option value="🐹">🐹 鼠類</option><option value="🐦">🐦 其他鳥類</option><option value="🐾">🐾 其他</option></select><button class="btn" onclick="addPet()">新增</button>');
 }
 function addPet(){
   var n=document.getElementById('pn').value.trim();if(!n)return;
@@ -245,7 +245,7 @@ function doCalc(){csave();var p=cur(),c=S.calc[p.id],kg=parseFloat(c.kg),k=parse
 var GR=[['g_vet','疫苗健檢'],['g_med','用藥驅蟲']],GM={g_vet:['vac','check'],g_med:['med','deworm']};
 function renderVet(){var e=document.getElementById('pg_vet'),q=encodeURIComponent,vs=S.vets||[];
   var a=function(u,t){return '<a class="lnk" href="'+u+'" target="_blank" rel="noopener"><span>'+t+'</span><span>›</span></a>'};
-  e.innerHTML='<div class="card"><h3>搜尋附近的獸醫院</h3>'+a('https://www.google.com/maps/search/?api=1&query='+q('動物醫院'),'🗺️ Google 地圖：附近動物醫院')+a('https://www.google.com/maps/search/?api=1&query='+q('24小時動物醫院'),'🌙 Google 地圖：24 小時動物醫院')+'<div class="empty">點選後會開啟 Google 地圖（已安裝 App 會直接開啟 App），依你目前的位置列出附近醫院。</div></div><div class="card"><h3>我的常用醫院</h3>'+(vs.length?vs.map(function(v){return '<div class="r"><div class="e">🏥</div><div class="m"><b>'+esc(v.name)+'</b><div>'+(v.tel?'<a href="tel:'+esc(v.tel)+'" style="color:var(--ac)">📞 '+esc(v.tel)+'</a>':'')+'<br><a href="'+esc(mu(v))+'" target="_blank" rel="noopener" style="color:var(--ac)">🗺️ 在 Google 地圖開啟</a>'+(v.addr?'<br>📍 '+esc(v.addr):'')+'</div></div><button class="x" onclick="delVet(\''+v.id+'\')">🗑️</button></div>'}).join(''):'<div class="empty">還沒有儲存的醫院</div>')+'<button class="btn g2" onclick="openVet()">＋ 新增常用醫院</button></div>'}
+  e.innerHTML='<div class="card"><h3>搜尋附近的獸醫院</h3>'+a('https://www.google.com/maps/search/?api=1&query='+q('動物醫院'),'🗺️ Google 地圖：附近動物醫院')+a('https://www.google.com/maps/search/?api=1&query='+q('24小時動物醫院'),'🌙 Google 地圖：24 小時動物醫院')+a('https://www.google.com/maps/search/?api=1&query='+q('特殊寵物 動物醫院'),'🦎 Google 地圖：特寵醫院（爬蟲、鳥類、小動物）')+'<div class="empty">點選後會開啟 Google 地圖（已安裝 App 會直接開啟 App），依你目前的位置列出附近醫院。守宮、澤龜、鸚鵡等特殊寵物，不是每間動物醫院都看，建議先打電話確認再前往。</div></div><div class="card"><h3>我的常用醫院</h3>'+(vs.length?vs.map(function(v){return '<div class="r"><div class="e">🏥</div><div class="m"><b>'+esc(v.name)+'</b><div>'+(v.tel?'<a href="tel:'+esc(v.tel)+'" style="color:var(--ac)">📞 '+esc(v.tel)+'</a>':'')+'<br><a href="'+esc(mu(v))+'" target="_blank" rel="noopener" style="color:var(--ac)">🗺️ 在 Google 地圖開啟</a>'+(v.addr?'<br>📍 '+esc(v.addr):'')+'</div></div><button class="x" onclick="delVet(\''+v.id+'\')">🗑️</button></div>'}).join(''):'<div class="empty">還沒有儲存的醫院</div>')+'<button class="btn g2" onclick="openVet()">＋ 新增常用醫院</button></div>'}
 function openVet(){sheet('<h2>新增常用醫院</h2><input id="vn" placeholder="醫院名稱"><input id="vt" type="tel" placeholder="電話"><input id="va" placeholder="地址"><input id="vu" type="url" placeholder="Google 地圖連結（選填，貼上分享連結）"><button class="btn g2" style="margin:0 0 8px" onclick="findVet()">🔎 在 Google 地圖搜尋這間醫院</button><div class="empty" style="padding:0 0 10px">找到後按「分享」複製連結，再貼到上方欄位，之後就能一鍵開啟該醫院的頁面。沒填也會用名稱和地址搜尋。</div><button class="btn" onclick="addVet()">儲存</button>')}
 function addVet(){var g=function(i){return document.getElementById(i).value.trim()},n=g('vn');if(!n)return;S.vets=S.vets||[];S.vets.push({id:uid(),name:n,tel:g('vt'),addr:g('va'),url:g('vu').indexOf('https://')===0?g('vu'):''});save();closeSh();render()}
 function mu(v){return v.url||'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(v.name+' '+(v.addr||''))}
@@ -377,7 +377,7 @@ async function gGo(){var old=GS;GS={url:document.getElementById('gs1').value.tri
   var ok=await gSave();if(ok){try{localStorage.setItem('pd_gs',JSON.stringify(GS))}catch(e){}alert('連線成功，已儲存一份備份');openSet()}else{var m=GERR;GS=old;alert('連線失敗：'+m)}}
 function gOff(){GS=null;try{localStorage.removeItem('pd_gs')}catch(e){}closeSh();alert('已清除 Google 雲端設定')}
 
-var VER='2026-10-29-o',DIRERR='',MAXUP=25*1048576;
+var VER='2026-10-29-q',DIRERR='',MAXUP=25*1048576;
 function stat(m,t,ms){var e=document.getElementById('stb');if(!e){e=document.createElement('div');e.id='stb';e.onclick=function(){e.style.display='none'};document.body.appendChild(e)}
   e.style.cssText='position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 10px);transform:translateX(-50%);z-index:40;max-width:92%;padding:10px 14px;border-radius:12px;font-size:14px;line-height:1.4;color:#fff;box-shadow:0 4px 16px rgba(0,0,0,.25);display:block;background:'+(t==='err'?'#c0392b':t==='ok'?'#2e8b57':'#444');
   e.textContent=m;clearTimeout(e._t);if(ms)e._t=setTimeout(function(){e.style.display='none'},ms)}
@@ -612,6 +612,241 @@ function renderTipList(){var el=document.getElementById('tl');if(!el)return;var 
       if(sec.foot&&!q)h+=sec.foot;if(sec.src&&!q)h+='<div class="empty" style="padding:12px 0 0">📚 參考：'+srcLinks(sec.src)+(sec.srcNote?'。'+esc(sec.srcNote):'')+'</div>'}
     h+='</div>'});
   el.innerHTML=any?h:'<div class="card"><div class="empty">找不到符合的項目。</div></div>'}
+
+/* ===== 守宮／澤龜／鸚鵡：小知識與食物營養 ===== */
+var EXO={
+ gecko:{n:'🦎 守宮',e:'🦎',foodSrc:['vcagecko','merckrep'],careSrc:['vcagecko','merckrep'],healthSrc:['merckrep','vcagecko'],nutSrc:['vcagecko','merckrep']},
+ turtle:{n:'🐢 澤龜',e:'🐢',foodSrc:['vcaturtle'],careSrc:['vcaturtle','merckrep'],healthSrc:['vcaturtle','merckrep'],nutSrc:['vcaturtle','merckrep']},
+ parrot:{n:'🦜 鸚鵡',e:'🦜',foodSrc:['vcaparrot','aspca'],careSrc:['vcaparrot','vcahaz'],healthSrc:['vcaparrot','vcahaz'],nutSrc:['vcaparrot']}};
+var NM={cat:'🐱 貓咪',dog:'🐶 狗狗',gecko:'🦎 守宮',turtle:'🐢 澤龜',parrot:'🦜 鸚鵡'};
+function exSp(p){return !p?null:p.emoji==='🦎'?'gecko':p.emoji==='🐢'?'turtle':p.emoji==='🦜'?'parrot':null}
+function petSp(p){return !p?null:p.emoji==='🐱'?'cat':p.emoji==='🐶'?'dog':exSp(p)}
+TIPS.gecko=[
+[1,'🔥','野外抓來的昆蟲（含螢火蟲）','野外昆蟲可能帶寄生蟲或農藥；其中螢火蟲含有對蜥蜴有毒的成分，絕對不要餵。只用專門繁殖的飼料昆蟲。（一般爬蟲衛教常識）'],
+[1,'🏖️','粗沙、玉米芯、核桃殼等顆粒底材','守宮吃獵物時容易一起吞進去，可能造成腸阻塞。獸醫建議用爬蟲專用墊、紙巾或報紙。（VCA）'],
+[1,'🔥','缸內的加熱石（熱石）','容易造成燙傷；應改用加熱墊、加熱帶或低功率照明燈，並保持與熱燈至少約 15 公分的距離。（VCA）'],
+[2,'🥬','蔬菜水果當主食','豹紋守宮是以昆蟲為主食的肉食性蜥蜴，蔬果不能取代昆蟲。蔬果是用來餵昆蟲（腸道餵養），不是直接餵守宮。（VCA）'],
+[2,'🐛','沒補鈣、沒餵養過的昆蟲','多數飼料昆蟲鈣磷比例不足，長期吃會缺鈣，造成代謝性骨病（骨頭變軟、變形、骨折）。餵之前要補鈣、並先餵養昆蟲。（Merck 獸醫手冊）'],
+[2,'🧂','含磷的鈣粉','鈣粉要選「不含磷」的，避免鈣磷比例更失衡。（VCA）'],
+[2,'🪱','只吃蠟蟲、超級麵包蟲等高油脂昆蟲','這類昆蟲脂肪偏高，容易讓守宮過胖，適合偶爾當點心，主食以蟋蟀、杜比亞蟑螂、蠶寶寶等為主。（VCA 列為輔助餵食；高脂提醒為一般衛教整理）'],
+[2,'📏','太大隻的獵物','一般建議獵物不要比守宮兩眼之間的寬度大，太大可能造成吞嚥困難或消化問題。（一般飼養經驗）']];
+TIPS.turtle=[
+[1,'🥩','超市買的生肉、生魚、生雞肉','鈣磷比例不適合龜類，長期餵食會造成營養失衡。（VCA）'],
+[1,'🌭','加工食品：熱狗、午餐肉、麵包','不適合龜類的消化與營養需求，不要餵。（VCA）'],
+[1,'🐸','野外抓來的魚、蛙等活餌','可能攜帶寄生蟲和細菌。要餵活餌請用專門繁殖的飼料用魚，並且不要太頻繁。（VCA）'],
+[2,'🥬','結球萵苣（包心生菜）','水分多、營養少，不適合當主要蔬菜；改用蘿蔓、羽衣甘藍、芥菜葉、蒲公英葉等。（VCA）'],
+[2,'🐟','含油脂的魚（如胡瓜魚、鯖魚）','少量或避免，可能造成維生素 E 缺乏；只吃魚的飲食也可能造成維生素 B1（硫胺）缺乏。（VCA）'],
+[2,'🌿','不確定有沒有毒的水草','放進缸裡前要先確認該植物對龜無毒，因為龜可能會啃食。（VCA）'],
+[2,'🍬','人類的零食、甜食和重鹹食物','不適合龜類營養需求；沒有列在建議清單內的食物，請先詢問爬蟲專科獸醫。（一般衛教整理）']];
+TIPS.parrot=[
+[1,'🥑','酪梨','被認為可能對鳥類有毒，不要給。（VCA；ASPCA）'],
+[1,'🍫','巧克力','含可可鹼和咖啡因，對鳥類有毒。（VCA；ASPCA）'],
+[1,'☕','咖啡、茶、含咖啡因飲料','咖啡因可能造成心跳過快、興奮、抽搐，不要給。（VCA；ASPCA）'],
+[1,'🍷','酒精','即使很少量也很危險，不要給。（VCA；ASPCA）'],
+[1,'🍳','不沾鍋（鐵氟龍）加熱的煙霧','這不是食物，但非常重要：不沾鍋、烤盤、熨斗等塗層過熱（約 280°C 以上）會釋放有毒煙霧，鳥類可能突然死亡。煮菜時要讓鳥離開廚房並通風。（VCA）'],
+[1,'🧅','洋蔥、大蒜、蔥類','多數鳥類獸醫資料建議避免，可能造成腸胃不適與紅血球傷害。（一般衛教整理，ASPCA 亦列為不建議給寵物的食物）'],
+[2,'🍟','鹹、油炸與加工食品','薯條、披薩、洋芋片、椒鹽脆餅、肥肉等都要避免，鳥的體型小，鹽和油脂很容易過量。（VCA）'],
+[2,'🌻','以種子為主食','種子脂肪高、營養不均衡，容易缺乏維生素 A 和鈣。種子只能當小部分，不能當全部。（VCA）'],
+[2,'🥛','乳製品','鸚鵡有乳糖不耐，奶和起司只能偶爾給極少量。（VCA）'],
+[2,'🍎','蘋果籽、櫻桃或桃李杏的果核','種子和果核含有會釋放氰化物的成分，要先去籽去核再給。（一般鳥類衛教常識）'],
+[2,'🍬','糖果、甜食、含木糖醇食品','沒有營養價值，木糖醇對許多動物也有害，請避免。（一般衛教整理；ASPCA 亦提醒木糖醇）']];
+CARE.gecko=[
+['🏠','飼養箱大小與蓋子','最小約 10 加侖（約 38 公升）、高度至少約 15 公分，要有網蓋，並放置躲藏屋。（VCA）'],
+['🌡️','溫度','缸內環境約 30°C 左右，夜間不低於約 21°C；熱源用加熱墊、加熱帶或低功率照明，不要用熱石。要有溫度梯度，讓守宮能自己選擇冷熱區。（VCA）'],
+['☀️','UVB 紫外線','VCA 表示 UVB 是「選擇性但建議」，燈管距離守宮約 25–30 公分；UVB 能協助合成維生素 D3，有助預防骨病。（VCA；Merck）'],
+['🪨','底材與躲藏','可用爬蟲專用墊、紙巾或報紙；避免粗沙、玉米芯、核桃殼。放一個含濕水苔的濕躲藏屋，有助脫皮。（VCA）'],
+['🦗','餵食頻率','幼體每 1–2 天一次，成體每週 2–3 次，主食是活的蟋蟀等昆蟲，可搭配蠶寶寶、杜比亞蟑螂、麵包蟲等。（VCA）'],
+['🦴','補鈣','餵之前把昆蟲輕輕撲上「不含磷」的鈣粉；缸內可常備一小碟鈣粉。食物的鈣磷比至少 1:1，最好是 2:1。（VCA；Merck）'],
+['🥣','腸道餵養（Gut-loading）','餵食前至少 24 小時，先用優質食物（如蕪菁葉、羽衣甘藍、荷蘭芹、胡蘿蔔、花椰菜）餵養昆蟲；Merck 建議在餵守宮前 72 小時給昆蟲含 8–10% 以上鈣的飼料。（VCA；Merck）'],
+['💧','飲水','用淺碟裝乾淨的水，每天更換。（VCA）'],
+['🧍','單獨飼養較單純','公守宮有領域性，同缸容易打架；多隻飼養需要更大的空間。（VCA）'],
+['🤲','抓取方式','用手掌從下方托住，避免抓尾巴，守宮受驚會斷尾。（一般飼養常識）'],
+['🩺','定期健檢','找看爬蟲的專科獸醫，新入手與每年各檢查一次，也可以請獸醫幫忙檢查糞便寄生蟲。（一般衛教整理）']];
+CARE.turtle=[
+['🥗','動物性與植物性比例','幼龜以肉食為主，動物性蛋白不超過約 2/3；成龜動物性約佔一半，其餘為植物。（VCA）'],
+['🕒','餵食頻率','健康的幼龜每天餵；成龜每 2–3 天給一份足量。吃剩的食物當天清掉。（VCA）'],
+['🥬','蔬菜選擇','推薦蘿蔓、羽衣甘藍、芥菜葉、蒲公英葉、瑞士甜菜、苦苣、荷蘭芹、胡蘿蔔葉、四季豆、蕪菁葉、苜蓿；紅甜椒絲可補充維生素 A。水生植物如水風信子、睡蓮、水蘊草、浮萍也可以。（VCA）'],
+['🥣','主食顆粒','選優質的龜用或魚用顆粒；幼龜用小顆，成龜用大顆浮水性顆粒。（VCA）'],
+['🦴','補鈣與維生素','每週兩次提供鈣源（鈣磚或烏賊骨）；部分獸醫建議每週一次綜合維生素，要不要補請問獸醫。（VCA）'],
+['🧹','水質與餵食環境','水缸要有運作良好的過濾器並定期清洗；可在另一個裝溫水的小容器內餵食，主缸會比較乾淨。（VCA）'],
+['☀️','曬背區與 UVB','水棲／半水棲龜需要能完全離水、乾燥的曬背區和 UVB 燈，UVB 有助鈣的吸收，燈管一般建議約每年更換。曬背區的溫度與水溫因品種而異，請依品種資料設定並用溫度計監控。（Merck；溫度為一般建議）'],
+['📐','空間','龜會長大、壽命可達數十年，要規劃足夠大的水缸與離水區，並事先想好長期照顧。（一般飼養常識）'],
+['🧼','衛生','摸過龜或換水後要洗手，家中有幼兒、孕婦或免疫力低下的人要更小心，因為龜可能帶有沙門氏菌。（一般衛生常識）'],
+['🩺','定期健檢','找看爬蟲的專科獸醫；新入手與每年各檢查一次。（一般衛教整理）']];
+CARE.parrot=[
+['🥣','主食以顆粒為主','健康飲食約為：營養均衡的顆粒料 60–70%、新鮮蔬果 30–40%，其中水果不超過整體的 10%。（VCA）'],
+['🥕','橘、紅、黃色的蔬菜','南瓜、甜椒、胡蘿蔔、地瓜等含維生素 A，有助免疫、腎臟、皮膚和羽毛。水分多、營養少的蔬菜（如結球萵苣、芹菜）價值不高。蔬果要洗乾淨、切成適合的大小，用另一個碗盛放。（VCA）'],
+['🌰','種子與堅果','種子只能是小部分，堅果每天最多給兩三顆（如杏仁、巴西堅果、核桃）。（VCA）'],
+['🔄','從種子換成顆粒','通常需要 2–6 週：從約 90% 種子＋10% 顆粒開始，每天約減少種子 10%。期間每天用 1 克刻度的電子秤量體重，確認沒有掉重，也要看糞便是否正常；在確定鳥穩定吃顆粒、蔬果前，不要完全拿掉種子。（VCA）'],
+['💧','乾淨的水與餐具','每天換新鮮的水；水碗和食碗每天用熱肥皂水洗淨並完全乾燥。（VCA）'],
+['🪨','不需要沙礫','VCA 指出（以亞馬遜鸚鵡為例）不需要砂礫，砂礫可能造成致命的腸阻塞，也不建議使用砂紙棲木。（VCA）'],
+['🍳','注意空氣品質','避免不沾鍋塗層過熱、香氛／精油擴香、菸味、清潔劑、油漆、芳香劑等；VCA 的原則是「人聞得到的味道，對鳥可能就有害」。（VCA）'],
+['🏠','居家安全','注意窗戶與鏡子（可貼貼紙提醒）、吊扇、電線、開放的水容器；貓、狗、雪貂、蛇、蜥蜴不能與鳥單獨相處；門窗要關好或依獸醫建議剪羽。（VCA）'],
+['🧪','重金屬','舊油漆（1978 年前）、窗簾重物、焊錫、電池、拉鍊齒等含鉛或鋅，鳥啃咬後可能中毒；部分進口玩具也要留意。（VCA）'],
+['🌡️','溫度與濕度','生病的鳥需要穩定的溫暖，濕度約 40–50% 較理想；曬太陽要留遮蔭處避免過熱。（VCA）'],
+['🧸','互動與玩具','鸚鵡是社交性強的鳥類，需要每天互動、玩具與可以啃咬的東西，並注意玩具是否有鬆脫零件或掉漆。（玩具安全參考 VCA；互動需求為一般飼養常識）'],
+['🩺','定期健檢','找看鳥類的專科獸醫，每年健檢一次；鳥會隱藏病況，等出現明顯症狀時往往已經不輕。（一般衛教整理）']];
+var HEALTHX={
+gecko:[
+{h:'📅 每天花一分鐘觀察',items:[
+['🍽️','食慾與排便','有沒有正常吃昆蟲、排便是否成形；連續幾次不吃或排便異常要注意。'],
+['⚡','活動力','夜行性的守宮傍晚會比較活躍；白天長時間完全不動、很虛弱或走路無力要注意。'],
+['🦎','尾巴粗細','尾巴是脂肪儲存的地方。明顯變細可能表示營養不良或寄生蟲。（一般衛教整理）']]},
+{h:'🗓️ 每週一次',items:[
+['⚖️','體重','用廚房電子秤量體重（克），記下數字看趨勢。'],
+['🧴','脫皮是否乾淨','腳趾、尾巴尖端、眼周有沒有殘留的舊皮；殘皮可能造成血液循環問題。'],
+['🌡️','環境溫度','用溫度計確認冷區與暖區都在合適範圍。']]},
+{h:'🚨 這些情況建議盡快就醫',items:[
+['🦴','肢體彎曲、顫抖、下顎變軟','可能是代謝性骨病（缺鈣或缺 D3／UVB），Merck 指出早期往往沒有明顯症狀，常見的是無精打采、食慾差、不愛動。'],
+['👁️','眼睛腫脹或一直閉眼','可能是感染、脫皮問題或維生素 A 失衡，需要獸醫處理。'],
+['😮‍💨','張口呼吸、嘴巴有黏液','可能是呼吸道感染。'],
+['🚫','連續多天拒食，加上尾巴變細','需要檢查是否有寄生蟲或其他疾病。'],
+['💩','糞便異常','持續腹瀉、很臭、帶血，或很久沒排便。']]}],
+turtle:[
+{h:'📅 每天花一分鐘觀察',items:[
+['🍽️','食慾與排便','有沒有主動吃東西，排便是否正常。'],
+['🏊','游動與浮水姿勢','身體一邊歪斜、沉不下去或浮在水面，可能是呼吸道或其他問題。'],
+['👁️','眼睛','眼睛腫脹、閉著或有分泌物，是缺乏維生素 A 或感染的常見徵兆。']]},
+{h:'🗓️ 每週一次',items:[
+['🐚','龜殼','殼有沒有變軟、白斑、潰爛、異味或碎裂；Merck 指出缺鈣與缺 UVB 可能造成代謝性骨病。'],
+['⚖️','體重與外觀','記錄體重並觀察四肢、頸部有沒有腫脹。'],
+['💦','水質','水有沒有混濁、異味；換水、檢查過濾器是否正常。']]},
+{h:'🚨 這些情況建議盡快就醫',items:[
+['😮‍💨','張嘴呼吸、流鼻涕、吐泡泡','可能是呼吸道感染。'],
+['🐚','龜殼軟、變形、潰爛','可能是缺鈣、骨病或感染。'],
+['👁️','持續眼睛腫脹','需要獸醫評估與治療。'],
+['🚫','連續多天不吃、不動','尤其在溫度、水質都正常時。']]}],
+parrot:[
+{h:'📅 每天花一分鐘觀察',items:[
+['🍽️','食慾與飲水','吃的量、喝的量有沒有明顯變化。VCA 建議每天觀察每隻鳥吃了多少。'],
+['💩','糞便','正常糞便通常包含糞便、尿酸（白色）和尿液；顏色、形狀、量突然改變要注意。（一般衛教整理）'],
+['🪶','羽毛與精神','羽毛一直蓬鬆、縮著不動、拔毛或啄毛、很安靜都是警訊。']]},
+{h:'🗓️ 每週一次',items:[
+['⚖️','體重','用可顯示到 1 克的電子秤量體重並記錄。鳥類很會隱藏病情，體重下降常常是最早的線索。（VCA 建議用 1 克刻度電子秤追蹤體重）'],
+['👃','眼睛、鼻孔與嘴','有沒有分泌物、結痂或異味。'],
+['🦶','腳與指甲','腳底有沒有紅腫、潰爛，指甲長度是否合適。']]},
+{h:'🚨 這些情況建議立刻就醫',items:[
+['🌬️','呼吸困難','張口呼吸、尾巴隨呼吸上下擺動、喘氣、咳嗽。'],
+['🫧','縮在籠底、羽毛蓬鬆','鳥坐在籠底、很虛弱，通常表示病得不輕。'],
+['🍳','接觸過煙霧或化學品','鐵氟龍煙霧、香氛、清潔劑等，可能很快出現呼吸困難或突然死亡（VCA）。'],
+['🔩','可能啃了含鉛或鋅的東西','需要立刻就醫。']]}]};
+function sosFor(k){if(!EXO[k])return SOS;return [
+['🚫','不要自己催吐或灌水','自行處理可能造成吸入或二次傷害，除非獸醫明確指示。'],
+['📝','記下重要資訊','吃了什麼、大概多少、什麼時候、寵物的體重，並保留包裝或拍照。'],
+['📞','先打電話確認','不是每間動物醫院都看特殊寵物，請先打電話給看（爬蟲／鳥類）的專科獸醫院，說明狀況再前往。'],
+['🌡️','保持安靜保暖','把寵物放在安靜、溫暖、通風的地方，避免更多刺激；若是接觸煙霧，先移到空氣新鮮的地方。'],
+['👀','注意症狀','呼吸異常、抽搐、虛弱、流口水、嘔吐、不動時要立刻就醫；有些毒物數小時後才發作，沒症狀也不要放心。']]}
+Object.assign(SRC,{
+vcagecko:['VCA：豹紋守宮的照顧與餵食','https://vcahospitals.com/know-your-pet/leopard-geckos-care-and-feeding','飼養箱大小、溫度、UVB、底材、餵食頻率（幼體每 1–2 天、成體每週 2–3 次）、補鈣與腸道餵養。'],
+vcaturtle:['VCA：水棲龜的餵食','https://vcahospitals.com/know-your-pet/turtles-aquatic-feeding','幼龜與成龜的飲食比例與頻率、可吃的蔬菜與動物性食物、不能餵的食物、鈣與維生素補充、水質。'],
+vcaparrot:['VCA：鸚鵡的餵食','https://vcahospitals.com/know-your-pet/parrots-feeding','顆粒 60–70%、蔬果 30–40%、水果不超過 10%、種子與堅果的限制、不能餵的食物、換成顆粒的方法。（以亞馬遜鸚鵡為例，其他品種請問獸醫）'],
+vcahaz:['VCA：鳥類的居家危險','https://vcahospitals.com/know-your-pet/household-hazards-and-dangers-to-birds','鐵氟龍煙霧、空氣污染、鉛鋅、吊扇、窗戶鏡子、溫濕度等居家危險。'],
+merckrep:['默克獸醫手冊：爬蟲類營養','https://www.merckvetmanual.com/management-and-nutrition/nutrition-exotic-and-zoo-animals/nutrition-in-reptiles','鈣磷比（至少 1:1、最好 2:1）、維生素 D3 與 A、UVB、代謝性骨病。']});
+var NUT={
+cat:[
+{t:'🍽️ 主食怎麼挑',src:['wsava','aaha'],items:[
+['🥫','選「完整均衡」的主食','選包裝上標示適合該年齡階段（幼貓、成貓、高齡）、營養完整均衡的主食。WSAVA 指引也建議向廠商詢問營養師、品管與檢驗等資訊。'],
+['💧','濕食（罐頭）的好處','罐頭水分高，有助增加水分攝取；貓天生不太愛喝水，可搭配乾飼料與罐頭。（一般獸醫營養常見建議）'],
+['🧮','零食不超過一天熱量的 10%','零食與人類食物的熱量要算進去，超過容易造成肥胖與營養失衡。（獸醫營養常見建議）']]},
+{t:'🧬 貓需要的重要營養素',src:['wsava'],items:[
+['🥩','高品質動物性蛋白','貓是絕對肉食性動物，需要比狗更高比例的蛋白質。'],
+['❤️','牛磺酸（Taurine）','貓自己合成不夠，缺乏可能造成心臟與視網膜問題；市售完整均衡的貓糧已含。不要拿狗糧或自製飲食長期取代貓糧。'],
+['🐟','Omega-3 脂肪酸','有助皮膚毛髮與關節，來源如魚油，補充前先問獸醫。'],
+['🧪','動物性來源的維生素 A','貓不能把植物的胡蘿蔔素有效轉成維生素 A，需要從動物性來源取得。']]},
+{t:'⚠️ 營養失衡警訊',src:['wsava','aaha'],items:[
+['⚖️','體重變化','太胖或太瘦都要處理；可用體態評分（WSAVA／AAHA 有提供）搭配獸醫評估。'],
+['🪮','毛髮粗糙、掉毛、皮膚問題','可能和營養或疾病有關。'],
+['💩','長期軟便或便祕','換糧要 7–10 天慢慢進行，持續異常請就醫。']]}],
+dog:[
+{t:'🍽️ 主食怎麼挑',src:['wsava','aaha'],items:[
+['🥫','選「完整均衡」的主食','依年齡階段（幼犬、成犬、高齡）與體型選擇，並依包裝建議量與體態調整。'],
+['🐕','大型幼犬要特別注意','大型犬幼年期的鈣和熱量需要控制，WSAVA 營養指引有說明，請依獸醫建議。'],
+['🧮','零食不超過一天熱量的 10%','訓練用零食與人類食物的熱量也要算進去。（獸醫營養常見建議）']]},
+{t:'🧬 狗需要的重要營養素',src:['wsava'],items:[
+['🥩','蛋白質','狗是雜食偏肉食，需要優質蛋白質來源。'],
+['🧈','脂肪與必需脂肪酸','提供熱量，也與皮膚毛髮有關；過高容易肥胖或造成胰臟負擔。'],
+['🦴','鈣與磷','骨骼發育需要，比例很重要，不要自己額外大量補鈣。'],
+['🐟','Omega-3 脂肪酸','有助皮膚與關節，補充前先問獸醫。']]},
+{t:'⚠️ 營養失衡警訊',src:['wsava','aaha'],items:[
+['⚖️','體重變化','肥胖是常見問題；可用體態評分搭配獸醫評估。'],
+['🪮','毛髮暗沉、皮膚搔癢','可能和營養或疾病有關。'],
+['💩','持續軟便、嘔吐','換糧慢慢換，持續異常請就醫。']]}],
+gecko:[
+{t:'🍽️ 推薦的食物',src:['vcagecko'],items:[
+['🦗','蟋蟀（主食）','VCA 指出以商業繁殖的蟋蟀為主。'],
+['🪲','輔助：蠶寶寶、杜比亞蟑螂、麵包蟲、超級麵包蟲、蠟蟲','增加多樣性；蠟蟲、超級麵包蟲脂肪較高，偶爾給。'],
+['🥣','先餵養昆蟲再餵守宮','用蕪菁葉、羽衣甘藍、荷蘭芹、胡蘿蔔、花椰菜等餵昆蟲至少 24 小時。']]},
+{t:'🧬 重要營養素',src:['merckrep','vcagecko'],items:[
+['🦴','鈣（Ca）與鈣磷比','食物鈣磷比至少 1:1、最好 2:1；昆蟲鈣磷比通常不足，需補鈣。'],
+['☀️','維生素 D3 與 UVB','Merck：肉食性爬蟲飼料建議 D3 約 500–1,000 IU/kg（乾重）；但光靠飼料不一定能預防骨病，UVB 很重要。不要自己加量，請依獸醫或產品說明。'],
+['🥕','維生素 A','Merck：肉食性爬蟲建議約 5,000–10,000 IU/kg（乾重）；爬蟲是否能把胡蘿蔔素轉成維生素 A 未確定，可能需要預先形成的維生素 A 來源。補充過量也有害，請問獸醫。']]},
+{t:'⚠️ 營養失衡警訊',src:['merckrep'],items:[
+['🦴','代謝性骨病（MBD）','肢體變形、顫抖、下顎軟、骨折；早期可能只看到精神差、不吃、不愛動。'],
+['🦎','尾巴變細或過胖','尾巴是脂肪儲存處，可反映營養狀態。（一般衛教整理）'],
+['⚖️','只吃高脂昆蟲','容易肥胖，要多樣化。']]}],
+turtle:[
+{t:'🍽️ 推薦的食物',src:['vcaturtle'],items:[
+['🥣','優質龜用／魚用顆粒','幼龜用小顆，成龜用大顆浮水性顆粒。'],
+['🥬','蔬菜','蘿蔓、羽衣甘藍、芥菜葉、蒲公英葉、苦苣、荷蘭芹、蕪菁葉、四季豆、苜蓿；浮在水面的蔬菜受歡迎。'],
+['🫑','紅甜椒絲','補充維生素 A，龜常被紅色吸引。'],
+['🪱','動物性食物','蚯蚓、蝸牛、蟋蟀、麵包蟲、蠟蟲等；飼料魚要少量、挑繁殖來源的。'],
+['🌱','水生植物','水風信子、睡蓮、水蘊草、浮萍（需確認無毒）。']]},
+{t:'🧬 重要營養素',src:['vcaturtle','merckrep'],items:[
+['🦴','鈣','VCA：每週兩次提供鈣磚或烏賊骨；整條帶骨的小魚也提供鈣。Merck：食物鈣磷比至少 1:1、最好 2:1。'],
+['☀️','維生素 D3 與 UVB','幫助鈣吸收；Merck 指出光靠飲食中的 D3 不一定足夠，UVB 很重要。'],
+['🥕','維生素 A','缺乏會造成眼睛問題；Merck 建議肉食性爬蟲約 5,000–10,000 IU/kg（乾重），可由紅甜椒、深綠葉菜與優質顆粒提供。請不要自行額外補大量維他命 A。'],
+['🐟','維生素 E 與 B1','含油脂魚類可能造成維生素 E 缺乏、只吃魚可能造成 B1 缺乏（VCA），飲食要多樣。']]},
+{t:'⚠️ 營養失衡警訊',src:['vcaturtle','merckrep'],items:[
+['👁️','眼睛腫脹','常見與維生素 A 缺乏有關。（一般衛教整理）'],
+['🐚','龜殼變軟、變形','缺鈣、缺 UVB 時可能發生代謝性骨病。'],
+['⚖️','只吃單一食物','例如只吃魚或只吃顆粒，營養容易偏掉。']]}],
+parrot:[
+{t:'🍽️ 推薦的食物與比例',src:['vcaparrot'],items:[
+['🥣','顆粒料 60–70%','營養設計完整的鸚鵡顆粒是主食。'],
+['🥕','新鮮蔬果 30–40%','以橘、紅、黃色蔬菜（南瓜、甜椒、胡蘿蔔、地瓜）為主，水果不超過整體 10%。'],
+['🌰','種子與堅果','種子只當小部分；堅果每天最多兩三顆。'],
+['🍗','少量人類食物','瘦的熟肉、魚、蛋可偶爾當點心；乳製品極少量。']]},
+{t:'🧬 重要營養素',src:['vcaparrot'],items:[
+['🥕','維生素 A','支持免疫、腎臟、皮膚與羽毛；以種子為主食的鳥很容易缺乏，由橘紅黃色蔬菜與顆粒提供。'],
+['🦴','鈣','種子為主的飲食容易缺鈣；VCA 只提到產蛋的鳥要在獸醫指導下補鈣。'],
+['💊','補充劑','吃 60–70% 顆粒加蔬果的鳥通常不需要；還沒轉成顆粒的鳥可暫時使用，撒在濕潤的食物上，不要加到水裡。']]},
+{t:'⚠️ 營養失衡警訊',src:['vcaparrot'],items:[
+['🌻','只挑種子吃','容易營養不均衡，需要慢慢轉換成顆粒。'],
+['⚖️','體重下降','轉換飲食期間每天用電子秤追蹤。'],
+['🪶','羽毛、皮膚、眼睛問題','可能和維生素 A 缺乏等有關，請就醫確認。（一般衛教整理）']]}]};
+var NUTSTAGE={
+gecko:{s:[['j','幼體'],['a','成體']],f:{j:'每 1–2 天一次',a:'每週 2–3 次'},sp:null,note:'主食是活昆蟲，餵前補鈣、先餵養昆蟲。獵物不要比兩眼間寬度大（一般經驗）。'},
+turtle:{s:[['j','幼龜'],['a','成龜']],f:{j:'每天一次',a:'每 2–3 天一次，給一份足量'},sp:{j:[['動物性蛋白','最多約 2/3',.67,0],['植物與蔬菜','至少約 1/3',0,.33]],a:[['動物性蛋白','約一半',.5,.5],['植物與蔬菜','約一半',.5,.5]]},note:'以顆粒、動物性食物與蔬菜搭配，剩下的食物當天清掉。'},
+parrot:{s:[['a','成鳥']],f:{a:'每天，顆粒料隨時提供'},sp:{a:[['顆粒料','60–70%',.6,.7],['新鮮蔬果','30–40%',.3,.4],['其中水果','不超過 10%',0,.1]]},note:'以亞馬遜鸚鵡為例，其他品種請依獸醫建議。'}};
+function xcalcSave(){var p=cur();if(!p)return;S.calc=S.calc||{};var c=S.calc[p.id]=S.calc[p.id]||{},a=document.getElementById('x_age'),t=document.getElementById('x_tot');if(a)c.age=a.value;if(t)c.tot=t.value;save()}
+function renderExCalc(p,e){var k=exSp(p),d=NUTSTAGE[k],c=(S.calc||{})[p.id]||{},age=d.s.some(function(x){return x[0]===c.age})?c.age:d.s[d.s.length-1][0],tot=parseFloat(c.tot)||0;
+  var rows='<div class="kv"><span>建議餵食頻率</span><b>'+d.f[age]+'</b></div>';
+  if(d.sp){(d.sp[age]||[]).forEach(function(x){rows+='<div class="kv"><span>'+x[0]+'（'+x[1]+'）</span><b>'+(tot>0?(x[2]===x[3]?Math.round(tot*x[2]):Math.round(tot*x[2])+' - '+Math.round(tot*x[3]))+' 克':'請輸入總量')+'</b></div>'})}
+  e.innerHTML='<div class="card"><h3>'+esc(p.name)+' 的餵食建議</h3><label class="lb">寵物類型</label><div class="empty" style="padding:0 0 8px">'+NM[k]+'（由寵物圖示決定）</div><label class="lb">年齡階段</label><select id="x_age" onchange="xcalcSave();renderCalc()">'+opt(d.s,age)+'</select>'+(d.sp?'<label class="lb">每次（或每天）餵食總量（克）</label><input id="x_tot" type="number" inputmode="decimal" placeholder="例如 20" value="'+(c.tot||'')+'" onchange="xcalcSave();renderCalc()">':'')+rows+'<div class="empty" style="margin-top:10px">'+d.note+'爬蟲與鳥類沒有像貓狗那樣通用的熱量公式，所以這裡只提供比例與頻率，實際份量請依體型、活動量和獸醫建議調整。</div></div><div id="nutbox"></div>'+exCalcSrc(k);
+  renderNut(k)}
+function exCalcSrc(k){return '<div class="card"><h3>📚 參考來源</h3><div class="empty" style="padding:0 0 8px">'+srcLinks(EXO[k].nutSrc)+'</div><div class="empty" style="padding:0">餵食頻率與比例取自上述資料，內容為彙整改寫，並非逐字引用，也不代表這些機構的官方立場。結果僅供參考，請與獸醫確認。</div></div>'}
+function toggleNut(k){tipOpen[k]=!tipOpen[k];tipSave();renderNut(nutK())}
+function nutAll(o){var k=nutK();(NUT[k]||[]).forEach(function(x,i){tipOpen['n_'+k+i]=o});tipSave();renderNut(k)}
+function nutK(){var p=cur();if(!p)return 'cat';var s=exSp(p);if(s)return s;var c=(S.calc||{})[p.id]||{};return c.sp||(p.emoji==='🐶'?'dog':'cat')}
+function nutHTML(k){var h='<div class="card"><h3>🥗 食物與營養素知識推薦</h3><div class="empty" style="padding:0">'+NM[k]+'：點標題展開或收合。</div><div class="tb"><button onclick="nutAll(true)">▾ 全部展開</button><button onclick="nutAll(false)">▸ 全部收合</button></div></div>';
+  (NUT[k]||[]).forEach(function(sec,i){var key='n_'+k+i,open=!!tipOpen[key];h+='<div class="card"><button class="fh" onclick="toggleNut(\''+key+'\')"><span>'+sec.t+' <small style="color:var(--sub);font-weight:400">'+sec.items.length+' 項</small></span><span style="color:var(--sub)">'+(open?'▾':'▸')+'</span></button>';
+    if(open){h+=sec.items.map(function(x){return '<div class="r"><div class="e">'+x[0]+'</div><div class="m"><b>'+esc(x[1])+'</b><div>'+esc(x[2])+'</div></div></div>'}).join('');h+='<div class="empty" style="padding:12px 0 0">📚 參考：'+srcLinks(sec.src)+'。內容為彙整改寫，並非逐字引用；「一般衛教整理」的項目沒有單一出處。</div>'}h+='</div>'});
+  return h}
+function renderNut(k){var b=document.getElementById('nutbox');if(b)b.innerHTML=nutHTML(k)}
+var _rc0=renderCalc;
+renderCalc=function(){var p=cur(),e=document.getElementById('pg_calc');if(p&&exSp(p)){renderExCalc(p,e);return}
+  _rc0();if(!p)return;e.insertAdjacentHTML('beforeend','<div id="nutbox"></div>');renderNut(nutK())};
+function tipSections(k){var ex=EXO[k],f=function(l){return TIPS[k].filter(function(x){return x[0]===l}).map(function(x){return [x[1],x[2],x[3]]})};
+  return [{k:'food',t:ex?'🚫 不能吃／不能碰的東西':'🚫 不能吃的食物',src:ex?ex.foodSrc:['aspca','plants'],srcNote:ex?'標示「一般」的項目為一般衛教整理，沒有單一出處。':'',groups:[{h:'🚫 絕對不能給（高度危險）',c:'#c0392b',items:f(1)},{h:'⚠️ 不建議給，要避免',items:f(2)}]},
+   {k:'care',t:'🏠 養寵物注意須知',src:ex?ex.careSrc:['wsava','aaha'],srcNote:ex?'標示「一般」的項目為一般衛教整理。':'飲食與體重部分可參考以上；其餘為一般衛教整理。',groups:ex?[{h:NM[k]+' 照顧須知',items:CARE[k]}]:[{h:'共通須知',items:CARE.common},{h:k==='cat'?'🐱 貓咪特別注意':'🐶 狗狗特別注意',items:CARE[k]}]},
+   {k:'health',t:'🩺 飼主觀察健康須知',src:ex?ex.healthSrc:['tpr'],srcNote:ex?'就醫警訊為一般衛教整理，請以獸醫判斷為準。':'參考值依上方資料；就醫警訊為一般衛教整理。',groups:ex?HEALTHX[k]:HEALTH},
+   {k:'sos',t:'🚨 誤食了怎麼辦',src:['aspca'],groups:[{h:'',items:sosFor(k)}],foot:'<button class="btn g2" onclick="go(\'vet\')">🏥 找獸醫院</button>'},
+   {k:'src',t:'📚 資料來源與說明',custom:1,count:Object.keys(SRC).length}]}
+function renderTip(){var p=cur(),e=document.getElementById('pg_tip'),sp=petSp(p),k=tipK(),nm=NM[k];
+  e.innerHTML='<div class="card"><h3>💡 小知識</h3><div style="font-size:18px;font-weight:700;margin-bottom:4px">'+nm+'的照顧與健康須知</div>'+
+    (sp?'<div class="empty" style="padding:0">依照目前的寵物「'+esc(p.name)+'」顯示。</div>':'<div class="empty" style="padding:0 0 8px">'+(p?'這隻寵物的圖示不在已支援的種類內，':'')+'請選擇要看哪一種：</div><div class="pets">'+['cat','dog','gecko','turtle','parrot'].map(function(x){return '<button class="chip'+(k===x?' on':'')+'" onclick="setTipSp(\''+x+'\')">'+NM[x]+'</button>'}).join('')+'</div>')+
+    '<input id="tq" placeholder="搜尋，例如：洋蔥、嘔吐、鈣" value="'+esc(tipQ)+'" style="margin-top:10px;margin-bottom:0" oninput="tipQ=this.value;renderTipList()"><div class="tb"><button onclick="tipAll(true)">▾ 全部展開</button><button onclick="tipAll(false)">▸ 全部收合</button></div></div><div id="tl"></div><div class="empty" style="text-align:center">以上為一般性的整理，毒性與病情會因食用量、體重和個體差異而不同，不能取代獸醫的診斷。沒有列在這裡不代表安全，不確定時請先問獸醫。</div>';
+  renderTipList()}
 
 var gDelBusy=0,gDelErr='';
 function mdQ(){try{return JSON.parse(localStorage.getItem('pd_mdel')||'[]')}catch(e){return []}}
