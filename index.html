@@ -385,7 +385,24 @@ function bkNote(){var e=document.getElementById('bkn');if(!e)return;var t=0;try{
   e.innerHTML=(S.recs.length&&!DH&&!GS&&Date.now()-t>6048e5)?'<div class="card" style="background:var(--acbg);border-color:var(--ac);margin:0 0 4px" onclick="openSet()">💾 超過 7 天沒有備份了，點此備份</div>':''}
 if(window.indexedDB&&window.showDirectoryPicker)hget().then(function(h){if(h&&h.kind==='directory'){DP=h;return h.queryPermission({mode:'readwrite'}).then(function(p){if(p==='granted'){DH=h;DP=null}render()})}}).catch(function(){});
 var GS=null,GERR='';try{GS=JSON.parse(localStorage.getItem('pd_gs')||'null')}catch(e){}
-async function gSave(){if(!GS)return false;try{var r=await fetch(GS.url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({token:GS.token,user:GS.user||'',name:bkName(),data:JSON.stringify(S)})});var j=await r.json();if(!j.ok)throw new Error(j.error==='token'?'密碼不正確':j.error==='user'?'使用者名稱未填寫或不可用（使用朋友密碼時必須填寫）':j.error==='full'?'使用人數已達上限，請聯絡管理者':(j.error||'失敗'));stamp(1);GERR='';return true}catch(e){if(e&&e.name==='TypeError'){try{await fetch(GS.url,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({token:GS.token,user:GS.user||'',name:bkName(),data:JSON.stringify(S)})});stamp(1);GERR='';return true}catch(e2){}}GERR=!navigator.onLine?'目前沒有網路連線':(e&&e.name==='TypeError')?'無法連線到 Google（請確認部署權限是「所有人」、網址結尾是 /exec，且不是在 Claude 裡的預覽版測試）':((e&&e.message)||'未知錯誤');return false}}
+function gErrMsg(c){return c==='token'?'密碼不正確':c==='user'?'使用者名稱未填寫或不可用（使用朋友密碼時必須填寫）':c==='full'?'使用人數已達上限，請聯絡管理者':c==='name'?'雲端腳本不接受這個檔名，請把 Apps Script 換成最新版並重新部署':'腳本回傳錯誤（'+(c||'未知')+'）'}
+function gLegacyName(){return '寵物日記備份-'+ymd(new Date())+'.json'}
+async function gPost(name){var bd=JSON.stringify({token:GS.token,user:GS.user||'',name:name,data:JSON.stringify(S)});
+  try{var r=await fetch(GS.url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:bd});return {j:await r.json()}}
+  catch(e){if(e&&e.name==='TypeError'&&navigator.onLine){await fetch(GS.url,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:bd});return {blind:true}}throw e}}
+async function gVerify(name){await new Promise(function(r){setTimeout(r,1800)});
+  try{var r=await fetch(GS.url+'?token='+encodeURIComponent(GS.token)+'&user='+encodeURIComponent(GS.user||'')+'&list=1'),j=await r.json();
+    if(j&&j.ok&&j.files)return j.files.some(function(f){return f.name===name});}catch(e){}return null}
+async function gSave(){if(!GS)return false;
+  try{var names=[bkName(),gLegacyName()];
+    for(var i=0;i<names.length;i++){var res=await gPost(names[i]);
+      if(res.j){if(res.j.ok){stamp(1);GERR='';return true}if(res.j.error==='name'&&i===0)continue;throw new Error(gErrMsg(res.j.error))}
+      var v=await gVerify(names[i]);
+      if(v===true||v===null){stamp(1);GERR='';return true}
+      if(i===0)continue;
+      throw new Error('雲端沒有收到備份檔。請確認：Apps Script 已換成最新版並「部署新版本」、部署權限是「所有人」、網址結尾是 /exec')}
+    throw new Error('雲端沒有收到備份檔')}
+  catch(e){GERR=!navigator.onLine?'目前沒有網路連線':(e&&e.name==='TypeError')?'無法連線到 Google（請確認部署權限是「所有人」、網址結尾是 /exec，且不是在 Claude 裡的預覽版測試）':((e&&e.message)||'未知錯誤');return false}}
 var SES=(function(){var d=new Date(),z=function(n){return ('0'+n).slice(-2)};return ymd(d)+'-'+z(d.getHours())+z(d.getMinutes())+z(d.getSeconds())})();
 function bkName(){return '寵物日記備份-'+SES+'.json'}
 function bkKey(n){return n.replace(/\.json$/,'')}
@@ -393,12 +410,13 @@ var BKI=20*60000,bkDirty=false,bkLast=Date.now();
 function afs(){if(!DH&&!GS)return;bkDirty=true}
 function bkTick(){if(bkDirty&&(DH||GS)&&Date.now()-bkLast>=BKI-2000){bkDirty=false;bkLast=Date.now();runBk()}}
 setInterval(bkTick,60000);document.addEventListener('visibilitychange',function(){if(!document.hidden)bkTick()});
-function gSet(){var c=GS||{};sheet('<h2>Google 雲端資料夾</h2><div class="empty" style="padding-top:0">貼上 Google Apps Script 網頁應用程式的網址和密碼。每 20 分鐘會自動上傳一次（有新增或修改時），也可以隨時按「立即儲存」。備份檔只保留最新 5 份。網址和密碼只存在這支手機的瀏覽器。</div><input id="gs1" placeholder="https://script.google.com/macros/s/.../exec" value="'+esc(c.url||'')+'"><input id="gs2" type="password" placeholder="密碼（與腳本裡的 TOKEN 相同）" value="'+esc(c.token||'')+'" autocomplete="off"><label class="lb">使用者名稱（自訂）</label><input id="gs3" maxlength="30" placeholder="例如：小美（朋友使用時必填）" value="'+esc(c.user||'')+'" autocomplete="off"><div class="empty" style="padding:0 0 10px">填寫後，Google 雲端會自動建立同名資料夾，你的備份、照片和影片都存在裡面，不會和別人混在一起。自己使用可以留空（存在原本的資料夾）。名稱裡的 / \\ : * ? " &lt; &gt; | 會被自動拿掉。</div><button class="btn" onclick="gGo()">測試並儲存設定</button>'+(GS?'<button class="btn g2" onclick="gOff()">清除設定</button>':''))}
+function gSet(){var c=GS||{};sheet('<h2>Google 雲端資料夾</h2><div class="empty" style="padding-top:0">貼上 Google Apps Script 網頁應用程式的網址和密碼。每 20 分鐘會自動上傳一次（有新增或修改時），也可以隨時按「立即儲存」。備份檔只保留最新 5 份。網址和密碼只存在這支手機的瀏覽器。</div><input id="gs1" placeholder="https://script.google.com/macros/s/.../exec" value="'+esc(c.url||'')+'"><input id="gs2" type="password" placeholder="密碼（與腳本裡的 TOKEN 相同）" value="'+esc(c.token||'')+'" autocomplete="off"><label class="lb">使用者名稱（自訂）</label><input id="gs3" maxlength="30" placeholder="例如：小美（朋友使用時必填）" value="'+esc(c.user||'')+'" autocomplete="off"><div class="empty" style="padding:0 0 10px">填寫後，Google 雲端會自動建立同名資料夾，你的備份、照片和影片都存在裡面，不會和別人混在一起。自己使用可以留空（存在原本的資料夾）。名稱裡的 / \\ : * ? " &lt; &gt; | 會被自動拿掉。</div><button class="btn" onclick="gGo()">確定設定</button>'+(GS?'<button class="btn g2" onclick="gOff()">清除設定</button>':''))}
 async function gGo(){var old=GS;GS={url:document.getElementById('gs1').value.trim(),token:document.getElementById('gs2').value,user:document.getElementById('gs3').value.replace(/[\\\/:*?"<>|\r\n\t]/g,'').trim().slice(0,30)};if(GS.url.indexOf('https://script.google.com/')!==0||GS.url.slice(-5)!=='/exec'){GS=old;alert('網址需以 https://script.google.com/ 開頭、/exec 結尾（不是 /dev）');return}
-  var ok=await gSave();if(ok){try{localStorage.setItem('pd_gs',JSON.stringify(GS))}catch(e){}alert('連線成功，已儲存一份備份');openSet()}else{var m=GERR;GS=old;alert('連線失敗：'+m)}}
+  if(!GS.token){GS=old;alert('請輸入密碼');return}
+  try{localStorage.setItem('pd_gs',JSON.stringify(GS))}catch(e){}GROLE={k:'',r:null};alert('已確定設定。想確認連線，可到「其他設定」按「測試 Google 雲端連線」');openSet()}
 function gOff(){GS=null;try{localStorage.removeItem('pd_gs')}catch(e){}closeSh();alert('已清除 Google 雲端設定')}
 
-var VER='2026-10-30-a',DIRERR='',MAXUP=25*1048576;
+var VER='2026-10-30-c',DIRERR='',MAXUP=25*1048576;
 function stat(m,t,ms){var e=document.getElementById('stb');if(!e){e=document.createElement('div');e.id='stb';e.onclick=function(){e.style.display='none'};document.body.appendChild(e)}
   e.style.cssText='position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 10px);transform:translateX(-50%);z-index:40;max-width:92%;padding:10px 14px;border-radius:12px;font-size:14px;line-height:1.4;color:#fff;box-shadow:0 4px 16px rgba(0,0,0,.25);display:block;background:'+(t==='err'?'#c0392b':t==='ok'?'#2e8b57':'#444');
   e.textContent=m;clearTimeout(e._t);if(ms)e._t=setTimeout(function(){e.style.display='none'},ms)}
