@@ -112,9 +112,10 @@ function tinfo(k){return T.filter(function(t){return t[0]===k})[0]||['x','📝',
 
 function renderCal(){
   var p=document.getElementById('pets');
+  p.style.display=(pg==='cal'&&S.pets.length)?'none':'';
   p.innerHTML=S.pets.map(function(x){return '<button class="chip'+(x.id===S.cur?' on':'')+'" onclick="setPet(\''+x.id+'\')">'+av(x)+esc(x.name)+'</button>'}).join('')+'<button class="chip" onclick="openPet()">＋ 新增寵物</button>';
   document.getElementById('mt').textContent=vy+' 年 '+(vm+1)+' 月';
-  var has={};S.recs.forEach(function(r){if(r.pet===S.cur)has[r.date]=1});
+  var all=true,has={};S.recs.forEach(function(r){if(all||r.pet===S.cur)has[r.date]=1});
   var h='日一二三四五六'.split('').map(function(w){return '<div class="w">'+w+'</div>'}).join('');
   var first=new Date(vy,vm,1).getDay(),n=new Date(vy,vm+1,0).getDate();
   for(var i=0;i<first;i++)h+='<div></div>';
@@ -122,14 +123,16 @@ function renderCal(){
     h+='<button class="d'+(s===today?' t':'')+(s===sel?' s':'')+(has[s]?' h':'')+'" onclick="pickDay(\''+s+'\')">'+d+'</button>'}
   document.getElementById('cal').innerHTML=h;
   var pet=S.pets.filter(function(x){return x.id===S.cur})[0];
-  document.getElementById('dt').textContent=sel.replace(/-/g,'/')+(sel===today?'（今天）':'')+(pet?' · '+pet.name:'');
-  var rs=S.recs.filter(function(r){return r.pet===S.cur&&r.date===sel}).sort(function(a,b){return a.ts-b.ts});
+  document.getElementById('dt').textContent=sel.replace(/-/g,'/')+(sel===today?'（今天）':'')+(all&&S.pets.length>1?' · 全部寵物':pet?' · '+pet.name:'');
+  var rs=S.recs.filter(function(r){return (all||r.pet===S.cur)&&r.date===sel}).sort(function(a,b){return a.ts-b.ts}),pn=function(r){var q=S.pets.filter(function(x){return x.id===r.pet})[0];return all&&S.pets.length>1&&q?' <small style="color:var(--ac)">'+esc(q.emoji+' '+q.name)+'</small>':''};
   document.getElementById('list').innerHTML=rs.length?rs.map(function(r){var t=tinfo(r.type);
-    return '<div class="r"><div class="e">'+t[1]+'</div><div class="m"><b>'+esc(r.title||t[2])+'</b> <small style="color:var(--sub)">'+new Date(r.ts).toTimeString().slice(0,5)+'</small>'+det(r)+'</div><button class="x" onclick="delRec(\''+r.id+'\')">🗑️</button></div>'}).join(''):'<div class="empty">這天還沒有紀錄</div>';
+    return '<div class="r"><div class="e">'+t[1]+'</div><div class="m"><b>'+esc(r.title||t[2])+'</b>'+pn(r)+' <small style="color:var(--sub)">'+new Date(r.ts).toTimeString().slice(0,5)+'</small>'+det(r)+'</div><button class="x" onclick="delRec(\''+r.id+'\')">🗑️</button></div>'}).join(''):'<div class="empty">這天還沒有紀錄</div>';
 }
 function mv(n){vm+=n;if(vm<0){vm=11;vy--}if(vm>11){vm=0;vy++}render()}
 function pickDay(s){sel=s;render()}
-function setPet(id){S.cur=id;save();render()}
+var calAll=true;try{calAll=localStorage.getItem('pd_calall')!=='0'}catch(e){}
+function setCalAll(){calAll=true;try{localStorage.setItem('pd_calall','1')}catch(e){}render()}
+function setPet(id){S.cur=id;calAll=false;try{localStorage.setItem('pd_calall','0')}catch(e){}save();render()}
 function ask(m,fn){sheet('<h2>'+m+'</h2><div class="row"><button class="btn g2" onclick="closeSh()">取消</button><button class="btn" id="okb" style="margin-top:8px">確定</button></div>');document.getElementById('okb').onclick=function(){closeSh();fn()}}
 window.alert=function(m){var t=document.createElement('div');t.textContent=m;t.style.cssText='position:fixed;left:50%;top:60px;transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:10px 16px;border-radius:12px;z-index:30;font-size:14px;max-width:90%';document.body.appendChild(t);setTimeout(function(){t.remove()},Math.max(2500,String(m).length*130))};
 function delRec(id){ask('刪除這筆紀錄？',function(){delMedia(S.recs.filter(function(r){return r.id===id})[0]);S.recs=S.recs.filter(function(r){return r.id!==id});save();render()})}
@@ -138,12 +141,12 @@ function sheet(h){document.getElementById('sh').innerHTML=h;document.getElementB
 
 function openAdd(){
   if(!S.pets.length){openPet();return}if(pg==='rec'&&rf!=='all')pick=GM[rf]?GM[rf][0]:rf;if(!T.some(function(t){return t[0]===pick}))pick=T[0][0];
-  sheet('<h2>新增紀錄</h2><div class="ty">'+T.map(function(t){return '<button id="t_'+t[0]+'" class="'+(t[0]===pick?'on':'')+'" onclick="selT(\''+t[0]+'\')"><span>'+t[1]+'</span>'+t[2]+'</button>'}).join('')+'<button onclick="openType(1)"><span>＋</span>自訂項目</button></div>'+formHTML()+'<button class="btn" onclick="addRec()">儲存</button>');selT(pick);
+  sheet('<h2>新增紀錄</h2>'+(S.pets.length>1?'<label class="lb">這筆紀錄屬於</label><select id="fpet">'+S.pets.map(function(x){return '<option value="'+x.id+'"'+(x.id===S.cur?' selected':'')+'>'+x.emoji+' '+esc(x.name)+'</option>'}).join('')+'</select>':'')+'<div class="ty">'+T.map(function(t){return '<button id="t_'+t[0]+'" class="'+(t[0]===pick?'on':'')+'" onclick="selT(\''+t[0]+'\')"><span>'+t[1]+'</span>'+t[2]+'</button>'}).join('')+'<button onclick="openType(1)"><span>＋</span>自訂項目</button></div>'+formHTML()+'<button class="btn" onclick="addRec()">儲存</button>');selT(pick);
 }
 function selT(k){pick=k;refForm();showPm();T.forEach(function(t){document.getElementById('t_'+t[0]).classList.toggle('on',t[0]===k)})}
 function addRec(){
   if(document.getElementById('fms').textContent){alert('照片／影片上傳中，請稍候');return}var d=document.getElementById('ad').value||sel;
-  var g=function(i){return document.getElementById(i).value.trim()},c=OPT[pick]?'':g('fc'),r={id:uid(),pet:S.cur,date:d,type:pick,title:g('ft'),tags:[].map.call(document.querySelectorAll('#fopt .dt.on'),function(b){return b.textContent}),kg:g('fk'),dose:g('fd'),clinic:g('fh'),cycle:c,next:c?addCyc(d,c):'',media:pm.slice(),note:g('an'),ts:Date.now()};S.recs.push(r);
+  var g=function(i){return document.getElementById(i).value.trim()},c=OPT[pick]?'':g('fc'),r={id:uid(),pet:(document.getElementById('fpet')||{}).value||S.cur,date:d,type:pick,title:g('ft'),tags:[].map.call(document.querySelectorAll('#fopt .dt.on'),function(b){return b.textContent}),kg:g('fk'),dose:g('fd'),clinic:g('fh'),cycle:c,next:c?addCyc(d,c):'',media:pm.slice(),note:g('an'),ts:Date.now()};S.recs.push(r);
   save();sel=d;var dd=new Date(d+'T00:00:00');vy=dd.getFullYear();vm=dd.getMonth();closeSh();render();
 }
 function openPet(){
@@ -392,7 +395,7 @@ async function gGo(){var old=GS;GS={url:document.getElementById('gs1').value.tri
   var ok=await gSave();if(ok){try{localStorage.setItem('pd_gs',JSON.stringify(GS))}catch(e){}alert('連線成功，已儲存一份備份');openSet()}else{var m=GERR;GS=old;alert('連線失敗：'+m)}}
 function gOff(){GS=null;try{localStorage.removeItem('pd_gs')}catch(e){}closeSh();alert('已清除 Google 雲端設定')}
 
-var VER='2026-10-29-v',DIRERR='',MAXUP=25*1048576;
+var VER='2026-10-29-y',DIRERR='',MAXUP=25*1048576;
 function stat(m,t,ms){var e=document.getElementById('stb');if(!e){e=document.createElement('div');e.id='stb';e.onclick=function(){e.style.display='none'};document.body.appendChild(e)}
   e.style.cssText='position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 10px);transform:translateX(-50%);z-index:40;max-width:92%;padding:10px 14px;border-radius:12px;font-size:14px;line-height:1.4;color:#fff;box-shadow:0 4px 16px rgba(0,0,0,.25);display:block;background:'+(t==='err'?'#c0392b':t==='ok'?'#2e8b57':'#444');
   e.textContent=m;clearTimeout(e._t);if(ms)e._t=setTimeout(function(){e.style.display='none'},ms)}
@@ -433,12 +436,12 @@ function bkUI(){var lb='';try{lb=localStorage.getItem('pd_lastbk')||''}catch(e){
   h+='<h3 style="margin-top:16px">② 儲存到 Google 雲端資料夾</h3>'+gUI();
   return h+'<h3 style="margin-top:16px">手動備份</h3><button class="btn g2" onclick="expBk()">📤 匯出備份檔（存到「檔案」或 iCloud）</button><input type="file" id="bf" accept=".json,application/json" style="display:none" onchange="impBk(this)"><button class="btn g2" onclick="document.getElementById(\'bf\').click()">📂 從備份檔還原</button><div class="empty" style="margin-top:8px">或用文字備份：</div>'}
 function dirNow(){stat('💾 儲存中…');dirSave().then(function(o){stat(o?'✅ 已儲存到資料夾':'⚠️ 儲存失敗：'+DIRERR,o?'ok':'err',o?2500:9000);openSet()})}
-function gUI(){if(!GS)return '<div class="empty" style="padding-top:0">只需設定一次，之後自動儲存紀錄、照片和影片。</div><button class="btn" onclick="gSet()">☁️ 設定 Google 雲端資料夾</button>';
-  var so=setOpen,fh=function(k,t){return '<button class="fh" onclick="togSet(\''+k+'\')"><span>'+t+'</span><span style="color:var(--sub)">'+(so[k]?'▾':'▸')+'</span></button>'};
+function gUI(){var so=setOpen,fh=function(k,t){return '<button class="fh" onclick="togSet(\''+k+'\')"><span>'+t+'</span><span style="color:var(--sub)">'+(so[k]?'▾':'▸')+'</span></button>'},wb='<button class="btn g2" style="color:#c0392b" onclick="wipeUI()">🗑️ 一鍵清除所有資料</button>';
+  if(!GS)return '<div class="empty" style="padding-top:0">只需設定一次，之後自動儲存紀錄、照片和影片。</div><button class="btn" onclick="gSet()">☁️ 設定 Google 雲端資料夾</button><div class="card" style="margin:10px 0 0;padding:10px 12px">'+fh('oth','⚙️ 其他設定')+(so.oth?wb:'')+'</div>';
   return '<div class="empty" style="padding-top:0">☁️ 已設定。刪除紀錄或照片時，雲端的檔案也會一起移到垃圾桶'+(GS.user?'（使用者：'+esc(GS.user)+'，資料存在同名資料夾）':'')+'。每次儲存紀錄會自動上傳；備份檔只保留最新 5 份，多的會由 Google 腳本自動丟進垃圾桶（30 天內可救回）。</div>'+
    '<div class="empty" style="padding:0 0 8px">📦 朋友帳號的雲端上傳空間上限為 <b>15 GB</b>（實際以管理者設定為準），超過後無法再上傳照片和影片，備份檔不受影響。<span id="gusage"></span></div>'+
    '<button class="btn" onclick="gNow()">💾 立即儲存到 Google 雲端</button><button class="btn g2" onclick="gPick()">♻️ 從 Google 雲端還原</button><button class="btn g2" onclick="gUpAll()">📷 補傳照片和影片</button>'+
-   '<div class="card" style="margin:10px 0 0;padding:10px 12px">'+fh('oth','⚙️ 其他設定')+(so.oth?'<button class="btn g2" onclick="gTest()">🔧 測試 Google 雲端連線</button><button class="btn g2" onclick="gSet()">更換 Google 設定</button><button class="btn g2" onclick="gClean()">🧹 清理雲端多餘的照片和影片</button>':'')+'</div>'+
+   '<div class="card" style="margin:10px 0 0;padding:10px 12px">'+fh('oth','⚙️ 其他設定')+(so.oth?'<button class="btn g2" onclick="gTest()">🔧 測試 Google 雲端連線</button><button class="btn g2" onclick="gSet()">更換 Google 設定</button><button class="btn g2" onclick="gClean()">🧹 清理雲端多餘的照片和影片</button>'+wb:'')+'</div>'+
    '<div class="card" style="margin:10px 0 0;padding:10px 12px">'+fh('fr','👥 朋友設定（管理者）')+(so.fr?'<div id="gfr" class="empty" style="padding:8px 0">讀取中…</div>':'')+'</div>'}
 var setOpen={};try{setOpen=JSON.parse(localStorage.getItem('pd_setopen')||'{}')||{}}catch(e){}
 var GROLE={k:'',r:null};
@@ -461,6 +464,23 @@ async function gFrSave(){var n=parseInt(document.getElementById('gmx').value,10)
     if(!j.ok)throw new Error(j.error==='owner'?'只有使用「自己的密碼」才能修改':'腳本回傳錯誤（'+j.error+'），請確認已換成新版腳本並重新部署');stat('✅ 已儲存：朋友 '+j.max+' 人、每人 '+j.maxGb+' GB','ok',3500)}
   catch(e){stat('⚠️ 儲存失敗：'+upErr(e),'err',9000)}}
 var _os0=openSet;openSet=function(){_os0.apply(this,arguments);if(GS){gUsage();if(setOpen.fr)gFrLoad()}};
+
+function wipeUI(){sheet('<h2>🗑️ 一鍵清除所有資料</h2><div class="empty" style="padding-top:0;color:#c0392b"><b>這會清除這支手機上的所有寵物、紀錄、照片、影片、常用醫院、飼料紀錄與顏色設定，而且無法復原。</b>建議先到「手動備份」匯出一份。</div>'+
+  (GS?'<label style="display:flex;gap:8px;align-items:flex-start;margin:8px 0"><input id="wc" type="checkbox" style="width:auto;margin:3px 0 0"><span>同時清除 Google 雲端（'+(GS.user?'使用者「'+esc(GS.user)+'」的':'你的')+'備份檔和照片影片，會移到雲端垃圾桶，30 天內可以救回）</span></label>':'')+
+  (DH?'<label style="display:flex;gap:8px;align-items:flex-start;margin:8px 0"><input id="wd" type="checkbox" style="width:auto;margin:3px 0 0"><span>同時清除電腦資料夾裡的備份檔和照片影片（<b>會直接刪除，不經過資源回收筒</b>）</span></label>':'')+
+  '<div class="empty" style="padding:8px 0">確認要清除，請在下面輸入「清除」兩個字：</div><input id="wt" placeholder="清除"><button class="btn" style="background:#c0392b" onclick="doWipe()">確定清除</button><button class="btn g2" onclick="closeSh()">取消</button>')}
+async function doWipe(){var t=document.getElementById('wt');if(!t||t.value.trim()!=='清除'){alert('請輸入「清除」兩個字才能繼續');return}
+  var wc=document.getElementById('wc'),wd=document.getElementById('wd'),cloud=!!(GS&&wc&&wc.checked),dir=!!(DH&&wd&&wd.checked),er=[];
+  stat('🗑️ 清除中…');
+  if(cloud){try{var r=await fetch(GS.url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({token:GS.token,user:GS.user||'',kind:'wipe'})}),j=await r.json();
+    if(!j.ok)throw new Error(j.error==='token'?'密碼不正確':j.error==='user'?'使用者名稱未填寫或不可用':'腳本回傳錯誤（'+(j.error||'未知')+'），請確認已換成新版腳本並重新部署')}
+    catch(e){stat('⚠️ 雲端清除失敗，所有資料都沒有被清除：'+upErr(e),'err',10000);return}}
+  if(dir){try{var n=0;for await(var e of DH.values()){if(e.kind==='file'&&/^寵物日記備份-\d{4}-\d{2}-\d{2}(-\d{6})?\.json$/.test(e.name)){await DH.removeEntry(e.name);n++}}
+    try{await DH.removeEntry('寵物日記媒體',{recursive:true})}catch(x){if(!x||x.name!=='NotFoundError')throw x}}catch(e){er.push('電腦資料夾：'+((e&&e.message)||'失敗'))}}
+  try{var d=await idb();await new Promise(function(res,rej){var tx=d.transaction('m','readwrite');tx.objectStore('m').clear();tx.oncomplete=res;tx.onerror=function(){rej(tx.error)}})}catch(e){er.push('手機內的照片影片：'+((e&&e.message)||'失敗'))}
+  ['pd_mu','pd_mdel','pd_lastbk','pd_lastbk_ts','pd_tipopen'].forEach(function(k){try{localStorage.removeItem(k)}catch(e){}});
+  MC={};PEND=[];pm=[];tipOpen={food:true};S={pets:[],recs:[],cur:null};save();closeSh();render();
+  stat(er.length?'⚠️ 已清除手機資料，但有項目失敗：'+er.join('；'):'✅ 已清除所有資料','ok',er.length?10000:4000)}
 function gNow(){stat('☁️ 備份中…');gSave().then(function(o){stat(o?'✅ 已儲存到 Google 雲端':'⚠️ 儲存失敗：'+GERR,o?'ok':'err',o?2500:9000);openSet()})}
 function hideStat(){var e=document.getElementById('stb');if(e)e.style.display='none'}
 async function gPick(){try{stat('☁️ 讀取雲端備份清單…');var r=await fetch(GS.url+'?token='+encodeURIComponent(GS.token)+'&user='+encodeURIComponent(GS.user||'')+'&list=1'),j=await r.json();
