@@ -452,6 +452,24 @@ html[data-skin=n] #tl .fh>span:first-of-type{flex:1}
 .hf-date,#phd_pet .hf-date{font-size:min(32px,8.4cqw)}
 .hf-date,#phd_pet .hf-date{top:calc(42cqw - 4px)}.hf-sub,#phd_pet .hf-sub{top:calc(42cqw + 2px)}
 #phd_pet .hf-name{padding-top:8px}
+
+/* 藍色拼貼：日曆頁只顯示天數年齡；寵物頁品種與天數分兩行 */
+.hj-s{font-size:min(15px,3.8cqw);font-weight:700;line-height:1.6;white-space:nowrap;z-index:1}
+.hj-s span{display:block}
+#hero .hj-s.hd .hj-br{display:none}
+#hero .hj-s{top:158px}
+#phd_pet .hj-s{top:160px}
+#phd_pet .hj .hart{height:336px}
+#phd_pet .hj .upl{top:214px}
+#phd_pet .hj-tape{top:246px}#phd_pet .hj-tt{top:266px}#phd_pet .hj-star{top:258px}
+
+/* 藍色拼貼：所有寵物統一版面（以貓咪為準） */
+.hj-t,#phd_pet .hj-t{font-size:min(50px,12.6cqw);line-height:1.08}
+.hj-t .hj-n,.hj-t span{display:block;height:1.08em;white-space:nowrap}
+.hj-t .hj-n{font-weight:900;display:flex;align-items:flex-end;font-size:1em}
+.hj-t .hj-n{font-size:max(.5em,min(1em,calc((60cqw - 22px) / var(--w,4))))}
+#phd_pet .hj-t .hj-n{font-size:max(.5em,min(1em,calc((56cqw - 22px) / var(--w,4))))}
+.hj-t .hj-n{height:auto;min-height:1.08em}
 /* 寬螢幕（平板／電腦）：色塊不出破綻 */
 @media (min-width:481px){.hf .hart,.hj .hart,.hn .hart,.phd{border-radius:0}}
 </style>
@@ -1420,7 +1438,7 @@ var ART={
    :'<rect width="200" height="250" fill="#2a221a"/><ellipse cx="70" cy="90" rx="80" ry="95" fill="#5c4b36" filter="url(#pzb)"/><g filter="url(#pzp)"><path d="M30 250 C32 185 66 150 104 146 C144 150 176 190 178 250 Z" fill="#6f6252"/><path d="M120 150 C150 160 174 195 178 250 L130 250 C136 210 132 175 120 150 Z" fill="#4a4036"/><path d="M78 165 C90 158 112 158 122 168 C120 200 110 225 100 250 L84 250 C82 220 76 190 78 165 Z" fill="#c4b497"/><path d="M60 86 L66 34 L96 64 Z" fill="#7d6f5c"/><path d="M150 86 L146 34 L116 64 Z" fill="#5f5548"/><path d="M67 74 L70 46 L86 64 Z" fill="#a07c6a"/><path d="M143 74 L140 46 L126 64 Z" fill="#856658"/><ellipse cx="105" cy="98" rx="50" ry="44" fill="#857766"/><path d="M120 58 C150 70 160 105 146 130 C138 140 124 142 112 141 C138 120 140 86 120 58 Z" fill="#5f5548"/><ellipse cx="92" cy="76" rx="16" ry="9" fill="#a39380"/><ellipse cx="104" cy="116" rx="22" ry="15" fill="#c8b89b"/><ellipse cx="86" cy="96" rx="8" ry="6" fill="#ae9650"/><ellipse cx="123" cy="96" rx="8" ry="6" fill="#968245"/><ellipse cx="86" cy="96" rx="2" ry="5.5" fill="#1d1712"/><ellipse cx="123" cy="96" rx="2" ry="5.5" fill="#1d1712"/><path d="M98 110 L110 110 L104 117 Z" fill="#8a5a4c"/></g>';
   return '<svg viewBox="'+vb+'" preserveAspectRatio="xMidYMid slice" aria-hidden="true">'+defs+(gray?'<g filter="url(#pzs)">'+body+'</g>':body)+'<rect width="200" height="250" filter="url(#pzg)"/></svg>'},
  sil:function(m){return m==='dog'
-  ?'<svg class="hj-art" viewBox="0 0 200 200" aria-hidden="true"><path class="mk" d="'+DOGP+'"/><path class="mke" d="'+DOGE+'"/>'+dogEyes('#f2b632','mk')+'<path class="msc" d="M70 14 C96 -2 160 2 168 14 C176 28 110 26 120 10 C128 0 184 6 190 26"/><path class="msc" d="M18 150 L6 144 M16 162 L2 162"/></svg>'
+  ?'<svg class="hj-art" viewBox="-14 -22 222 222" aria-hidden="true"><path class="mk" d="'+DOGP+'"/><path class="mke" d="'+DOGE+'"/>'+dogEyes('#f2b632','mk')+'<path class="msc" d="M70 14 C96 -2 160 2 168 14 C176 28 110 26 120 10 C128 0 184 6 190 26"/><path class="msc" d="M18 150 L6 144 M16 162 L2 162"/></svg>'
   :'<svg class="hj-art" viewBox="0 0 150 150" aria-hidden="true"><path class="mk" d="M28 132 C30 90 50 74 75 72 C102 74 120 92 122 132 Z"/><path class="mk" d="M44 58 L48 20 L68 44 Z"/><path class="mk" d="M106 58 L102 20 L82 44 Z"/><ellipse class="mk" cx="75" cy="64" rx="34" ry="30"/><ellipse class="mpp" cx="62" cy="62" rx="5" ry="3.5"/><ellipse class="mpp" cx="88" cy="62" rx="5" ry="3.5"/><path class="msc" d="M40 30 C60 0 100 10 96 30 C92 50 50 40 62 22 C74 6 112 18 104 38 C98 52 70 46 80 30"/><path class="msc" d="M20 110 L10 104 M18 120 L6 120"/></svg>'},
  glow:function(m){var f='<defs><filter id="nzs" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur in="SourceGraphic" stdDeviation="'+(m==='dog'?1.3:2.2)+'" result="b"/><feTurbulence type="fractalNoise" baseFrequency="1.2" numOctaves="2" result="n"/><feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .3 0" result="g"/><feComposite in="g" in2="b" operator="in" result="gg"/><feMerge><feMergeNode in="b"/><feMergeNode in="gg"/></feMerge></filter><filter id="nzg" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="'+(m==='dog'?6:10)+'"/></filter><filter id="nze"><feGaussianBlur stdDeviation="1"/></filter></defs>';
   return m==='dog'
@@ -1440,7 +1458,7 @@ var HERO={
  f:function(p,m){var t=new Date(),z=function(n){return ('0'+n).slice(-2)},n=String(p.name),fs=n.length<=2?96:n.length<=3?76:n.length<=5?52:36,dy=hDays(p);
   return '<div class="hf-moon">'+(p.photo?'<img style="--py:'+phY(p)+'%" src="'+p.photo+'" alt="'+esc(p.name)+'的照片">':ART.paint(m,true,true))+'</div><div class="hf-top"><span>@PETDIARY</span><span>VOL. '+z(t.getMonth()+1)+'</span></div><div class="hf-date">'+z(t.getDate())+'\\'+z(t.getMonth()+1)+'\\<br class="hf-br"><span class="hf-sp"> </span>'+t.getFullYear()+'</div><div class="hf-sub">'+esc(hSub(p))+'</div><div class="hf-days">'+(dy!==null?'和'+esc(n)+'一起生活的第 '+dy+' 天':'TODAY · 今日紀錄')+'</div><div class="hf-name" style="--fs:'+fs+'px;'+nmw(n)+'">'+esc(n)+'</div>'},
  j:function(p,m){var t=new Date(),dy=hDays(p),n=String(p.name),fs=n.length<=3?50:n.length<=5?38:28;
-  return '<div class="hj-pp"></div><div class="hj-tape"></div><div class="hj-tt">'+(dy!==null?dy+' DAYS TOGETHER':'MY BUDDY')+'</div>'+(p.photo?'<img class="hj-ph" src="'+p.photo+'" alt="'+esc(p.name)+'的照片">':ART.sil(m))+'<svg class="hj-star" viewBox="0 0 56 56" aria-hidden="true"><path class="ma" d="M28 0 L33 20 L52 10 L38 26 L56 34 L35 35 L40 56 L28 39 L15 54 L19 34 L0 30 L18 23 L6 6 L23 18 Z"/></svg><div class="hj-dt">'+t.getFullYear()+'，'+(t.getMonth()+1)+' 月 '+t.getDate()+' 日</div><div class="hj-t" style="--fs:'+fs+'px;'+nmw(n,1)+'">'+esc(n)+'的<br><span>今天</span></div><div class="hj-s">'+esc(hSub(p))+(daysTxt(p)?' · '+daysTxt(p):'')+'</div>'},
+  return '<div class="hj-pp"></div><div class="hj-tape"></div><div class="hj-tt">'+(dy!==null?dy+' DAYS TOGETHER':'MY BUDDY')+'</div>'+(p.photo?'<img class="hj-ph" src="'+p.photo+'" alt="'+esc(p.name)+'的照片">':ART.sil(m))+'<svg class="hj-star" viewBox="0 0 56 56" aria-hidden="true"><path class="ma" d="M28 0 L33 20 L52 10 L38 26 L56 34 L35 35 L40 56 L28 39 L15 54 L19 34 L0 30 L18 23 L6 6 L23 18 Z"/></svg><div class="hj-dt">'+t.getFullYear()+'，'+(t.getMonth()+1)+' 月 '+t.getDate()+' 日</div><div class="hj-t"><b class="hj-n" style="'+nmw(n,1)+'">'+esc(n)+'的</b><span>今天</span></div><div class="hj-s'+(daysTxt(p)?' hd':'')+'"><span class="hj-br">'+esc(hSub(p))+'</span>'+(daysTxt(p)?'<span class="hj-dy">'+daysTxt(p)+'</span>':'')+'</div>'},
  n:function(p,m){var t=new Date(),dy=hDays(p);return ART.glow(m)+'<div class="hn-t"><small>'+(t.getMonth()+1)+' 月 '+t.getDate()+' 日 · 週'+'日一二三四五六'[t.getDay()]+'</small><b>'+esc(p.name)+'<br>'+NQ+'</b><em>'+(dy!==null?'一起生活第 '+dy+' 天':esc(hSub(p)))+'</em></div>'}};
 function renderHero(){var e=document.getElementById('hero');if(!e)return;var p=cur();if(!p){e.innerHTML='';e.className='';return}
  var k=skin(),m=mascotOf(p);e.className='hero h'+k;
