@@ -512,6 +512,23 @@ html[data-skin=j] .cfold,html[data-skin=f] .cfold{border-radius:0;border-color:v
 .bkm{display:flex;gap:10px;align-items:flex-start;margin:4px 0 10px;font-size:14px;font-weight:600;cursor:pointer}
 .bkm input{width:20px;height:20px;margin:1px 0 0;flex:none;accent-color:var(--ac)}
 .bkm small{display:block;font-weight:400;font-size:12px;color:var(--sub);margin-top:3px;line-height:1.5}
+
+/* 紀錄頁：依年份收合 */
+.yg{counter-reset:rn;border-top:1px solid var(--line)}
+.yg:first-child{border-top:0}
+.yg summary{list-style:none;display:flex;align-items:center;gap:10px;padding:12px 2px;cursor:pointer;min-height:46px;-webkit-user-select:none;user-select:none}
+.yg summary::-webkit-details-marker{display:none}
+.yg summary b{font-size:17px;font-weight:800;color:var(--tx)}
+.yg summary span{font-size:12px;color:var(--sub);background:color-mix(in srgb,var(--ac) 12%,transparent);padding:2px 9px;border-radius:999px}
+.yg summary i{margin-left:auto;width:9px;height:9px;border-right:2px solid var(--sub);border-bottom:2px solid var(--sub);transform:rotate(45deg);margin-top:-4px;transition:transform .2s}
+.yg[open] summary i{transform:rotate(-135deg);margin-top:4px}
+.ygb{padding-bottom:6px}
+html[data-skin=e] .yg summary b{font:600 24px 'Cormorant Garamond',serif;color:color-mix(in srgb,var(--ac) 60%,var(--tx))}
+html[data-skin=f] .yg summary b{font:400 30px/1 'Bebas Neue','Noto Sans TC',sans-serif;letter-spacing:1px}
+html[data-skin=f] .yg,html[data-skin=j] .yg{border-top:2px solid var(--ink,var(--tx))}
+html[data-skin=f] .yg summary span,html[data-skin=j] .yg summary span{border-radius:0}
+html[data-skin=j] .yg summary b{font:700 22px 'Oswald','Noto Sans TC',sans-serif}
+html[data-skin=j] .yg summary span{background:var(--ac);color:var(--onac)}
 /* 寬螢幕（平板／電腦）：色塊不出破綻 */
 @media (min-width:481px){.hf .hart,.hj .hart,.hn .hart,.phd{border-radius:0}}
 </style>
@@ -1574,7 +1591,15 @@ var _sfH=setF;setF=function(k,v){_sfH(k,v);if(pg==='pet'&&k!=='photo')try{putHea
 var _rcH=renderCalc;renderCalc=function(){_rcH();try{putHead('calc')}catch(err){}};
 var _rvH=renderVet;renderVet=function(){_rvH();try{putHead('vet')}catch(err){}};
 var _rtH=renderTip;renderTip=function(){_rtH();try{putHead('tip')}catch(err){}};
-var _rrH=renderRec;renderRec=function(){_rrH();try{putHead('rec')}catch(err){}};
+var YOPEN={};try{YOPEN=JSON.parse(localStorage.getItem('pd_yopen')||'{}')||{}}catch(e){}
+function yTog(el){var y=el.getAttribute('data-y');YOPEN[y]=el.open;try{localStorage.setItem('pd_yopen',JSON.stringify(YOPEN))}catch(e){}}
+function yrGroup(){var el=document.getElementById('rlist');if(!el)return;var h=el.innerHTML;if(h.indexOf('<div class="r">')<0)return;
+  var parts=h.split('<div class="r">').slice(1).map(function(s){return '<div class="r">'+s}),G=[],cur=null;
+  parts.forEach(function(r){var m=r.match(/<b>(\d{4})\//),y=m?m[1]:'其他';if(!cur||cur.y!==y){cur={y:y,rows:[]};G.push(cur)}cur.rows.push(r)});
+  var ty=String(new Date().getFullYear());
+  el.innerHTML=G.map(function(g,i){var op=(g.y in YOPEN)?YOPEN[g.y]:(i===0||g.y===ty);
+    return '<details class="yg" data-y="'+g.y+'"'+(op?' open':'')+' ontoggle="yTog(this)"><summary><b>'+g.y+(g.y==='其他'?'':' 年')+'</b><span>'+g.rows.length+' 筆</span><i aria-hidden="true"></i></summary><div class="ygb">'+g.rows.join('')+'</div></details>'}).join('')}
+var _rrH=renderRec;renderRec=function(){_rrH();try{yrGroup()}catch(err){}try{putHead('rec')}catch(err){}};
 
 /* ===== 手動備份：一併備份照片和影片（「多媒體」資料夾） ===== */
 function bkMediaOn(){try{return localStorage.getItem('pd_bkmedia')!=='0'}catch(e){return true}}
