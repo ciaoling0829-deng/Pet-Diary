@@ -470,6 +470,32 @@ html[data-skin=n] #tl .fh>span:first-of-type{flex:1}
 .hj-t .hj-n{font-size:max(.5em,min(1em,calc((60cqw - 22px) / var(--w,4))))}
 #phd_pet .hj-t .hj-n{font-size:max(.5em,min(1em,calc((56cqw - 22px) / var(--w,4))))}
 .hj-t .hj-n{height:auto;min-height:1.08em}
+
+/* ===== 手機細節修正 ===== */
+/* 設定列與色塊之間留空 */
+.gear{line-height:1;padding:4px 6px}
+#pets{margin-top:6px}
+#hero{margin-top:14px}
+#phd_pet,.phd{margin-top:12px}
+.phj,.phf{margin-top:12px}
+/* 簡約風格：名字不從字中間斷開 */
+.hb-n{word-break:keep-all;overflow-wrap:normal;white-space:nowrap}
+.hb .hb-ph .hb-d{font-size:12px}
+/* 藍色拼貼：文字不壓到照片、星星不壓到膠帶 */
+.hj-s{white-space:normal;right:calc(min(136px,34cqw) + 30px)}
+.hj-s .hj-dy i{font-style:normal;display:inline-block;white-space:nowrap}
+#phd_pet .hj-s{right:calc(min(150px,36cqw) + 30px)}
+#phd_pet .hj-ph{width:min(150px,36cqw);height:min(166px,40cqw)}
+#hero.hj .hart{height:312px}
+#hero .hj-tape{top:214px}#hero .hj-tt{top:234px}
+.hj-star,#phd_pet .hj-star{left:auto;right:22px}
+#hero .hj-star{top:232px}
+#phd_pet .hj .upl{left:auto;right:16px;top:calc(min(210px,50cqw) + 12px)}
+#phd_pet .hj .hart:has(.hj-ph) .upl{top:auto}
+
+.hb-d i{font-style:normal;display:inline-block;white-space:nowrap}
+#phd_pet .hj .hart{height:356px}
+#phd_pet .hj-tape{top:266px}#phd_pet .hj-tt{top:286px}#phd_pet .hj-star{top:280px}
 /* 寬螢幕（平板／電腦）：色塊不出破綻 */
 @media (min-width:481px){.hf .hart,.hj .hart,.hn .hart,.phd{border-radius:0}}
 </style>
@@ -1453,12 +1479,12 @@ function hSub(p){return p.breed||SPN[p.emoji]||'寵物'}
 function hDays(p){return p.home?dd(p.home):null}
 var ROM=['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII'];
 var HERO={
- b:function(p,m){return '<div class="hb-card'+(p.photo?' hb-ph':'')+'">'+(p.photo?'':ART.line(m))+'<div class="hb-row"><div class="hb-av">'+(p.photo?'<img src="'+p.photo+'" alt="">':p.emoji)+'</div><div style="min-width:0"><div class="hb-n" '+nmv(p.name)+'>'+esc(p.name)+'</div><div class="hb-s">'+esc(hSub(p))+'</div></div></div><div class="hb-d">'+(daysTxt(p)||'到「寵物」頁填寫生日與到家日')+'</div></div>'},
+ b:function(p,m){return '<div class="hb-card'+(p.photo?' hb-ph':'')+'">'+(p.photo?'':ART.line(m))+'<div class="hb-row"><div class="hb-av">'+(p.photo?'<img src="'+p.photo+'" alt="">':p.emoji)+'</div><div style="min-width:0"><div class="hb-n" '+nmv(p.name)+'>'+esc(p.name)+'</div><div class="hb-s">'+esc(hSub(p))+'</div></div></div><div class="hb-d">'+(daysTxt(p)?daysTxt(p).split(' · ').map(function(s,i){return '<i>'+(i?'· ':'')+s+'</i>'}).join(' '):'到「寵物」頁填寫生日與到家日')+'</div></div>'},
  e:function(p,m){var i=S.pets.indexOf(p);return '<div class="he-row"><div class="he-fr"><div class="he-in">'+(p.photo?'<img src="'+p.photo+'" alt="'+esc(p.name)+'的照片">':ART.paint(m,false,false))+'</div></div><div class="he-t"><i>No. '+(ROM[i]||(i+1))+'</i><b '+nmv(p.name)+'>'+esc(p.name)+'</b><small>'+esc(hSub(p))+'</small><span class="he-bar"></span><small>'+(daysTxt(p)||'記錄每一天')+'</small></div></div>'},
  f:function(p,m){var t=new Date(),z=function(n){return ('0'+n).slice(-2)},n=String(p.name),fs=n.length<=2?96:n.length<=3?76:n.length<=5?52:36,dy=hDays(p);
   return '<div class="hf-moon">'+(p.photo?'<img style="--py:'+phY(p)+'%" src="'+p.photo+'" alt="'+esc(p.name)+'的照片">':ART.paint(m,true,true))+'</div><div class="hf-top"><span>@PETDIARY</span><span>VOL. '+z(t.getMonth()+1)+'</span></div><div class="hf-date">'+z(t.getDate())+'\\'+z(t.getMonth()+1)+'\\<br class="hf-br"><span class="hf-sp"> </span>'+t.getFullYear()+'</div><div class="hf-sub">'+esc(hSub(p))+'</div><div class="hf-days">'+(dy!==null?'和'+esc(n)+'一起生活的第 '+dy+' 天':'TODAY · 今日紀錄')+'</div><div class="hf-name" style="--fs:'+fs+'px;'+nmw(n)+'">'+esc(n)+'</div>'},
  j:function(p,m){var t=new Date(),dy=hDays(p),n=String(p.name),fs=n.length<=3?50:n.length<=5?38:28;
-  return '<div class="hj-pp"></div><div class="hj-tape"></div><div class="hj-tt">'+(dy!==null?dy+' DAYS TOGETHER':'MY BUDDY')+'</div>'+(p.photo?'<img class="hj-ph" src="'+p.photo+'" alt="'+esc(p.name)+'的照片">':ART.sil(m))+'<svg class="hj-star" viewBox="0 0 56 56" aria-hidden="true"><path class="ma" d="M28 0 L33 20 L52 10 L38 26 L56 34 L35 35 L40 56 L28 39 L15 54 L19 34 L0 30 L18 23 L6 6 L23 18 Z"/></svg><div class="hj-dt">'+t.getFullYear()+'，'+(t.getMonth()+1)+' 月 '+t.getDate()+' 日</div><div class="hj-t"><b class="hj-n" style="'+nmw(n,1)+'">'+esc(n)+'的</b><span>今天</span></div><div class="hj-s'+(daysTxt(p)?' hd':'')+'"><span class="hj-br">'+esc(hSub(p))+'</span>'+(daysTxt(p)?'<span class="hj-dy">'+daysTxt(p)+'</span>':'')+'</div>'},
+  return '<div class="hj-pp"></div><div class="hj-tape"></div><div class="hj-tt">'+(dy!==null?dy+' DAYS TOGETHER':'MY BUDDY')+'</div>'+(p.photo?'<img class="hj-ph" src="'+p.photo+'" alt="'+esc(p.name)+'的照片">':ART.sil(m))+'<svg class="hj-star" viewBox="0 0 56 56" aria-hidden="true"><path class="ma" d="M28 0 L33 20 L52 10 L38 26 L56 34 L35 35 L40 56 L28 39 L15 54 L19 34 L0 30 L18 23 L6 6 L23 18 Z"/></svg><div class="hj-dt">'+t.getFullYear()+'，'+(t.getMonth()+1)+' 月 '+t.getDate()+' 日</div><div class="hj-t"><b class="hj-n" style="'+nmw(n,1)+'">'+esc(n)+'的</b><span>今天</span></div><div class="hj-s'+(daysTxt(p)?' hd':'')+'"><span class="hj-br">'+esc(hSub(p))+'</span>'+(daysTxt(p)?'<span class="hj-dy">'+daysTxt(p).split(' · ').map(function(s,i){return '<i>'+(i?'· ':'')+s+'</i>'}).join(' ')+'</span>':'')+'</div>'},
  n:function(p,m){var t=new Date(),dy=hDays(p);return ART.glow(m)+'<div class="hn-t"><small>'+(t.getMonth()+1)+' 月 '+t.getDate()+' 日 · 週'+'日一二三四五六'[t.getDay()]+'</small><b>'+esc(p.name)+'<br>'+NQ+'</b><em>'+(dy!==null?'一起生活第 '+dy+' 天':esc(hSub(p)))+'</em></div>'}};
 function renderHero(){var e=document.getElementById('hero');if(!e)return;var p=cur();if(!p){e.innerHTML='';e.className='';return}
  var k=skin(),m=mascotOf(p);e.className='hero h'+k;
@@ -1505,7 +1531,7 @@ function petStats(p){var kg=S.recs.filter(function(r){return r.pet===p.id&&r.kg}
  return '<div class="pst"><div><b>'+(dy!==null?dy:'—')+'</b><span>一起生活（天）</span></div><div><b>'+(kg?esc(kg.kg):'—')+'</b><span>體重（kg）</span></div><div class="hi"><b>'+(nx?nx.next.slice(5).replace('-','/'):'—')+'</b><span>'+(nx?esc((nx.title||tinfo(nx.type)[2]).slice(0,6)):'下次提醒')+'</span></div></div>'}
 
 
-function nmw(n,extra){n=String(n||'');var w=extra||0;for(var i=0;i<n.length;i++)w+=n.charCodeAt(i)>0x2e80?1:.62;return '--w:'+Math.max(w,1).toFixed(2)+';--l:'+(n.length+(extra||0))}
+function nmw(n,extra){n=String(n||'');var w=extra||0;for(var i=0;i<n.length;i++)w+=n.charCodeAt(i)>0x2e80?1:/[MWmw]/.test(n[i])?.9:.68;return '--w:'+Math.max(w,1).toFixed(2)+';--l:'+(n.length+(extra||0))}
 function nmv(n){return 'style="'+nmw(n)+'"'}
 function phY(p){return p&&p.phY!=null?p.phY:25}
 function setPhY(v,sv){var p=cur();if(!p)return;p.phY=+v;var a=document.querySelectorAll('.hf-moon img');for(var i=0;i<a.length;i++)a[i].style.setProperty('--py',v+'%');if(sv)save()}
