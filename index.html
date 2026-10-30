@@ -508,6 +508,10 @@ html[data-skin=n] #tl .fh>span:first-of-type{flex:1}
 .cfold[open] .cfa{transform:rotate(-135deg);margin-top:4px}
 .cfb{padding:0 14px 14px}
 html[data-skin=j] .cfold,html[data-skin=f] .cfold{border-radius:0;border-color:var(--ink,var(--tx))}
+
+.bkm{display:flex;gap:10px;align-items:flex-start;margin:4px 0 10px;font-size:14px;font-weight:600;cursor:pointer}
+.bkm input{width:20px;height:20px;margin:1px 0 0;flex:none;accent-color:var(--ac)}
+.bkm small{display:block;font-weight:400;font-size:12px;color:var(--sub);margin-top:3px;line-height:1.5}
 /* 寬螢幕（平板／電腦）：色塊不出破綻 */
 @media (min-width:481px){.hf .hart,.hj .hart,.hn .hart,.phd{border-radius:0}}
 </style>
@@ -913,7 +917,7 @@ function bkUI(){var lb='';try{lb=localStorage.getItem('pd_lastbk')||''}catch(e){
     else h+='<div class="empty" style="padding-top:0">只需選一次資料夾，之後每 20 分鐘會自動儲存一次。</div><button class="btn" onclick="setDir()">📁 選擇儲存資料夾</button>'}
   else h+='<div class="empty" style="padding-top:0">目前這個瀏覽器不支援。iPhone 請改用 ② Google 雲端，或下方的手動備份。</div>';
   h+='<h3 style="margin-top:16px">② 儲存到 Google 雲端資料夾</h3>'+gUI();
-  return h+'<h3 style="margin-top:16px">手動備份</h3><button class="btn g2" onclick="expBk()">📤 匯出備份檔（存到「檔案」或 iCloud）</button><input type="file" id="bf" accept=".json,application/json" style="display:none" onchange="impBk(this)"><button class="btn g2" onclick="document.getElementById(\'bf\').click()">📂 從備份檔還原</button><div class="empty" style="margin-top:8px">或用文字備份：</div>'}
+  return h+'<h3 style="margin-top:16px">手動備份</h3><label class="bkm"><input type="checkbox"'+(bkMediaOn()?' checked':'')+' onchange="setBkMedia(this.checked)"><span>一併備份照片和影片<small>會建立「寵物日記備份-日期」資料夾，裡面有備份檔和「多媒體」資料夾。'+(window.showDirectoryPicker?'電腦版會請你選擇要存放的位置。':'手機會存成 .zip，在「檔案」App 點一下就會解壓成資料夾。')+'</small></span></label><button class="btn g2" onclick="expBk()">📤 匯出備份'+(window.showDirectoryPicker?'':'檔（存到「檔案」或 iCloud）')+'</button><input type="file" id="bf" accept=".json,.zip,application/json,application/zip" style="display:none" onchange="impBk(this)"><button class="btn g2" onclick="document.getElementById(\'bf\').click()">📂 從備份檔還原（.json 或 .zip）</button>'+(window.showDirectoryPicker?'<button class="btn g2" onclick="impDir()">📁 從備份資料夾還原（含多媒體）</button>':'')+'<div class="empty" style="margin-top:8px">或用文字備份：</div>'}
 function dirNow(){stat('💾 儲存中…');dirSave().then(function(o){stat(o?'✅ 已儲存到資料夾':'⚠️ 儲存失敗：'+DIRERR,o?'ok':'err',o?2500:9000);openSet()})}
 function gUI(){var so=setOpen,fh=function(k,t){return '<button class="fh" onclick="togSet(\''+k+'\')"><span>'+t+'</span><span style="color:var(--sub)">'+(so[k]?'▾':'▸')+'</span></button>'},wb='<button class="btn g2" style="color:#c0392b" onclick="wipeUI()">🗑️ 一鍵清除所有資料</button>';
   if(!GS)return '<div class="empty" style="padding-top:0">只需設定一次，之後自動儲存紀錄、照片和影片。</div><button class="btn" onclick="gSet()">☁️ 設定 Google 雲端資料夾</button><div class="card" style="margin:10px 0 0;padding:10px 12px">'+fh('oth','⚙️ 其他設定')+(so.oth?wb:'')+'</div>';
@@ -1571,6 +1575,70 @@ var _rcH=renderCalc;renderCalc=function(){_rcH();try{putHead('calc')}catch(err){
 var _rvH=renderVet;renderVet=function(){_rvH();try{putHead('vet')}catch(err){}};
 var _rtH=renderTip;renderTip=function(){_rtH();try{putHead('tip')}catch(err){}};
 var _rrH=renderRec;renderRec=function(){_rrH();try{putHead('rec')}catch(err){}};
+
+/* ===== 手動備份：一併備份照片和影片（「多媒體」資料夾） ===== */
+function bkMediaOn(){try{return localStorage.getItem('pd_bkmedia')!=='0'}catch(e){return true}}
+function setBkMedia(v){try{localStorage.setItem('pd_bkmedia',v?'1':'0')}catch(e){}}
+function bkMediaList(){var o=[],seen={};S.recs.forEach(function(r){(r.media||[]).forEach(function(m){if(m&&m.id&&!seen[m.id]){seen[m.id]=1;o.push(m)}})});return o}
+var CRCT=null;function crc32(u){if(!CRCT){CRCT=new Uint32Array(256);for(var n=0;n<256;n++){var c=n;for(var k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;CRCT[n]=c>>>0}}
+  var c=0xFFFFFFFF;for(var i=0;i<u.length;i++)c=CRCT[(c^u[i])&255]^(c>>>8);return (c^0xFFFFFFFF)>>>0}
+async function mkZip(ents,prog){var enc=new TextEncoder(),parts=[],cen=[],off=0,d=new Date(),
+  dt=((d.getFullYear()-1980)<<9)|((d.getMonth()+1)<<5)|d.getDate(),tm=(d.getHours()<<11)|(d.getMinutes()<<5)|(d.getSeconds()>>1);
+  for(var i=0;i<ents.length;i++){if(prog)prog(i+1,ents.length);var nm=enc.encode(ents[i].name),u=new Uint8Array(await ents[i].blob.arrayBuffer()),c=crc32(u),
+    h=new DataView(new ArrayBuffer(30));h.setUint32(0,0x04034b50,true);h.setUint16(4,20,true);h.setUint16(6,0x0800,true);h.setUint16(8,0,true);h.setUint16(10,tm,true);h.setUint16(12,dt,true);
+    h.setUint32(14,c,true);h.setUint32(18,u.length,true);h.setUint32(22,u.length,true);h.setUint16(26,nm.length,true);h.setUint16(28,0,true);
+    parts.push(h.buffer,nm,u);
+    var ce=new DataView(new ArrayBuffer(46));ce.setUint32(0,0x02014b50,true);ce.setUint16(4,20,true);ce.setUint16(6,20,true);ce.setUint16(8,0x0800,true);ce.setUint16(10,0,true);ce.setUint16(12,tm,true);ce.setUint16(14,dt,true);
+    ce.setUint32(16,c,true);ce.setUint32(20,u.length,true);ce.setUint32(24,u.length,true);ce.setUint16(28,nm.length,true);ce.setUint32(42,off,true);
+    cen.push(ce.buffer,nm);off+=30+nm.length+u.length}
+  var cs=0;cen.forEach(function(x){cs+=x.byteLength});
+  var e=new DataView(new ArrayBuffer(22));e.setUint32(0,0x06054b50,true);e.setUint16(8,ents.length,true);e.setUint16(10,ents.length,true);e.setUint32(12,cs,true);e.setUint32(16,off,true);
+  return new Blob(parts.concat(cen,[e.buffer]),{type:'application/zip'})}
+async function rdZip(file){var buf=new Uint8Array(await file.arrayBuffer()),dv=new DataView(buf.buffer),dec=new TextDecoder(),p=-1;
+  for(var i=buf.length-22;i>=Math.max(0,buf.length-65558);i--){if(dv.getUint32(i,true)===0x06054b50){p=i;break}}if(p<0)throw new Error('不是 zip 檔');
+  var n=dv.getUint16(p+10,true),q=dv.getUint32(p+16,true),out=[];
+  for(var k=0;k<n;k++){if(dv.getUint32(q,true)!==0x02014b50)break;var md=dv.getUint16(q+10,true),cz=dv.getUint32(q+20,true),nl=dv.getUint16(q+28,true),el=dv.getUint16(q+30,true),cl=dv.getUint16(q+32,true),lo=dv.getUint32(q+42,true),
+    name=dec.decode(buf.subarray(q+46,q+46+nl));q+=46+nl+el+cl;if(/\/$/.test(name))continue;
+    var ds=lo+30+dv.getUint16(lo+26,true)+dv.getUint16(lo+28,true);out.push({name:name,method:md,data:buf.subarray(ds,ds+cz)})}
+  return out}
+async function unz(e,type){if(e.method===0)return new Blob([e.data],{type:type});
+  if(e.method===8&&window.DecompressionStream){var s=new Blob([e.data]).stream().pipeThrough(new DecompressionStream('deflate-raw'));return new Blob([await new Response(s).arrayBuffer()],{type:type})}
+  throw new Error('這個 zip 的壓縮格式無法讀取，請用原始備份檔')}
+function mtype(n){var x=(n.split('.').pop()||'').toLowerCase();return x==='jpg'||x==='jpeg'?'image/jpeg':x==='png'?'image/png':x==='webm'?'video/webm':x==='mov'?'video/quicktime':'video/mp4'}
+async function bkGather(){var L=bkMediaList(),out=[],miss=0;
+  for(var i=0;i<L.length;i++){stat('📦 讀取照片和影片 '+(i+1)+'/'+L.length+'…');var b=null;try{b=await getM(L[i].id)}catch(e){}
+    if(b)out.push({id:L[i].id,blob:b});else miss++}return {list:out,miss:miss}}
+async function dlBlob(b,name){var f=new File([b],name,{type:b.type});
+  if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f]})}
+  else{var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(a.href)},60000)}}
+var _expBk0=expBk;
+expBk=async function(){if(!bkMediaOn()||!bkMediaList().length)return _expBk0();
+  var base='寵物日記備份-'+today,data=JSON.stringify(S);
+  try{var g=await bkGather();
+    if(window.showDirectoryPicker){var root=await window.showDirectoryPicker({mode:'readwrite'}),dir=await root.getDirectoryHandle(base,{create:true}),
+        fh=await dir.getFileHandle(base+'.json',{create:true}),w=await fh.createWritable();await w.write(data);await w.close();
+      var md=await dir.getDirectoryHandle('多媒體',{create:true});
+      for(var i=0;i<g.list.length;i++){stat('💾 寫入多媒體 '+(i+1)+'/'+g.list.length+'…');var f2=await md.getFileHandle(g.list[i].id+'.'+mext(g.list[i].blob),{create:true}),w2=await f2.createWritable();await w2.write(g.list[i].blob);await w2.close()}
+      hideStat();stamp();alert('備份完成：已存到「'+base+'」資料夾（含 '+g.list.length+' 個照片／影片）'+(g.miss?'，有 '+g.miss+' 個找不到':''));openSet();return}
+    var ents=[{name:base+'/'+base+'.json',blob:new Blob([data],{type:'application/json'})}].concat(g.list.map(function(m){return {name:base+'/多媒體/'+m.id+'.'+mext(m.blob),blob:m.blob}}));
+    var z=await mkZip(ents,function(a,b){stat('📦 打包中 '+a+'/'+b+'…')});hideStat();
+    await dlBlob(z,base+'.zip');stamp();alert('備份完成（含 '+g.list.length+' 個照片／影片）'+(g.miss?'，有 '+g.miss+' 個找不到':'')+'。在「檔案」App 點一下 zip 就會解壓成資料夾。');openSet()}
+  catch(e){hideStat();if(e&&(e.code==='declined'||e.name==='AbortError'))return;alert('備份失敗：'+((e&&e.message)||'未知錯誤'))}};
+async function bkRestore(o,media){ask('這會取代目前所有資料'+(media.length?'（並還原 '+media.length+' 個照片／影片）':'')+'，確定嗎？',async function(){closeSh();
+  var bad=0;for(var i=0;i<media.length;i++){stat('♻️ 還原照片和影片 '+(i+1)+'/'+media.length+'…');try{await putM(media[i].id,await media[i].get())}catch(e){bad++}}
+  MC={};S=o;save();applyTheme();render();stat(bad?'⚠️ 已還原，但有 '+bad+' 個照片／影片寫入失敗':'✅ 已還原'+(media.length?'（含照片和影片）':''),bad?'err':'ok',5000)})}
+var _impBk0=impBk;
+impBk=async function(inp){var f=inp.files[0];if(!f)return;if(!/\.zip$/i.test(f.name)&&f.type!=='application/zip')return _impBk0(inp);inp.value='';
+  try{stat('📦 讀取備份檔…');var es=await rdZip(f),js=es.filter(function(e){return /\.json$/i.test(e.name)&&!/(^|\/)__MACOSX\//.test(e.name)}).sort(function(a,b){return a.name<b.name?1:-1})[0];
+    if(!js)throw new Error('zip 裡找不到備份檔（.json）');var o=JSON.parse(await (await unz(js,'application/json')).text());if(!o.pets||!o.recs)throw new Error('備份檔格式不正確');
+    var media=es.filter(function(e){return /(^|\/)多媒體\/[^\/]+$/.test(e.name)}).map(function(e){var fn=e.name.split('/').pop();return {id:fn.replace(/\.[^.]+$/,''),get:function(){return unz(e,mtype(fn))}}});
+    hideStat();bkRestore(o,media)}catch(e){hideStat();alert('還原失敗：'+((e&&e.message)||'未知錯誤'))}};
+async function impDir(){try{var d=await window.showDirectoryPicker({mode:'read'}),js=[],md=null;
+    for await(var e of d.values()){if(e.kind==='file'&&/\.json$/i.test(e.name))js.push(e);if(e.kind==='directory'&&e.name==='多媒體')md=e}
+    if(!js.length)throw new Error('這個資料夾裡沒有備份檔（.json）');js.sort(function(a,b){return a.name<b.name?1:-1});
+    var o=JSON.parse(await (await js[0].getFile()).text());if(!o.pets||!o.recs)throw new Error('備份檔格式不正確');var media=[];
+    if(md){for await(var m of md.values()){if(m.kind==='file')(function(h){media.push({id:h.name.replace(/\.[^.]+$/,''),get:function(){return h.getFile()}})})(m)}}
+    bkRestore(o,media)}catch(e){if(e&&e.name==='AbortError')return;alert('還原失敗：'+((e&&e.message)||'未知錯誤'))}}
 
 load();applyTheme();render();
 </script>
