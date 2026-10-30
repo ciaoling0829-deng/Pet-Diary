@@ -37,6 +37,7 @@ h3{margin:0 0 8px;font-size:15px;color:var(--sub);font-weight:600}
 .empty{color:var(--sub);font-size:14px;padding:8px 0}
 .fab{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 84px);background:var(--ac);color:#fff;border:0;border-radius:28px;padding:15px 28px;font-size:17px;font-weight:600;box-shadow:0 6px 20px rgba(0,0,0,.2)}
 .gear{float:right;border:0;background:none;font-size:20px;color:var(--sub)}
+#pets{clear:both;padding-top:6px}
 .ov{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;align-items:flex-end;z-index:20}
 .ov.on{display:flex}
 .sh{background:var(--card);width:100%;max-width:480px;margin:0 auto;border-radius:22px 22px 0 0;padding:18px 16px calc(env(safe-area-inset-bottom,0px) + 18px);max-height:88%;overflow-y:auto}
@@ -78,12 +79,332 @@ input[type=date]{-webkit-appearance:none;appearance:none;min-height:46px;display
 .fh{display:flex;width:100%;justify-content:space-between;align-items:center;gap:8px;border:0;background:none;color:var(--tx);font-size:16px;font-weight:700;padding:2px 0;font-family:inherit;text-align:left}
 .tb{display:flex;gap:8px;margin-top:10px}.tb button{flex:1;border:1px solid var(--line);background:var(--bg);color:var(--tx);border-radius:12px;padding:9px;font-size:14px;font-family:inherit}
 </style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&amp;family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&amp;family=Noto+Sans+TC:wght@400;500;700;900&amp;family=Noto+Serif+TC:wght@400;600;700&amp;family=Oswald:wght@500;700&amp;display=swap" rel="stylesheet">
+<style>
+/* ===== 介面風格（skin）共用 ===== */
+html[data-skin] body{font-family:'Noto Sans TC',-apple-system,"PingFang TC",sans-serif;transition:background-color .25s}
+html[data-skin] .chip.on,html[data-skin] .btn,html[data-skin] .fab,html[data-skin] .d.s{color:var(--onac)}
+html[data-skin] .btn.g2{color:var(--ac)}
+html[data-skin] .d.s.h::after{background:var(--onac)}
+html[data-skin=b] .card{border:0;border-radius:20px}
+.ml{fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.mk{fill:var(--ink)}.mke{fill:color-mix(in srgb,var(--ink) 80%,var(--bg))}.mpp{fill:var(--card)}.ma{fill:var(--ac)}
+.msc{fill:none;stroke:var(--ac);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+/* 設定：風格卡片 */
+.skg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:6px}
+.skc{display:flex;flex-direction:column;gap:3px;text-align:left;border:1.5px solid var(--line);background:var(--bg);color:var(--tx);border-radius:14px;padding:8px;font-family:inherit}
+.skc.on{border-color:var(--ac);box-shadow:0 0 0 2px color-mix(in srgb,var(--ac) 30%,transparent)}
+.skc b{font-size:14px}.skc small{font-size:11px;color:var(--sub)}
+.skp{position:relative;display:block;height:34px;border-radius:9px;border:1px solid var(--line);overflow:hidden}
+.skp i{position:absolute;right:8px;top:8px;width:16px;height:16px;border-radius:50%}
+.skp em{position:absolute;left:8px;top:9px;width:42%;height:5px;border-radius:3px;opacity:.55}
+.swr{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:6px}
+/* 首頁主角 */
+.hero{position:relative;margin:4px 0 2px;clear:both}
+.hpets{display:flex;gap:6px;overflow-x:auto;padding:12px 0 2px;position:relative;z-index:2}
+.hpets .chip{padding:6px 12px;font-size:14px}
+/* B 簡約風格 */
+.hb .hb-card{position:relative;overflow:hidden;background:var(--ac);color:var(--onac);border-radius:24px;padding:18px;min-height:150px}
+.hb-row{display:flex;align-items:center;gap:14px;position:relative;z-index:1}
+.hb-av{width:60px;height:60px;border-radius:50%;flex:none;background:color-mix(in srgb,var(--onac) 18%,var(--ac));border:2px solid color-mix(in srgb,var(--onac) 45%,var(--ac));display:flex;align-items:center;justify-content:center;font-size:30px;overflow:hidden}
+.hb-av img{width:100%;height:100%;object-fit:cover}
+.hb-n{font-size:24px;font-weight:900;letter-spacing:1px}.hb-s{font-size:13px;opacity:.85}
+.hb-d{position:relative;z-index:1;display:inline-block;margin-top:14px;background:color-mix(in srgb,var(--onac) 14%,var(--ac));border-radius:12px;padding:8px 12px;font-size:13px;font-weight:700}
+.hb-art{position:absolute;right:-4px;bottom:-8px;width:150px;height:140px;color:var(--onac);opacity:.5}
+/* E 古典油畫 */
+.he-row{display:flex;gap:18px;align-items:flex-end;padding:4px 2px}
+.he-fr{flex:none;padding:5px;border:1px solid color-mix(in srgb,var(--ac) 45%,var(--line));border-radius:64px 64px 3px 3px}
+.he-in{width:112px;height:140px;border-radius:58px 58px 2px 2px;overflow:hidden}.he-in svg{display:block;width:100%;height:100%}
+.he-t{flex:1;min-width:0;padding-bottom:4px}
+.he-t i{font:italic 500 15px 'Cormorant Garamond',serif;color:color-mix(in srgb,var(--ac) 55%,var(--tx))}
+.he-t b{display:block;font:700 32px/1.2 'Noto Serif TC',serif;letter-spacing:4px;word-break:break-all}
+.he-t small{display:block;font-size:13px;color:var(--sub);margin-top:2px}
+.he-bar{display:block;width:28px;height:2px;background:var(--ac);margin:12px 0 8px}
+/* F 海報雜誌 */
+.hf .hart{position:relative;margin:4px -16px 0;background:var(--ac);color:var(--onac);height:320px;overflow:hidden}
+.hf-moon{position:absolute;left:50%;top:-92px;width:230px;height:230px;margin-left:-115px;border-radius:50%;overflow:hidden}.hf-moon svg{display:block;width:100%;height:100%}
+.hf-top{position:absolute;left:18px;right:18px;top:14px;display:flex;justify-content:space-between;font-size:11px;font-weight:700;letter-spacing:1.5px}
+.hf-date{position:absolute;left:18px;top:156px;font:400 32px/.95 'Bebas Neue',sans-serif}
+.hf-sub{position:absolute;right:18px;top:166px;text-align:right;font-size:11px;letter-spacing:2px;opacity:.75}
+.hf-days{position:absolute;left:0;right:0;top:226px;text-align:center;font-size:11px;letter-spacing:3px}
+.hf-name{position:absolute;left:0;right:0;top:240px;text-align:center;font-weight:900;letter-spacing:6px;line-height:1.1;white-space:nowrap;overflow:hidden}
+/* J 藍色拼貼 */
+.hj .hart{position:relative;margin:4px -16px 0;height:290px}
+.hj-pp{position:absolute;inset:0;background:var(--card);clip-path:polygon(0 0,100% 0,100% 88%,92% 92%,84% 87%,74% 94%,63% 89%,52% 96%,41% 90%,30% 95%,20% 88%,9% 93%,0 89%)}
+.hj-tape{position:absolute;left:-20px;top:192px;width:290px;height:66px;background:var(--ac);transform:rotate(-4deg);clip-path:polygon(2% 10%,30% 0,60% 8%,100% 2%,97% 90%,70% 100%,35% 92%,0 100%)}
+.hj-tt{position:absolute;left:22px;top:212px;font:700 20px 'Oswald',sans-serif;color:var(--onac);transform:rotate(-4deg);letter-spacing:1px}
+.hj-dt{position:absolute;left:20px;top:22px;font-size:11px;font-weight:700;letter-spacing:1px;color:var(--sub)}
+.hj-t{position:absolute;left:18px;top:44px;font-size:50px;font-weight:900;line-height:1.08;letter-spacing:-1px;color:var(--tx)}
+.hj-t span{color:var(--ac)}
+.hj-s{position:absolute;left:20px;top:166px;font-size:13px;font-weight:500;color:var(--tx)}
+.hj-art{position:absolute;right:6px;top:26px;width:150px;height:150px}
+.hj-star{position:absolute;left:58%;top:196px;width:52px;height:52px}
+/* N 柔霧剪影 */
+.hn .hart{position:relative;margin:0 -16px;height:330px;overflow:hidden}
+.hn-art{position:absolute;left:-26px;bottom:-4px;width:250px;height:333px}
+.hn-art.dg{left:-36px;bottom:-30px;width:280px;height:280px}
+.hn-t{position:absolute;right:20px;top:34px;text-align:right;max-width:60%}
+.hn-t small{display:block;font-size:13px;color:var(--sub)}
+.hn-t b{display:block;font-size:30px;font-weight:700;line-height:1.3;margin-top:4px;word-break:break-all}
+.hn-t em{display:block;font-style:normal;font-size:12px;color:var(--sub);margin-top:8px}
+
+/* ===== E 古典油畫 ===== */
+html[data-skin=e] body{font-family:'Noto Serif TC',serif}
+html[data-skin=e] .card{background:transparent;border:0;border-top:1px solid var(--line);border-radius:0;padding:14px 2px}
+html[data-skin=e] h3{font:italic 500 17px 'Cormorant Garamond','Noto Serif TC',serif;color:color-mix(in srgb,var(--ac) 55%,var(--tx));letter-spacing:1px}
+html[data-skin=e] .mh b{font-weight:600;letter-spacing:2px}
+html[data-skin=e] .d{font:500 18px 'Cormorant Garamond',serif;border-radius:50%;width:38px;height:38px;margin:2px auto}
+html[data-skin=e] .chip{border-radius:0;background:transparent;border:1px solid var(--line)}
+html[data-skin=e] .chip.on{background:var(--ac);border-color:var(--ac)}
+html[data-skin=e] .btn{border-radius:0;letter-spacing:3px;font-family:'Noto Serif TC',serif}
+html[data-skin=e] .btn.g2{background:transparent;border:1px solid var(--line);color:var(--tx)}
+html[data-skin=e] .fab{border-radius:0;background:var(--bg);color:var(--tx);border:1px solid var(--ac);box-shadow:none;letter-spacing:4px;font-family:'Noto Serif TC',serif}
+html[data-skin=e] .sh,html[data-skin=e] .ty button,html[data-skin=e] input,html[data-skin=e] select,html[data-skin=e] textarea{border-radius:0}
+html[data-skin=e] .nav{background:var(--bg)}
+html[data-skin=e] .nav button span,html[data-skin=f] .nav button span,html[data-skin=j] .nav button span,html[data-skin=n] .nav button span{display:none}
+.nav button span svg{display:block;width:22px;height:22px;margin:0 auto 2px}
+.ni{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+html[data-skin=b] .nav button{padding:9px 0 7px;font-weight:500}
+html[data-skin=b] .nav button.on{color:var(--ac);font-weight:700}
+html[data-skin=n] .nav button{font-size:13px;padding:15px 0 13px;letter-spacing:1px}
+html[data-skin=n] .nav button.on{font-weight:700}
+html[data-skin=e] .nav button{font-family:'Noto Serif TC',serif;font-size:13px;padding:15px 0 13px;position:relative}
+html[data-skin=e] .nav button.on{color:var(--tx)}
+html[data-skin=e] .nav button.on::before{content:"";position:absolute;top:5px;left:50%;width:5px;height:5px;margin-left:-2.5px;border-radius:50%;background:var(--ac)}
+/* ===== F 海報雜誌 ===== */
+html[data-skin=f] .card{background:transparent;border:0;border-top:2px solid var(--tx);border-radius:0;padding:10px 2px 12px}
+html[data-skin=f] h3{font:400 24px 'Bebas Neue','Noto Sans TC',sans-serif;color:var(--tx);letter-spacing:1px}
+html[data-skin=f] .mh b{font:400 26px 'Bebas Neue','Noto Sans TC',sans-serif;letter-spacing:1px}
+html[data-skin=f] .d{font:400 21px 'Bebas Neue','Noto Sans TC',sans-serif;border-radius:0}
+html[data-skin=f] .d.h::after{width:14px;height:2px;border-radius:0;margin-left:-7px}
+html[data-skin=f] .chip{border-radius:0;background:transparent;border:1.5px solid var(--tx);font-weight:700}
+html[data-skin=f] .chip.on{background:var(--ac);border-color:var(--ac)}
+html[data-skin=f] .btn{border-radius:0;font-weight:900;letter-spacing:3px}
+html[data-skin=f] .btn.g2{background:transparent;border:1.5px solid var(--tx);color:var(--tx)}
+html[data-skin=f] .fab{border-radius:0;font-weight:900;letter-spacing:3px}
+html[data-skin=f] .r .m b{font-weight:900}
+html[data-skin=f] .sh,html[data-skin=f] .ty button,html[data-skin=f] input,html[data-skin=f] select,html[data-skin=f] textarea{border-radius:0}
+html[data-skin=f] .nav{background:var(--ac);border-top:0}
+html[data-skin=f] .nav button{color:color-mix(in srgb,var(--onac) 62%,var(--ac));font-size:12px;letter-spacing:1px;padding:15px 0 13px}
+html[data-skin=f] .nav button.on{color:var(--onac);font-weight:900}
+/* ===== J 藍色拼貼 ===== */
+html[data-skin=j] .card{background:var(--card);border:2px solid var(--ink);border-radius:0;box-shadow:4px 4px 0 var(--ink)}
+html[data-skin=j] h3{font:700 15px 'Oswald','Noto Sans TC',sans-serif;letter-spacing:1px;color:var(--tx)}
+html[data-skin=j] .mh b{font:700 20px 'Oswald','Noto Sans TC',sans-serif}
+html[data-skin=j] .d{border-radius:0;font:700 15px 'Oswald',sans-serif}
+html[data-skin=j] .d.h{background:var(--ink);color:var(--bg)}
+html[data-skin=j] .d.h::after{display:none}
+html[data-skin=j] .d.s{background:var(--ac);box-shadow:inset 0 0 0 2px var(--ink)}
+html[data-skin=j] .chip{border-radius:0;border:2px solid var(--ink);background:var(--card);font-weight:900}
+html[data-skin=j] .chip.on{background:var(--ac);border-color:var(--ink)}
+html[data-skin=j] .btn{border-radius:0;border:2px solid var(--ink);box-shadow:4px 4px 0 var(--ink);font-weight:900;letter-spacing:2px}
+html[data-skin=j] .btn.g2{background:var(--card);color:var(--tx)}
+html[data-skin=j] .fab{border-radius:0;border:2px solid var(--ink);box-shadow:4px 4px 0 var(--ink)}
+html[data-skin=j] .sh{border-radius:0;border-top:3px solid var(--ink)}
+html[data-skin=j] .ty button,html[data-skin=j] input,html[data-skin=j] select,html[data-skin=j] textarea{border-radius:0;border:2px solid var(--ink)}
+html[data-skin=j] .nav{background:var(--ink);border-top:0}
+html[data-skin=j] .nav button{color:color-mix(in srgb,var(--bg) 62%,var(--ink));font-size:13px;padding:15px 0 13px}
+html[data-skin=j] .nav button.on{color:var(--bg);font-weight:900;box-shadow:inset 0 -3px 0 var(--ac)}
+/* ===== N 柔霧剪影 ===== */
+html[data-skin=n] body{background:linear-gradient(180deg,var(--bg) 0%,color-mix(in srgb,var(--bg) 50%,var(--bg2)) 50%,var(--bg2) 100%) fixed;min-height:100vh}
+html[data-skin=n] .card{background:color-mix(in srgb,var(--card) 60%,transparent);border:1px solid color-mix(in srgb,var(--card) 85%,transparent);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-radius:24px}
+html[data-skin=n] .d{border-radius:50%;width:38px;height:38px;margin:2px auto}
+html[data-skin=n] .d.s{background:var(--ink);color:var(--ac);box-shadow:0 0 0 4px color-mix(in srgb,var(--ac) 30%,transparent)}
+html[data-skin=n] .d.h::after,html[data-skin=n] .d.s.h::after{background:var(--ac);box-shadow:0 0 6px var(--ac)}
+html[data-skin=n] .chip{background:color-mix(in srgb,var(--card) 50%,transparent);border-color:color-mix(in srgb,var(--card) 85%,transparent)}
+html[data-skin=n] .chip.on{background:var(--ink);border-color:var(--ink);color:var(--ac)}
+html[data-skin=n] .btn{border-radius:27px;background:var(--ink);color:var(--ac)}
+html[data-skin=n] .btn.g2{background:color-mix(in srgb,var(--card) 55%,transparent);color:var(--tx)}
+html[data-skin=n] .fab{background:var(--ink);color:var(--ac);box-shadow:0 0 0 4px color-mix(in srgb,var(--ac) 25%,transparent),0 8px 18px rgba(0,0,0,.25)}
+html[data-skin=n] .sh{background:color-mix(in srgb,var(--card) 94%,transparent);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px)}
+html[data-skin=n] .nav{width:calc(100% - 24px);max-width:456px;bottom:calc(env(safe-area-inset-bottom,0px) + 10px);border-radius:28px;border:1px solid color-mix(in srgb,var(--card) 85%,transparent);background:color-mix(in srgb,var(--card) 62%,transparent);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);padding-bottom:0}
+html[data-skin=n] .nav button.on{color:var(--tx)}
+
+/* ===== 各頁頁首（紀錄、飲食、獸醫院、小知識、寵物） ===== */
+.phd{position:relative;clear:both;margin:4px 0 8px}
+.phd h1{margin:0}.phd p{margin:4px 0 0}
+.phb h1{font-size:26px;font-weight:900}.phb p{font-size:13px;color:var(--sub)}
+.phe i{font:italic 500 15px 'Cormorant Garamond',serif;color:color-mix(in srgb,var(--ac) 55%,var(--tx))}
+.phe h1{font:700 28px 'Noto Serif TC',serif;letter-spacing:6px}.phe p{font-size:12px;color:var(--sub)}
+.phf{margin:4px -16px 8px;background:var(--ac);color:var(--onac);padding:14px 18px 18px}
+.phf .tp{display:flex;justify-content:space-between;font-size:11px;font-weight:700;letter-spacing:1.5px}
+.phf h1{font:400 86px/.9 'Bebas Neue','Noto Sans TC',sans-serif;margin-top:6px;letter-spacing:1px;word-break:break-all}
+.phf p{font-size:12px;letter-spacing:3px;opacity:.85}
+.phj{margin:4px -16px 10px;background:var(--ink);color:var(--bg);padding:22px 20px 44px;clip-path:polygon(0 0,100% 0,100% calc(100% - 26px),88% calc(100% - 12px),74% calc(100% - 26px),60% calc(100% - 8px),46% calc(100% - 24px),32% calc(100% - 6px),18% calc(100% - 22px),0 calc(100% - 10px))}
+.phj small{display:block;font:700 12px 'Oswald',sans-serif;letter-spacing:2px;opacity:.7}
+.phj h1{font-size:44px;font-weight:900;line-height:1.08;letter-spacing:-1px}
+.phj h1 span{color:color-mix(in srgb,var(--ac) 60%,#ffffff)}
+.phj p{font-size:12px;opacity:.8}
+.phj svg{position:absolute;right:22px;top:26px;width:64px;height:64px}
+.phn{min-height:118px;padding:14px 4px 0}
+.phn small{display:block;font-size:12px;letter-spacing:3px;color:var(--sub)}
+.phn h1{font-size:28px;font-weight:700;line-height:1.3;max-width:68%}
+.phn p{font-size:13px;color:var(--sub)}
+.phn svg{position:absolute;right:-20px;top:0;width:130px;height:110px}
+/* 寵物檔案：數據列 */
+.pst{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:12px 0 4px}
+.pst div{background:var(--card);border-radius:14px;padding:10px 6px;text-align:center}
+.pst b{display:block;font-size:19px;font-weight:900}.pst span{font-size:11px;color:var(--sub)}
+.pst div.hi b{color:var(--ac)}
+html[data-skin=e] .pst div{background:transparent;border-top:2px solid var(--ac);border-radius:0;text-align:left}
+html[data-skin=e] .pst div:nth-child(2){border-color:color-mix(in srgb,var(--ac) 45%,var(--line))}
+html[data-skin=e] .pst b{font:600 30px 'Cormorant Garamond',serif}
+html[data-skin=f] .pst{border-top:2px solid var(--tx);border-bottom:1px solid var(--line);gap:0;padding:10px 0}
+html[data-skin=f] .pst div{background:transparent;border-radius:0}
+html[data-skin=f] .pst div+div{border-left:1px solid var(--line)}
+html[data-skin=f] .pst b{font:400 32px/1 'Bebas Neue',sans-serif}
+html[data-skin=j] .pst{gap:4px}
+html[data-skin=j] .pst div{background:var(--ink);color:var(--bg);border-radius:0;text-align:left;padding:8px 10px}
+html[data-skin=j] .pst div.hi{background:var(--ac);color:var(--onac)}
+html[data-skin=j] .pst div.hi b{color:var(--onac)}
+html[data-skin=j] .pst b{font:700 24px 'Oswald',sans-serif}
+html[data-skin=j] .pst span{color:inherit;opacity:.8}
+html[data-skin=n] .pst div{background:color-mix(in srgb,var(--card) 60%,transparent);border:1px solid color-mix(in srgb,var(--card) 85%,transparent);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-radius:20px}
+html[data-skin=b] .pst div{background:var(--card)}
+/* 寵物頁原本的大頭貼卡片：在 E/F/J/N 改為精簡 */
+html[data-skin=e] #pg_pet>.card:first-of-type .big,html[data-skin=f] #pg_pet>.card:first-of-type .big,html[data-skin=j] #pg_pet>.card:first-of-type .big,html[data-skin=n] #pg_pet>.card:first-of-type .big{width:64px;height:64px;font-size:30px}
+html[data-skin=f] #pg_pet .big img{filter:grayscale(1)}
+html[data-skin=e] #pg_pet .big{border-radius:32px 32px 3px 3px}
+html[data-skin=j] #pg_pet .big,html[data-skin=f] #pg_pet .big{border-radius:0;border:2px solid var(--ink)}
+html[data-skin=e] #pg_pet label,html[data-skin=f] #pg_pet label,html[data-skin=j] #pg_pet label{letter-spacing:1px}
+html[data-skin=f] #pg_pet label{font:400 17px 'Bebas Neue','Noto Sans TC',sans-serif!important;color:var(--sub)!important}
+html[data-skin=j] #pg_pet label{font:700 12px 'Oswald','Noto Sans TC',sans-serif!important;color:var(--tx)!important}
+html[data-skin=e] #pg_pet label{font:italic 500 14px 'Cormorant Garamond','Noto Serif TC',serif!important;color:color-mix(in srgb,var(--ac) 55%,var(--tx))!important}
+html[data-skin=e] #pg_pet input,html[data-skin=e] #pg_pet textarea,html[data-skin=f] #pg_pet input,html[data-skin=f] #pg_pet textarea{background:transparent;border:0;border-bottom:1px solid var(--line);border-radius:0;padding-left:0}
+
+
+/* 寵物頁：放大插畫＋上傳提示 */
+#phd_pet .hart{position:relative}
+#phd_pet .upl{position:absolute;z-index:2;display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;line-height:1.35;letter-spacing:.5px;padding:7px 10px;border:1.5px dashed currentColor;border-radius:12px;pointer-events:none}
+#phd_pet .hart .upl svg{position:static;width:20px;height:20px;flex:none;margin:0;opacity:1;transform:none;filter:none}
+#phd_pet .hb-art{width:210px;height:195px;opacity:.7;right:-10px;bottom:-14px}
+#phd_pet .hb-card{min-height:200px}
+#phd_pet .hb .upl{left:14px;bottom:14px;color:var(--onac)}
+#phd_pet .he-in{width:150px;height:190px;border-radius:76px 76px 2px 2px}
+#phd_pet .he-fr{border-radius:82px 82px 3px 3px}
+#phd_pet .he .upl{right:0;top:0;color:color-mix(in srgb,var(--ac) 70%,var(--tx));border-radius:3px}
+#phd_pet .hf .hart{height:350px}
+#phd_pet .hf-moon{width:280px;height:280px;margin-left:-140px;top:-96px}
+#phd_pet .hf-date{top:196px}#phd_pet .hf-sub{top:206px}#phd_pet .hf-days{top:262px}#phd_pet .hf-name{top:276px}
+#phd_pet .hf .upl{right:18px;top:40px;color:var(--onac);background:var(--ac)}
+#phd_pet .hj .hart{height:320px}
+#phd_pet .hj-art{width:210px;height:210px;right:-12px;top:6px}
+#phd_pet .hj-ph{width:160px;height:176px}
+#phd_pet .hj-tape{top:232px}#phd_pet .hj-tt{top:252px}#phd_pet .hj-star{top:244px;left:auto;right:24px}
+#phd_pet .hj .upl{left:20px;top:190px;color:var(--ac);border-radius:0;white-space:nowrap;padding:5px 9px}#phd_pet .hj .upl br{display:none}
+#phd_pet .hj-s{top:160px}
+#phd_pet .hn .hart{height:360px}
+#phd_pet .hn-art{width:290px;height:386px;left:-34px}
+#phd_pet .hn-art.dg{width:330px;height:330px;left:-46px;bottom:-34px}
+#phd_pet .hn .upl{right:20px;bottom:26px;color:color-mix(in srgb,var(--ac) 75%,var(--tx));background:color-mix(in srgb,var(--card) 70%,transparent);border-radius:16px}
+
+/* 簡約風格：有大頭照時的版面 */
+.hb .hb-ph{display:grid;align-items:center;column-gap:16px;padding:20px 22px}
+.hb .hb-ph .hb-row{display:contents}
+.hb .hb-ph .hb-row>div:last-child{grid-area:t;align-self:end}
+.hb .hb-ph .hb-av{grid-area:av;font-size:0}
+.hb .hb-ph .hb-d{grid-area:d;justify-self:start;align-self:start;margin-top:10px}
+.hb .hb-ph .hb-n{font-size:40px;line-height:1.15;word-break:break-all}
+.hb .hb-ph .hb-s{font-size:20px;font-weight:700;opacity:.8}
+.hb .hb-ph .hb-av{border-width:3px}
+#hero.hb .hb-ph{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"t av" "d av"}
+#hero.hb .hb-ph .hb-av{width:min(170px,42vw);height:min(170px,42vw)}
+#phd_pet .hb .hb-ph{grid-template-columns:auto minmax(0,1fr);grid-template-areas:"av t" "d d";row-gap:6px;min-height:0}
+#phd_pet .hb .hb-ph .hb-av{width:min(136px,34vw);height:min(136px,34vw)}
+#phd_pet .hb .hb-ph .hb-row>div:last-child{align-self:center}
+#phd_pet .hb .hb-ph .hb-d{margin-top:12px}
+/* 寵物頁：有照片用照片，沒照片用插畫 */
+.he-in img,.hf-moon img{display:block;width:100%;height:100%;object-fit:cover}
+.hf-moon img{filter:grayscale(1) contrast(1.05)}
+.hj-ph{position:absolute;right:16px;top:26px;width:136px;height:150px;object-fit:cover;border:2px solid var(--ink);box-shadow:4px 4px 0 var(--ink);transform:rotate(3deg)}
+.hn-ph{position:absolute;left:16px;bottom:20px;width:190px;height:190px;border-radius:50%;object-fit:cover;box-shadow:0 0 0 6px color-mix(in srgb,var(--card) 60%,transparent),0 0 40px color-mix(in srgb,#2e8f86 60%,transparent)}
+#pg_pet .hart.pick{cursor:pointer}
+#pg_pet .hart.pick:focus-visible{outline:3px solid var(--ac);outline-offset:-3px}
+.phint{text-align:center;font-size:12px;color:var(--sub);margin:8px 0 2px}
+.phint a{color:var(--ac);cursor:pointer;text-decoration:underline}
+.phj .phint,.phf .phint{color:inherit;opacity:.8}.phf .phint a{color:inherit}
+.hf-moon img{position:absolute;left:0;top:var(--py,25%)}
+.hf-moon:has(img){background:#888}
+.phy{display:flex;align-items:center;gap:10px;justify-content:center;font-size:12px;margin:6px 0 2px;opacity:.85}.phy input{width:160px;accent-color:currentColor;border:0;background:none;padding:0;margin:0;height:24px;box-shadow:none}
+html[data-skin=f] .phf .pst{border-color:currentColor}html[data-skin=f] .phf .pst div+div{border-color:color-mix(in srgb,currentColor 40%,transparent)}html[data-skin=f] .phf .pst span{color:inherit;opacity:.75}html[data-skin=f] .phf .pst div.hi b{color:inherit}
+.hj-ph{z-index:1}
+.phj .phint a{color:inherit}
+.big .av-art{width:78%;height:78%;color:var(--ac)}
+html[data-skin=e] .big.ill svg,html[data-skin=f] .big.ill svg{width:100%;height:100%}
+html[data-skin=n] .big .av-art{width:90%;height:90%;margin-top:14%}
+html[data-skin=j] .big .av-art{width:92%;height:92%;margin-top:8%}
+
+/* 紀錄列表：編號列 */
+#rlist,#list{counter-reset:rn}
+#rlist .r,#list .r{counter-increment:rn}
+html[data-skin=e] #rlist .r .e,html[data-skin=f] #rlist .r .e,html[data-skin=j] #rlist .r .e,html[data-skin=e] #list .r .e,html[data-skin=f] #list .r .e,html[data-skin=j] #list .r .e{display:none}
+html[data-skin=e] #rlist .r::before,html[data-skin=e] #list .r::before{content:counter(rn,lower-roman)'.';font:italic 500 17px 'Cormorant Garamond',serif;color:color-mix(in srgb,var(--ac) 55%,var(--tx));width:30px;flex:none}
+html[data-skin=e] .r{border-top:1px solid var(--line)}
+html[data-skin=f] #rlist .r::before,html[data-skin=f] #list .r::before{content:counter(rn,decimal-leading-zero);font:400 28px/1 'Bebas Neue',sans-serif;color:var(--tx);width:34px;flex:none;padding-top:2px}
+html[data-skin=f] .r{border-top:1px solid var(--line)}
+html[data-skin=j] #rlist .r,html[data-skin=j] #list .r{border-top:1px solid var(--ink);padding:0;align-items:stretch}
+html[data-skin=j] #rlist .r::before,html[data-skin=j] #list .r::before{content:counter(rn,decimal-leading-zero);font:700 14px 'Oswald',sans-serif;width:44px;flex:none;display:flex;align-items:center;justify-content:center;border-right:1px solid var(--ink)}
+html[data-skin=j] #rlist .r .m,html[data-skin=j] #list .r .m{padding:9px 0 9px 12px}
+html[data-skin=j] #rlist .r:first-of-type,html[data-skin=j] #list .r:first-of-type{border-top:1px solid var(--ink)}
+html[data-skin=n] .r .e{width:10px;font-size:0;flex:none;align-self:center}
+html[data-skin=n] .r .e::before{content:"";display:block;width:10px;height:10px;border-radius:50%;background:var(--ac);box-shadow:0 0 8px var(--ac)}
+html[data-skin=n] .r{border-top:1px solid color-mix(in srgb,var(--tx) 10%,transparent)}
+html[data-skin=b] .r .e{width:38px;height:38px;border-radius:12px;background:var(--acbg);display:flex;align-items:center;justify-content:center;font-size:19px;flex:none}
+
+/* 飲食：結果卡 */
+html[data-skin=b] #cres .card{background:var(--ac);color:var(--onac);border:0}
+html[data-skin=b] #cres .card h3,html[data-skin=b] #cres .card .empty,html[data-skin=b] #cres .kv b{color:var(--onac)}
+html[data-skin=b] #cres .kv{border-color:color-mix(in srgb,var(--onac) 22%,var(--ac))}
+html[data-skin=n] #cres .card{background:var(--ink);color:var(--bg);border:0}
+html[data-skin=n] #cres .card h3,html[data-skin=n] #cres .card .empty{color:color-mix(in srgb,var(--bg) 75%,var(--ink))}
+html[data-skin=n] #cres .kv b{color:var(--ac)}
+html[data-skin=n] #cres .kv{border-color:color-mix(in srgb,var(--bg) 18%,var(--ink))}
+html[data-skin=j] #cres .card{background:var(--ink);color:var(--bg)}
+html[data-skin=j] #cres .card h3,html[data-skin=j] #cres .card .empty{color:color-mix(in srgb,var(--bg) 75%,var(--ink))}
+html[data-skin=j] #cres .kv b{color:var(--bg);font:700 17px 'Oswald','Noto Sans TC',sans-serif}
+html[data-skin=j] #cres .kv{border-color:color-mix(in srgb,var(--bg) 25%,var(--ink))}
+html[data-skin=f] .kv b{font:400 24px 'Bebas Neue','Noto Sans TC',sans-serif;color:var(--tx);letter-spacing:.5px}
+html[data-skin=f] #cres .card{border-top:2px solid var(--tx)}
+html[data-skin=e] .kv b{font:600 19px 'Cormorant Garamond','Noto Serif TC',serif;color:var(--tx)}
+html[data-skin=e] .kv{border-color:var(--line)}
+html[data-skin=j] .kv{border-bottom:1px solid var(--ink)}
+
+/* 獸醫院：連結列編號 */
+#pg_vet{counter-reset:vn}
+#pg_vet .lnk{counter-increment:vn}
+html[data-skin=e] #pg_vet .lnk::before{content:counter(vn,lower-roman)'.';font:italic 500 18px 'Cormorant Garamond',serif;color:color-mix(in srgb,var(--ac) 55%,var(--tx));width:30px;flex:none}
+html[data-skin=e] #pg_vet .lnk>span:first-child,html[data-skin=f] #pg_vet .lnk>span:first-child,html[data-skin=j] #pg_vet .lnk>span:first-child{flex:1}
+html[data-skin=f] #pg_vet .lnk::before{content:counter(vn,decimal-leading-zero);font:400 28px/1 'Bebas Neue',sans-serif;width:38px;flex:none}
+html[data-skin=f] #pg_vet .lnk{font-weight:900;border-color:var(--tx)}
+html[data-skin=j] #pg_vet .lnk{border:2px solid var(--ink);background:var(--card);margin-top:6px;padding:0;align-items:stretch;font-weight:900}
+html[data-skin=j] #pg_vet .lnk::before{content:counter(vn,decimal-leading-zero);font:700 15px 'Oswald',sans-serif;width:48px;flex:none;display:flex;align-items:center;justify-content:center;border-right:2px solid var(--ink)}
+html[data-skin=j] #pg_vet .lnk>span{padding:14px 12px}
+html[data-skin=n] #pg_vet .lnk::before{content:"";width:10px;height:10px;border-radius:50%;background:var(--ac);box-shadow:0 0 8px var(--ac);flex:none;align-self:center;margin-right:10px}
+html[data-skin=n] #pg_vet .lnk>span:first-child{flex:1}
+
+/* 小知識：章節編號 */
+#tl{counter-reset:tn}
+#tl>.card{counter-increment:tn}
+html[data-skin=e] #tl .fh::before{content:counter(tn,decimal-leading-zero);font:italic 500 18px 'Cormorant Garamond',serif;color:color-mix(in srgb,var(--ac) 55%,var(--tx));width:26px;flex:none}
+html[data-skin=e] #tl .fh>span:first-of-type,html[data-skin=f] #tl .fh>span:first-of-type,html[data-skin=j] #tl .fh>span:first-of-type{flex:1}
+html[data-skin=e] #tl .fh{font-family:'Noto Serif TC',serif}
+html[data-skin=f] #tl .fh::before{content:counter(tn,decimal-leading-zero);font:400 30px/1 'Bebas Neue',sans-serif;width:36px;flex:none}
+html[data-skin=f] #tl .fh{font-weight:900}
+html[data-skin=j] #tl>.card{padding:0}
+html[data-skin=j] #tl .fh{padding:0;align-items:stretch;min-height:50px}
+html[data-skin=j] #tl .fh::before{content:counter(tn,decimal-leading-zero);font:700 14px 'Oswald',sans-serif;width:46px;flex:none;display:flex;align-items:center;justify-content:center;border-right:2px solid var(--ink)}
+html[data-skin=j] #tl .fh>span{display:flex;align-items:center;padding:0 12px}
+html[data-skin=j] #tl>.card>.r,html[data-skin=j] #tl>.card>div{padding-left:14px;padding-right:14px}
+html[data-skin=n] #tl .fh::before{content:"";width:10px;height:10px;border-radius:50%;background:var(--ac);box-shadow:0 0 8px var(--ac);flex:none;margin-right:2px}
+html[data-skin=n] #tl .fh>span:first-of-type{flex:1}
+</style>
 </head>
 <body>
 <div class="app">
   <button class="gear" onclick="openSet()" aria-label="設定">⚙️</button><button class="gear" id="qsv" onclick="quickSave()" aria-label="快速儲存" style="margin-right:4px">💾</button>
   <div class="pets" id="pets"></div>
-  <div id="pg_cal"><div id="bkn"></div><button class="btn" style="margin-top:12px" onclick="quickCap()">📸 即時記錄（拍照／錄影）</button>
+  <div id="pg_cal"><div id="hero"></div><div id="bkn"></div><button class="btn" style="margin-top:12px" onclick="quickCap()">📸 即時記錄（拍照／錄影）</button>
   <div class="card">
     <div class="mh"><button class="nb" onclick="mv(-1)">‹</button><b id="mt"></b><button class="nb" style="font-size:14px;color:var(--ac)" onclick="goToday()">今天</button><button class="nb" onclick="mv(1)">›</button></div>
     <div class="g" id="cal"></div>
@@ -170,7 +491,7 @@ function addPet(){
   S.pets.push(p);S.cur=p.id;save();closeSh();render();
 }
 function openSet(){
-  sheet('<h2>設定</h2><h3>介面顏色</h3>'+colorUI()+'<h3 style="margin-top:16px">寵物</h3>'+(S.pets.map(function(x){return '<div class="pr"><span>'+x.emoji+' '+esc(x.name)+'</span><button class="x" onclick="delPet(\''+x.id+'\')">刪除</button></div>'}).join('')||'<div class="empty">尚無寵物</div>')+'<h3 style="margin-top:16px">備份與還原</h3>'+bkUI()+'<textarea id="bk" rows="4" placeholder="還原時請把備份文字貼在這裡"></textarea><button class="btn" onclick="doBk()">複製備份文字</button><button class="btn g2" onclick="doRs()">用上方文字還原</button><div class="empty" style="text-align:center">頁面版本 '+VER+'</div>');
+  sheet('<h2>設定</h2><h3>介面風格與顏色</h3>'+colorUI()+'<h3 style="margin-top:16px">寵物</h3>'+(S.pets.map(function(x){return '<div class="pr"><span>'+x.emoji+' '+esc(x.name)+'</span><button class="x" onclick="delPet(\''+x.id+'\')">刪除</button></div>'}).join('')||'<div class="empty">尚無寵物</div>')+'<h3 style="margin-top:16px">備份與還原</h3>'+bkUI()+'<textarea id="bk" rows="4" placeholder="還原時請把備份文字貼在這裡"></textarea><button class="btn" onclick="doBk()">複製備份文字</button><button class="btn g2" onclick="doRs()">用上方文字還原</button><div class="empty" style="text-align:center">頁面版本 '+VER+'</div>');
 }
 function delPet(id){
   ask('刪除這隻寵物與它所有的紀錄？',function(){delPet2(id)})}function delPet2(id){
@@ -983,6 +1304,159 @@ async function gClean(){try{stat('🧹 檢查雲端檔案…');var r=await fetch
   ask('雲端有 '+ex.length+' 個沒有被任何紀錄使用的檔案（約 '+mb+' MB），要移到垃圾桶嗎？',function(){stat('🧹 清理中…');gDelMedia(ex.map(function(x){return x.id}),true);var t=setInterval(function(){if(!gDelBusy){clearInterval(t);if(!mdQ().length)stat('✅ 已把 '+ex.length+' 個多餘檔案移到垃圾桶','ok',4000)}},500)})}
   catch(e){stat('⚠️ 清理失敗：'+upErr(e),'err',9000)}}
 if(GS)setTimeout(gDelRun,3000);
+
+/* ===== 介面風格切換、主要顏色／底色、主角動物 ===== */
+var SKINS={
+ b:{n:'簡約風格',d:'清新綠、卡片式',ac:'#22695a',bg:'#eff3ef'},
+ e:{n:'古典油畫',d:'深褐底、襯線字',ac:'#9c4a35',bg:'#1b1611'},
+ f:{n:'海報雜誌',d:'藏青米白、大標題',ac:'#26344f',bg:'#e9e3d3'},
+ j:{n:'藍色拼貼',d:'撕紙、鈷藍、粗框',ac:'#2a46c9',bg:'#d9d7d2'},
+ n:{n:'柔霧剪影',d:'薄荷蜜桃、毛玻璃',ac:'#e8a23a',bg:'#cdeee7'}};
+var PAL={
+ b:{ac:['#22695a','#2364a8','#7a3fd1','#c0563a','#8a4f2a','#3d4a55'],bg:['#eff3ef','#f4efe9','#eef2f7','#f6f4f9','#ffffff','#1c2321']},
+ e:{ac:['#9c4a35','#b8955a','#5d6b3a','#3d4a5c','#7a3b52','#c06a52'],bg:['#1b1611','#12100c','#2a2519','#1a1c22','#e9dfcb','#f3ead8']},
+ f:{ac:['#26344f','#2b2b2b','#6b2e2e','#2f4a3a','#4a3a6b','#8a5a1e'],bg:['#e9e3d3','#f2efe8','#dfe4ea','#efe6d8','#ffffff','#1d2433']},
+ j:{ac:['#2a46c9','#d9472b','#1f8a5b','#e0a020','#7a3fd1','#141414'],bg:['#d9d7d2','#ecebe6','#e6e0d4','#d6dde4','#f2f0eb','#2a2a2a']},
+ n:{ac:['#e8a23a','#e86a5a','#5aa3a0','#8a7ad6','#d9708a','#3d7ad6'],bg:['#cdeee7','#f6dccf','#e2e4f6','#f3e8d6','#e6efe7','#1c2230']}};
+function hx(h){h=String(h||'').replace('#','');if(h.length===3)h=h.replace(/(.)/g,'$1$1');var n=parseInt(h,16);return isNaN(n)?[0,0,0]:[n>>16&255,n>>8&255,n&255]}
+function th(a){return '#'+a.map(function(v){return ('0'+Math.round(Math.max(0,Math.min(255,v))).toString(16)).slice(-2)}).join('')}
+function mixc(a,b,t){a=hx(a);b=hx(b);return th(a.map(function(v,i){return v*(1-t)+b[i]*t}))}
+function lum(h){var c=hx(h).map(function(v){v/=255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4)});return .2126*c[0]+.7152*c[1]+.0722*c[2]}
+function ui(){if(!S.ui){S.ui={skin:'b',c:{}};if(S.theme&&S.theme.ac)S.ui.c.b={ac:S.theme.ac}}S.ui.c=S.ui.c||{};if(!SKINS[S.ui.skin])S.ui.skin='b';return S.ui}
+function skin(){return ui().skin}
+function cust(k){return ui().c[k]||{}}
+function okHex(v){return /^#[0-9a-f]{6}$/i.test(v)}
+applyTheme=function(){var k=skin(),d=SKINS[k],c=cust(k),ac=okHex(c.ac)?c.ac:d.ac,bg=okHex(c.bg)?c.bg:d.bg,r=document.documentElement,dark=lum(bg)<.18;
+ r.setAttribute('data-skin',k);r.removeAttribute('data-theme');
+ var v={'--bg':bg,'--ac':ac,'--onac':lum(ac)>.4?'#1b1b1b':'#ffffff',
+  '--tx':dark?mixc(bg,'#ffffff',.9):mixc(bg,'#000000',.86),'--sub':dark?mixc(bg,'#ffffff',.62):mixc(bg,'#000000',.6),
+  '--card':dark?mixc(bg,'#ffffff',.07):mixc(bg,'#ffffff',.72),'--line':dark?mixc(bg,'#ffffff',.16):mixc(bg,'#000000',.13),
+  '--ink':dark?mixc(bg,'#ffffff',.92):mixc(bg,'#000000',.9),'--bg2':dark?mixc(bg,'#000000',.3):mixc(bg,'#f6dccf',.8),'color-scheme':dark?'dark':'light'};
+ for(var x in v)r.style.setProperty(x,v[x]);
+ var m=document.querySelector('meta[name=theme-color]');if(!m){m=document.createElement('meta');m.name='theme-color';document.head.appendChild(m)}m.content=k==='f'?ac:bg};
+function swRow(list,cur,t){return '<div class="swr">'+list.map(function(c){return '<button class="sw" aria-label="'+c+'" onclick="setCol(\''+t+'\',\''+c+'\')" style="border:'+(c.toLowerCase()===String(cur).toLowerCase()?'3px solid var(--tx)':'1px solid var(--line)')+';background:'+c+'"></button>'}).join('')+'</div>'}
+function mascotOf(p){if(!p)return 'cat';if(p.emoji==='🐱')return 'cat';if(p.emoji==='🐶')return 'dog';return p.mascot==='dog'?'dog':'cat'}
+function mascotBtns(p){var m=mascotOf(p);return ['cat','dog'].map(function(x){return '<button class="chip'+(m===x?' on':'')+'" onclick="setMascot(\''+p.id+'\',\''+x+'\')">'+(x==='cat'?'🐱 貓':'🐶 狗')+'</button>'}).join('')}
+colorUI=function(){var k=skin(),d=SKINS[k],c=cust(k),ac=okHex(c.ac)?c.ac:d.ac,bg=okHex(c.bg)?c.bg:d.bg;
+ var h='<div class="skg">'+Object.keys(SKINS).map(function(x){var s=SKINS[x],cc=cust(x),a=okHex(cc.ac)?cc.ac:s.ac,b=okHex(cc.bg)?cc.bg:s.bg;return '<button class="skc'+(x===k?' on':'')+'" onclick="setSkin(\''+x+'\')"><span class="skp" style="background:'+b+'"><em style="background:'+(lum(b)<.18?'#fff':'#000')+'"></em><i style="background:'+a+'"></i></span><b>'+s.n+'</b><small>'+s.d+'</small></button>'}).join('')+'</div>';
+ h+='<label class="lb">主要顏色（按鈕、選取、重點）</label>'+swRow(PAL[k].ac,ac,'ac')+'<div class="pr" style="border:0"><span>自訂主要顏色</span><input type="color" value="'+ac+'" oninput="setCol(\'ac\',this.value,1)" style="width:56px;height:36px;padding:2px;margin:0"></div>';
+ h+='<label class="lb">底色（背景；文字顏色會自動調整成看得清楚）</label>'+swRow(PAL[k].bg,bg,'bg')+'<div class="pr" style="border:0"><span>自訂底色</span><input type="color" value="'+bg+'" oninput="setCol(\'bg\',this.value,1)" style="width:56px;height:36px;padding:2px;margin:0"></div>';
+ if(c.ac||c.bg)h+='<button class="btn g2" onclick="resetCol()">恢復「'+d.n+'」的預設顏色</button>';
+ var ot=S.pets.filter(function(p){return p.emoji!=='🐱'&&p.emoji!=='🐶'});
+ if(ot.length)h+='<h3 style="margin-top:16px">首頁背景動物</h3><div class="empty" style="padding-top:0">貓咪會用貓、狗狗會用狗；其他寵物可以自己選。</div>'+ot.map(function(p){return '<div class="pr"><span>'+p.emoji+' '+esc(p.name)+'</span><span class="row" style="gap:6px">'+mascotBtns(p)+'</span></div>'}).join('');
+ return h};
+function setSkin(x){if(!SKINS[x])return;ui().skin=x;save();applyTheme();render();openSet()}
+function setCol(t,v,quiet){if(!okHex(v))return;var u=ui(),k=u.skin;u.c[k]=u.c[k]||{};u.c[k][t]=v.toLowerCase();save();applyTheme();if(!quiet)openSet()}
+function resetCol(){delete ui().c[skin()];save();applyTheme();openSet()}
+function setMascot(id,v){var p=S.pets.filter(function(x){return x.id===id})[0];if(!p)return;p.mascot=v;save();render();if(document.querySelector('#sh .skg'))openSet()}
+var _rp9=renderPet;renderPet=function(){_rp9();var p=cur(),e=document.getElementById('pg_pet');if(!p||!e||p.emoji==='🐱'||p.emoji==='🐶')return;
+ e.insertAdjacentHTML('beforeend','<div class="card"><h3>首頁背景動物</h3><div class="empty" style="padding-top:0">'+esc(p.name)+' 不是貓或狗，首頁的背景角色要用哪一種？</div><div class="row" style="flex-wrap:wrap">'+mascotBtns(p)+'</div></div>')};
+
+/* 主角插畫（全部為向量，依風格與動物切換） */
+var ART={
+ line:function(m){return m==='dog'
+  ?'<svg class="hb-art" viewBox="0 0 140 130" aria-hidden="true"><path class="ml" d="M42 36 C24 38 16 70 22 96 C28 104 38 100 40 88"/><path class="ml" d="M98 36 C116 38 124 70 118 96 C112 104 102 100 100 88"/><path class="ml" d="M42 36 C52 22 88 22 98 36 C106 50 106 78 98 94 C90 112 50 112 42 94 C34 78 34 50 42 36 Z"/><circle cx="58" cy="62" r="3.5" fill="currentColor"/><circle cx="82" cy="62" r="3.5" fill="currentColor"/><ellipse cx="70" cy="80" rx="8" ry="5.5" fill="currentColor"/><path class="ml" d="M70 86 L70 92 M62 94 C66 98 74 98 78 94"/></svg>'
+  :'<svg class="hb-art" viewBox="0 0 140 130" aria-hidden="true"><path class="ml" d="M40 52 L42 16 L64 36 C68 35 72 35 76 36 L98 16 L100 52"/><path class="ml" d="M40 52 C32 74 40 102 70 106 C100 102 108 74 100 52"/><circle cx="57" cy="66" r="3.5" fill="currentColor"/><circle cx="83" cy="66" r="3.5" fill="currentColor"/><path d="M65 78 L75 78 L70 84 Z" fill="currentColor"/><path class="ml" d="M70 84 C68 89 63 89 61 87 M70 84 C72 89 77 89 79 87"/><path class="ml" style="stroke-width:2" d="M52 80 L30 76 M52 86 L32 92 M88 80 L110 76 M88 86 L108 92"/></svg>'},
+ paint:function(m,gray,crop){var vb=crop?(m==='dog'?'30 40 140 140':'40 20 130 130'):'0 0 200 250';
+  var defs='<defs><filter id="pzp" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="3" seed="'+(m==='dog'?8:3)+'" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="7" xChannelSelector="R" yChannelSelector="G"/></filter><filter id="pzb" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="18"/></filter><filter id="pzg"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2"/><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncA type="linear" slope="0.14"/></feComponentTransfer></filter><filter id="pzs"><feColorMatrix type="saturate" values="0"/></filter></defs>';
+  var body=m==='dog'
+   ?'<rect width="200" height="250" fill="#2f2e24"/><ellipse cx="66" cy="80" rx="80" ry="95" fill="#5f5d42" filter="url(#pzb)"/><g filter="url(#pzp)"><path d="M26 250 C30 190 64 158 100 156 C138 158 172 190 176 250 Z" fill="#87684a"/><path d="M118 160 C148 170 172 200 176 250 L128 250 C134 212 130 180 118 160 Z" fill="#5c4630"/><path d="M76 170 C88 162 112 162 124 172 C120 205 110 228 100 250 L84 250 C82 222 76 196 76 170 Z" fill="#d2c09f"/><ellipse cx="62" cy="110" rx="17" ry="38" transform="rotate(14 62 110)" fill="#5a3f2a"/><ellipse cx="140" cy="110" rx="17" ry="38" transform="rotate(-14 140 110)" fill="#46321f"/><ellipse cx="100" cy="94" rx="40" ry="44" fill="#9c7a54"/><path d="M112 54 C138 66 146 98 136 122 C130 132 120 136 110 138 C128 116 130 82 112 54 Z" fill="#755a3c"/><ellipse cx="88" cy="74" rx="14" ry="9" fill="#b39572"/><ellipse cx="100" cy="96" rx="9" ry="30" fill="#c7ae88"/><ellipse cx="100" cy="126" rx="24" ry="18" fill="#d6c4a2"/><ellipse cx="100" cy="117" rx="9" ry="6" fill="#2b2019"/><path d="M100 123 Q100 131 92 133 M100 123 Q100 131 108 133" fill="none" stroke="#3a2a20" stroke-width="2.2" stroke-linecap="round"/><circle cx="84" cy="92" r="5" fill="#2b2019"/><circle cx="116" cy="92" r="5" fill="#2b2019"/><circle cx="85.5" cy="90.5" r="1.4" fill="#e8dcc4"/><circle cx="117.5" cy="90.5" r="1.4" fill="#e8dcc4"/></g>'
+   :'<rect width="200" height="250" fill="#2a221a"/><ellipse cx="70" cy="90" rx="80" ry="95" fill="#5c4b36" filter="url(#pzb)"/><g filter="url(#pzp)"><path d="M30 250 C32 185 66 150 104 146 C144 150 176 190 178 250 Z" fill="#6f6252"/><path d="M120 150 C150 160 174 195 178 250 L130 250 C136 210 132 175 120 150 Z" fill="#4a4036"/><path d="M78 165 C90 158 112 158 122 168 C120 200 110 225 100 250 L84 250 C82 220 76 190 78 165 Z" fill="#c4b497"/><path d="M60 86 L66 34 L96 64 Z" fill="#7d6f5c"/><path d="M150 86 L146 34 L116 64 Z" fill="#5f5548"/><path d="M67 74 L70 46 L86 64 Z" fill="#a07c6a"/><path d="M143 74 L140 46 L126 64 Z" fill="#856658"/><ellipse cx="105" cy="98" rx="50" ry="44" fill="#857766"/><path d="M120 58 C150 70 160 105 146 130 C138 140 124 142 112 141 C138 120 140 86 120 58 Z" fill="#5f5548"/><ellipse cx="92" cy="76" rx="16" ry="9" fill="#a39380"/><ellipse cx="104" cy="116" rx="22" ry="15" fill="#c8b89b"/><ellipse cx="86" cy="96" rx="8" ry="6" fill="#ae9650"/><ellipse cx="123" cy="96" rx="8" ry="6" fill="#968245"/><ellipse cx="86" cy="96" rx="2" ry="5.5" fill="#1d1712"/><ellipse cx="123" cy="96" rx="2" ry="5.5" fill="#1d1712"/><path d="M98 110 L110 110 L104 117 Z" fill="#8a5a4c"/></g>';
+  return '<svg viewBox="'+vb+'" preserveAspectRatio="xMidYMid slice" aria-hidden="true">'+defs+(gray?'<g filter="url(#pzs)">'+body+'</g>':body)+'<rect width="200" height="250" filter="url(#pzg)"/></svg>'},
+ sil:function(m){return m==='dog'
+  ?'<svg class="hj-art" viewBox="0 0 200 200" aria-hidden="true"><path class="mk" d="'+DOGP+'"/><path class="mke" d="'+DOGE+'"/>'+dogEyes('#f2b632','mk')+'<path class="msc" d="M70 14 C96 -2 160 2 168 14 C176 28 110 26 120 10 C128 0 184 6 190 26"/><path class="msc" d="M18 150 L6 144 M16 162 L2 162"/></svg>'
+  :'<svg class="hj-art" viewBox="0 0 150 150" aria-hidden="true"><path class="mk" d="M28 132 C30 90 50 74 75 72 C102 74 120 92 122 132 Z"/><path class="mk" d="M44 58 L48 20 L68 44 Z"/><path class="mk" d="M106 58 L102 20 L82 44 Z"/><ellipse class="mk" cx="75" cy="64" rx="34" ry="30"/><ellipse class="mpp" cx="62" cy="62" rx="5" ry="3.5"/><ellipse class="mpp" cx="88" cy="62" rx="5" ry="3.5"/><path class="msc" d="M40 30 C60 0 100 10 96 30 C92 50 50 40 62 22 C74 6 112 18 104 38 C98 52 70 46 80 30"/><path class="msc" d="M20 110 L10 104 M18 120 L6 120"/></svg>'},
+ glow:function(m){var f='<defs><filter id="nzs" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur in="SourceGraphic" stdDeviation="'+(m==='dog'?1.3:2.2)+'" result="b"/><feTurbulence type="fractalNoise" baseFrequency="1.2" numOctaves="2" result="n"/><feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .3 0" result="g"/><feComposite in="g" in2="b" operator="in" result="gg"/><feMerge><feMergeNode in="b"/><feMergeNode in="gg"/></feMerge></filter><filter id="nzg" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="'+(m==='dog'?6:10)+'"/></filter><filter id="nze"><feGaussianBlur stdDeviation="1"/></filter></defs>';
+  return m==='dog'
+  ?'<svg class="hn-art dg" viewBox="0 0 200 200" aria-hidden="true">'+f+'<path d="'+DOGP+'" fill="#2e8f86" opacity=".45" filter="url(#nzg)"/><path class="mk" d="'+DOGP+'" filter="url(#nzs)"/><path class="mke" d="'+DOGE+'" filter="url(#nze)"/>'+dogEyes('var(--ac)','mk')+'</svg>'
+  :'<svg class="hn-art" viewBox="0 0 330 440" aria-hidden="true">'+f+'<path d="M44 440 C40 300 60 160 120 120 L132 64 C136 54 146 54 150 62 L172 100 C190 96 214 96 230 100 L254 62 C258 54 268 56 270 66 L276 120 C300 150 304 200 290 236 C280 262 262 270 250 290 C246 340 252 400 256 440 Z" fill="#2e8f86" opacity=".45" filter="url(#nzg)"/><path class="mk" d="M50 440 C46 300 66 162 124 124 L134 70 C138 60 146 60 150 68 L172 104 C190 100 214 100 230 104 L252 68 C256 60 266 62 268 72 L272 124 C296 152 300 200 286 234 C276 258 258 268 248 288 C244 340 248 400 252 440 Z" filter="url(#nzs)"/><path class="ma" d="M170 168 C182 160 200 160 212 168 C206 180 182 182 170 168 Z"/><path class="ma" d="M232 168 C242 160 258 160 266 168 C260 180 240 182 232 168 Z"/><rect class="mk" x="170" y="160" width="42" height="7"/><rect class="mk" x="232" y="160" width="34" height="7"/><rect class="mk" x="190" y="166" width="2.6" height="10" rx="1.3"/><rect class="mk" x="248" y="166" width="2.6" height="10" rx="1.3"/></svg>'}};
+var DOGP='M175.5 57 L173.5 56 L162.8 55.8 L157.5 53.8 L151.5 49.5 L138.8 37 L133.2 33 L125.8 29.2 L115 26 L104.8 24.5 L92.2 25 L79.5 27.2 L71.2 31.2 L49 54.5 L40.2 65.5 L36.8 71.8 L36.8 84.2 L37.5 91.2 L39 96 L39 100.2 L30 149.8 L22.8 200 L147.5 200 L142.8 135 L143 118.2 L143.8 115 L146.5 109.8 L154.5 101.2 L168.2 93.5 L175.5 86.5 L177.8 80.8 L178.5 75.5 L177.8 63.5 Z';
+var DOGE='M88.5 29.2 L86 28 L81.8 28 L74.2 31.2 L69.2 35 L65 39.2 L63 42.5 L53 52.2 L40.2 68.2 L38 72.8 L38 87 L39 88.8 L39 94 L40 95.8 L40 98 L45.2 103.5 L49 104.8 L54 103.8 L65 99.8 L71.5 96.5 L75.5 93.5 L79.5 88.5 L85.8 70 L87.8 63 L88.8 55.8 L90.8 49 L91.8 43 L91.8 34.8 L90.5 31.2 Z';
+function dogEyes(col,dk){var f=col.indexOf('var(')===0?' style="fill:'+col+'"':' fill="'+col+'"';return '<path d="M97 56 C101 50 110 50 114 55 C110 60 101 60 97 56 Z"'+f+'/><path class="'+dk+'" d="M95 49 L116 49 L116 54 L95 55.6 Z"/><circle class="'+dk+'" cx="110.2" cy="55.8" r="2.2"/><path d="M127 52 C131 46 140 46 144 51 C140 56 131 56 127 52 Z"'+f+'/><path class="'+dk+'" d="M125 45 L146 45 L146 50 L125 51.6 Z"/><circle class="'+dk+'" cx="140.2" cy="51.8" r="2.2"/>'}
+
+var SPN={'🐱':'貓咪','🐶':'狗狗','🦎':'守宮','🐢':'澤龜','🦜':'鸚鵡','🐰':'兔子','🐹':'鼠類','🐦':'鳥類','🐾':'寵物'};
+function hSub(p){return p.breed||SPN[p.emoji]||'寵物'}
+function hDays(p){return p.home?dd(p.home):null}
+var ROM=['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII'];
+var HERO={
+ b:function(p,m){return '<div class="hb-card'+(p.photo?' hb-ph':'')+'">'+(p.photo?'':ART.line(m))+'<div class="hb-row"><div class="hb-av">'+(p.photo?'<img src="'+p.photo+'" alt="">':p.emoji)+'</div><div style="min-width:0"><div class="hb-n">'+esc(p.name)+'</div><div class="hb-s">'+esc(hSub(p))+'</div></div></div><div class="hb-d">'+(daysTxt(p)||'到「寵物」頁填寫生日與到家日')+'</div></div>'},
+ e:function(p,m){var i=S.pets.indexOf(p);return '<div class="he-row"><div class="he-fr"><div class="he-in">'+(p.photo?'<img src="'+p.photo+'" alt="'+esc(p.name)+'的照片">':ART.paint(m,false,false))+'</div></div><div class="he-t"><i>No. '+(ROM[i]||(i+1))+'</i><b>'+esc(p.name)+'</b><small>'+esc(hSub(p))+'</small><span class="he-bar"></span><small>'+(daysTxt(p)||'記錄每一天')+'</small></div></div>'},
+ f:function(p,m){var t=new Date(),z=function(n){return ('0'+n).slice(-2)},n=String(p.name),fs=n.length<=2?96:n.length<=3?76:n.length<=5?52:36,dy=hDays(p);
+  return '<div class="hf-moon">'+(p.photo?'<img style="--py:'+phY(p)+'%" src="'+p.photo+'" alt="'+esc(p.name)+'的照片">':ART.paint(m,true,true))+'</div><div class="hf-top"><span>@PETDIARY</span><span>VOL. '+z(t.getMonth()+1)+'</span></div><div class="hf-date">'+z(t.getDate())+'\\'+z(t.getMonth()+1)+'\\<br>'+t.getFullYear()+'</div><div class="hf-sub">'+esc(hSub(p))+'</div><div class="hf-days">'+(dy!==null?'和'+esc(n)+'一起生活的第 '+dy+' 天':'TODAY · 今日紀錄')+'</div><div class="hf-name" style="font-size:'+fs+'px">'+esc(n)+'</div>'},
+ j:function(p,m){var t=new Date(),dy=hDays(p),n=String(p.name),fs=n.length<=3?50:n.length<=5?38:28;
+  return '<div class="hj-pp"></div><div class="hj-tape"></div><div class="hj-tt">'+(dy!==null?dy+' DAYS TOGETHER':'MY BUDDY')+'</div>'+ART.sil(m)+'<svg class="hj-star" viewBox="0 0 56 56" aria-hidden="true"><path class="ma" d="M28 0 L33 20 L52 10 L38 26 L56 34 L35 35 L40 56 L28 39 L15 54 L19 34 L0 30 L18 23 L6 6 L23 18 Z"/></svg><div class="hj-dt">'+t.getFullYear()+'，'+(t.getMonth()+1)+' 月 '+t.getDate()+' 日</div><div class="hj-t" style="font-size:'+fs+'px">'+esc(n)+'的<br><span>今天</span></div><div class="hj-s">'+esc(hSub(p))+(daysTxt(p)?' · '+daysTxt(p):'')+'</div>'},
+ n:function(p,m){var t=new Date(),dy=hDays(p);return ART.glow(m)+'<div class="hn-t"><small>'+(t.getMonth()+1)+' 月 '+t.getDate()+' 日 · 週'+'日一二三四五六'[t.getDay()]+'</small><b>'+esc(p.name)+'<br>'+NQ+'</b><em>'+(dy!==null?'一起生活第 '+dy+' 天':esc(hSub(p)))+'</em></div>'}};
+function renderHero(){var e=document.getElementById('hero');if(!e)return;var p=cur();if(!p){e.innerHTML='';e.className='';return}
+ var k=skin(),m=mascotOf(p);e.className='hero h'+k;
+ e.innerHTML='<div class="hart">'+HERO[k](p,m)+'</div>'}
+var _rcal9=renderCal;renderCal=function(){_rcal9();try{renderHero()}catch(err){var e=document.getElementById('hero');if(e)e.innerHTML=''}};
+
+/* 底部導覽：表情符號換成線條圖示（只有簡約風格會顯示，其餘風格為純文字） */
+var NICON={
+ cal:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect class="ni" x="3" y="5" width="18" height="16" rx="2"/><path class="ni" d="M3 10h18M8 3v4M16 3v4"/></svg>',
+ all:'<svg viewBox="0 0 24 24" aria-hidden="true"><path class="ni" d="M9 6h12M9 12h12M9 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg>',
+ calc:'<svg viewBox="0 0 24 24" aria-hidden="true"><path class="ni" d="M3 11h18a9 9 0 0 1-18 0z"/><path class="ni" d="M9 7c0-2 2-2 2-4M14 7c0-2 2-2 2-4"/></svg>',
+ vet:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect class="ni" x="3" y="3" width="18" height="18" rx="4"/><path class="ni" d="M12 8v8M8 12h8"/></svg>',
+ tip:'<svg viewBox="0 0 24 24" aria-hidden="true"><path class="ni" d="M9 18h6M10 21h4"/><path class="ni" d="M12 3a6 6 0 0 0-4 10.5c.7.7 1 1.5 1 2.5h6c0-1 .3-1.8 1-2.5A6 6 0 0 0 12 3z"/></svg>',
+ pet:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle class="ni" cx="6.5" cy="10" r="2"/><circle class="ni" cx="10" cy="5.5" r="2"/><circle class="ni" cx="14" cy="5.5" r="2"/><circle class="ni" cx="17.5" cy="10" r="2"/><path class="ni" d="M8 18c0-3 2-5 4-5s4 2 4 5c0 2-2 3-4 3s-4-1-4-3z"/></svg>'};
+NAV.forEach(function(n){if(NICON[n[0]])n[1]=NICON[n[0]]});
+
+/* 各頁頁首：依風格顯示不同的標題區塊 */
+var PH={
+ rec:{b:'紀錄',e:['Chronicle','紀錄'],f:'RECORDS',j:['所有','紀錄'],n:['RECORDS','{n}的<br>紀錄']},
+ calc:{b:'飲食',e:['De Cibo','飲食'],f:'DAILY<br>FOOD',j:['今天要吃','多少？'],n:['DAILY FOOD','{n}今天<br>要吃多少？']},
+ vet:{b:'獸醫院',e:['Medicus','獸醫院'],f:'VET<br>NEARBY',j:['哪裡有','獸醫院？'],n:['VET','不舒服的時候<br>去哪裡？']},
+ tip:{b:'小知識',e:['Scientia','小知識'],f:'KNOW<br>BETTER',j:['照顧','小知識'],n:['KNOWLEDGE','照顧{n}<br>要知道的事']}};
+var STAR='<svg viewBox="0 0 56 56" aria-hidden="true"><path class="ma" d="M28 0 L33 20 L52 10 L38 26 L56 34 L35 35 L40 56 L28 39 L15 54 L19 34 L0 30 L18 23 L6 6 L23 18 Z"/></svg>';
+function peek(m){return m==='dog'
+ ?'<svg viewBox="20 10 170 120" aria-hidden="true"><path class="mk" d="'+DOGP+'"/><path class="mke" d="'+DOGE+'"/>'+dogEyes('var(--ac)','mk')+'</svg>'
+ :'<svg viewBox="0 0 150 110" aria-hidden="true"><path class="mk" d="M20 110 C20 80 30 60 46 50 L52 16 L72 40 C88 36 104 36 118 40 L136 16 L142 52 C150 66 150 90 150 110 Z"/><path class="ma" d="M62 74 C70 68 84 68 90 74 C84 80 70 80 62 74 Z"/><path class="ma" d="M106 74 C112 68 124 68 130 74 C124 80 112 80 106 74 Z"/><rect class="mk" x="62" y="68" width="28" height="5"/><rect class="mk" x="106" y="68" width="24" height="5"/></svg>'}
+function phSub(k){var p=cur(),n=p?esc(p.name):'';
+ if(k==='rec'){var c=p?S.recs.filter(function(r){return r.pet===p.id}).length:0;return n?n+' · 共 '+c+' 筆紀錄':''}
+ if(k==='calc')return n?n+' 的熱量與水分':'';
+ if(k==='vet')return '附近醫院與常用醫院';
+ if(k==='tip')return n?'依「'+n+'」顯示':'';return ''}
+function phHTML(k){var s=skin(),d=PH[k],p=cur(),nm=p?esc(p.name):'',sub=phSub(k),t=new Date();if(!d)return '';
+ var fill=function(x){return String(x).replace(/\{n\}/g,nm||'寵物')};
+ if(s==='b')return '<h1>'+d.b+'</h1><p>'+sub+'</p>';
+ if(s==='e')return '<i>'+d.e[0]+'</i><h1>'+d.e[1]+'</h1><p>'+sub+'</p>';
+ if(s==='f')return '<div class="tp"><span>@PETDIARY</span><span>'+(t.getMonth()+1)+' / '+t.getFullYear()+'</span></div><h1>'+d.f+'</h1><p>'+sub+'</p>';
+ if(s==='j')return '<small>'+(nm?nm+' · ':'')+t.getFullYear()+'</small><h1>'+d.j[0]+'<br><span>'+d.j[1]+'</span></h1><p>'+sub+'</p>'+STAR;
+ return '<small>'+d.n[0]+'</small><h1>'+fill(d.n[1])+'</h1><p>'+sub+'</p>'+peek(mascotOf(p))}
+function putHead(k){var e=document.getElementById('pg_'+k);if(!e)return;var o=document.getElementById('phd_'+k);if(o&&o.remove)o.remove();
+ var h=k==='pet'?petHead():phHTML(k);if(!h)return;var s=skin();
+ e.insertAdjacentHTML('afterbegin','<div class="phd ph'+s+'" id="phd_'+k+'">'+h+'</div>')}
+function petStats(p){var kg=S.recs.filter(function(r){return r.pet===p.id&&r.kg}).sort(function(a,b){return b.date.localeCompare(a.date)||b.ts-a.ts})[0],
+ nx=S.recs.filter(function(r){return r.pet===p.id&&r.next&&r.next>=today}).sort(function(a,b){return a.next.localeCompare(b.next)})[0],dy=hDays(p);
+ return '<div class="pst"><div><b>'+(dy!==null?dy:'—')+'</b><span>一起生活（天）</span></div><div><b>'+(kg?esc(kg.kg):'—')+'</b><span>體重（kg）</span></div><div class="hi"><b>'+(nx?nx.next.slice(5).replace('-','/'):'—')+'</b><span>'+(nx?esc((nx.title||tinfo(nx.type)[2]).slice(0,6)):'下次提醒')+'</span></div></div>'}
+
+function phY(p){return p&&p.phY!=null?p.phY:25}
+function setPhY(v,sv){var p=cur();if(!p)return;p.phY=+v;var a=document.querySelectorAll('.hf-moon img');for(var i=0;i<a.length;i++)a[i].style.setProperty('--py',v+'%');if(sv)save()}
+var NQS=['今天也要<br>好好的','慢慢來<br>也沒關係','有你在<br>就是好日子','一起曬曬<br>太陽吧','吃飽睡飽<br>就是幸福','謝謝你<br>陪著我','每一天<br>都值得記住','今天也<br>辛苦了','抱一下<br>再出門','小小的你<br>大大的愛'];
+var NQ=NQS[Math.floor(Math.random()*NQS.length)];
+function petHead(){var p=cur();if(!p)return '';var k=skin(),m=mascotOf(p);
+ var art=HERO[k](p,m).replace(/id="((?:pz|nz)[a-z])"/g,'id="$1P"').replace(/url\(#((?:pz|nz)[a-z])\)/g,'url(#$1P)');
+ if(p.photo){var im='<img src="'+p.photo+'" alt="'+esc(p.name)+'的照片"';
+  if(k==='b')art=art.replace(/<svg class="hb-art"[\s\S]*?<\/svg>/,'');
+  else if(k==='e')art=art.replace(/(<div class="he-in">)<svg[\s\S]*?<\/svg>/,'$1'+im+'>');
+  else if(k==='f')art=art.replace(/(<div class="hf-moon">)<svg[\s\S]*?<\/svg>/,'$1'+im+'>');
+  else if(k==='j')art=art.replace(/<svg class="hj-art"[\s\S]*?<\/svg>/,im+' class="hj-ph">');
+  else if(k==='n')art=art.replace(/<svg class="hn-art[^"]*"[\s\S]*?<\/svg>/,im+' class="hn-ph">')}
+ art=art.replace(/ onclick="[^"]*"/g,'');
+ return '<input type="file" id="pf" accept="image/*" style="display:none" onchange="setPhoto(this)">'+'<div class="hero h'+k+'" style="margin:0"><div class="hart pick" role="button" tabindex="0" aria-label="'+(p.photo?'更換':'上傳')+esc(p.name)+'的照片" onclick="document.getElementById(\'pf\').click()">'+art+(p.photo?'':'<span class="upl"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="13" r="3.5" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>點插畫<br>可上傳大頭照</span>')+'</div></div>'+petStats(p)+(p.photo&&k==='f'?'<div class="phy"><span>照片位置</span><span>上</span><input type="range" min="0" max="40" value="'+phY(p)+'" aria-label="調整照片上下位置" oninput="setPhY(this.value,0)" onchange="setPhY(this.value,1)"><span>下</span></div>':'')+(p.photo?'<div class="phint">點上方照片可更換 · <a onclick="setF(\'photo\',\'\');render()">移除照片</a></div>':'')}
+function miniArt(k,m){var sv;
+ if(k==='e'||k==='f')sv=ART.paint(m,k==='f',true).replace(/id="(pz[a-z])"/g,'id="$1B"').replace(/url\(#(pz[a-z])\)/g,'url(#$1B)');
+ else if(k==='j')sv=ART.sil(m).replace('class="hj-art"','class="av-art"');
+ else if(k==='n')sv=peek(m).replace('<svg ','<svg class="av-art" ');
+ else sv=ART.line(m).replace('class="hb-art"','class="av-art"');
+ return sv}
+var _rpH=renderPet;renderPet=function(){_rpH();try{var e=document.getElementById('pg_pet');if(e)e.innerHTML=e.innerHTML.replace(/<div class="card" style="text-align:center"><div class="big"[\s\S]*?<div id="pdays"[^>]*>[\s\S]*?<\/div><\/div>/,'');putHead('pet')}catch(err){}};
+var _sfH=setF;setF=function(k,v){_sfH(k,v);if(pg==='pet'&&k!=='photo')try{putHead('pet')}catch(err){}};
+var _rcH=renderCalc;renderCalc=function(){_rcH();try{putHead('calc')}catch(err){}};
+var _rvH=renderVet;renderVet=function(){_rvH();try{putHead('vet')}catch(err){}};
+var _rtH=renderTip;renderTip=function(){_rtH();try{putHead('tip')}catch(err){}};
+var _rrH=renderRec;renderRec=function(){_rrH();try{putHead('rec')}catch(err){}};
+
 load();applyTheme();render();
 </script>
 </body>
