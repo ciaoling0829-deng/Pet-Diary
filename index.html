@@ -314,6 +314,12 @@ html[data-skin=e] #pg_pet input,html[data-skin=e] #pg_pet textarea,html[data-ski
 #phd_pet .hb .hb-ph .hb-av{width:min(136px,34vw);height:min(136px,34vw)}
 #phd_pet .hb .hb-ph .hb-row>div:last-child{align-self:center}
 #phd_pet .hb .hb-ph .hb-d{margin-top:12px}
+
+/* 柔霧剪影：寵物頁有照片時收緊版面，照片貼齊底部 */
+#phd_pet .hn .hart:has(.hn-ph){height:270px}
+#phd_pet .hn-ph{left:14px;bottom:12px;width:200px;height:200px}
+#phd_pet .hn .hart:has(.hn-ph) .hn-t{top:20px;max-width:52%}
+.hn-t small{font-size:15px;letter-spacing:.5px}
 /* 寵物頁：有照片用照片，沒照片用插畫 */
 .he-in img,.hf-moon img{display:block;width:100%;height:100%;object-fit:cover}
 .hf-moon img{filter:grayscale(1) contrast(1.05)}
@@ -1384,7 +1390,7 @@ var HERO={
  f:function(p,m){var t=new Date(),z=function(n){return ('0'+n).slice(-2)},n=String(p.name),fs=n.length<=2?96:n.length<=3?76:n.length<=5?52:36,dy=hDays(p);
   return '<div class="hf-moon">'+(p.photo?'<img style="--py:'+phY(p)+'%" src="'+p.photo+'" alt="'+esc(p.name)+'的照片">':ART.paint(m,true,true))+'</div><div class="hf-top"><span>@PETDIARY</span><span>VOL. '+z(t.getMonth()+1)+'</span></div><div class="hf-date">'+z(t.getDate())+'\\'+z(t.getMonth()+1)+'\\<br>'+t.getFullYear()+'</div><div class="hf-sub">'+esc(hSub(p))+'</div><div class="hf-days">'+(dy!==null?'和'+esc(n)+'一起生活的第 '+dy+' 天':'TODAY · 今日紀錄')+'</div><div class="hf-name" style="font-size:'+fs+'px">'+esc(n)+'</div>'},
  j:function(p,m){var t=new Date(),dy=hDays(p),n=String(p.name),fs=n.length<=3?50:n.length<=5?38:28;
-  return '<div class="hj-pp"></div><div class="hj-tape"></div><div class="hj-tt">'+(dy!==null?dy+' DAYS TOGETHER':'MY BUDDY')+'</div>'+ART.sil(m)+'<svg class="hj-star" viewBox="0 0 56 56" aria-hidden="true"><path class="ma" d="M28 0 L33 20 L52 10 L38 26 L56 34 L35 35 L40 56 L28 39 L15 54 L19 34 L0 30 L18 23 L6 6 L23 18 Z"/></svg><div class="hj-dt">'+t.getFullYear()+'，'+(t.getMonth()+1)+' 月 '+t.getDate()+' 日</div><div class="hj-t" style="font-size:'+fs+'px">'+esc(n)+'的<br><span>今天</span></div><div class="hj-s">'+esc(hSub(p))+(daysTxt(p)?' · '+daysTxt(p):'')+'</div>'},
+  return '<div class="hj-pp"></div><div class="hj-tape"></div><div class="hj-tt">'+(dy!==null?dy+' DAYS TOGETHER':'MY BUDDY')+'</div>'+(p.photo?'<img class="hj-ph" src="'+p.photo+'" alt="'+esc(p.name)+'的照片">':ART.sil(m))+'<svg class="hj-star" viewBox="0 0 56 56" aria-hidden="true"><path class="ma" d="M28 0 L33 20 L52 10 L38 26 L56 34 L35 35 L40 56 L28 39 L15 54 L19 34 L0 30 L18 23 L6 6 L23 18 Z"/></svg><div class="hj-dt">'+t.getFullYear()+'，'+(t.getMonth()+1)+' 月 '+t.getDate()+' 日</div><div class="hj-t" style="font-size:'+fs+'px">'+esc(n)+'的<br><span>今天</span></div><div class="hj-s">'+esc(hSub(p))+(daysTxt(p)?' · '+daysTxt(p):'')+'</div>'},
  n:function(p,m){var t=new Date(),dy=hDays(p);return ART.glow(m)+'<div class="hn-t"><small>'+(t.getMonth()+1)+' 月 '+t.getDate()+' 日 · 週'+'日一二三四五六'[t.getDay()]+'</small><b>'+esc(p.name)+'<br>'+NQ+'</b><em>'+(dy!==null?'一起生活第 '+dy+' 天':esc(hSub(p)))+'</em></div>'}};
 function renderHero(){var e=document.getElementById('hero');if(!e)return;var p=cur();if(!p){e.innerHTML='';e.className='';return}
  var k=skin(),m=mascotOf(p);e.className='hero h'+k;
