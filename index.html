@@ -496,6 +496,18 @@ html[data-skin=n] #tl .fh>span:first-of-type{flex:1}
 .hb-d i{font-style:normal;display:inline-block;white-space:nowrap}
 #phd_pet .hj .hart{height:356px}
 #phd_pet .hj-tape{top:266px}#phd_pet .hj-tt{top:286px}#phd_pet .hj-star{top:280px}
+
+/* 設定：介面風格與顏色（可收合） */
+.cfold{border:1px solid var(--line);border-radius:14px;margin:6px 0 4px;background:color-mix(in srgb,var(--card) 80%,var(--bg))}
+.cfold summary{list-style:none;display:flex;align-items:center;gap:10px;padding:13px 14px;cursor:pointer;min-height:48px;-webkit-user-select:none;user-select:none}
+.cfold summary::-webkit-details-marker{display:none}
+.cft{font-weight:700;font-size:15px;flex:1}
+.cfs{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--sub)}
+.cfs i{width:14px;height:14px;border-radius:50%;border:1px solid var(--line);display:inline-block}
+.cfa{width:9px;height:9px;border-right:2px solid var(--sub);border-bottom:2px solid var(--sub);transform:rotate(45deg);margin:-4px 2px 0 4px;transition:transform .2s}
+.cfold[open] .cfa{transform:rotate(-135deg);margin-top:4px}
+.cfb{padding:0 14px 14px}
+html[data-skin=j] .cfold,html[data-skin=f] .cfold{border-radius:0;border-color:var(--ink,var(--tx))}
 /* 寬螢幕（平板／電腦）：色塊不出破綻 */
 @media (min-width:481px){.hf .hart,.hj .hart,.hn .hart,.phd{border-radius:0}}
 </style>
@@ -591,7 +603,7 @@ function addPet(){
   S.pets.push(p);S.cur=p.id;save();closeSh();render();
 }
 function openSet(){
-  sheet('<h2>設定</h2><h3>介面風格與顏色</h3>'+colorUI()+'<h3 style="margin-top:16px">寵物</h3>'+(S.pets.map(function(x){return '<div class="pr"><span>'+x.emoji+' '+esc(x.name)+'</span><button class="x" onclick="delPet(\''+x.id+'\')">刪除</button></div>'}).join('')||'<div class="empty">尚無寵物</div>')+'<h3 style="margin-top:16px">備份與還原</h3>'+bkUI()+'<textarea id="bk" rows="4" placeholder="還原時請把備份文字貼在這裡"></textarea><button class="btn" onclick="doBk()">複製備份文字</button><button class="btn g2" onclick="doRs()">用上方文字還原</button><div class="empty" style="text-align:center">頁面版本 '+VER+'</div>');
+  sheet('<h2>設定</h2><details class="cfold"'+(window.CUI_OPEN?' open':'')+' ontoggle="window.CUI_OPEN=this.open"><summary><span class="cft">介面風格與顏色</span><span class="cfs"><i style="background:'+(okHex(cust(skin()).ac)?cust(skin()).ac:SKINS[skin()].ac)+'"></i>'+SKINS[skin()].n+'</span><span class="cfa" aria-hidden="true"></span></summary><div class="cfb">'+colorUI()+'</div></details>'+'<h3 style="margin-top:16px">寵物</h3>'+(S.pets.map(function(x){return '<div class="pr"><span>'+x.emoji+' '+esc(x.name)+'</span><button class="x" onclick="delPet(\''+x.id+'\')">刪除</button></div>'}).join('')||'<div class="empty">尚無寵物</div>')+'<h3 style="margin-top:16px">備份與還原</h3>'+bkUI()+'<textarea id="bk" rows="4" placeholder="還原時請把備份文字貼在這裡"></textarea><button class="btn" onclick="doBk()">複製備份文字</button><button class="btn g2" onclick="doRs()">用上方文字還原</button><div class="empty" style="text-align:center">頁面版本 '+VER+'</div>');
 }
 function delPet(id){
   ask('刪除這隻寵物與它所有的紀錄？',function(){delPet2(id)})}function delPet2(id){
